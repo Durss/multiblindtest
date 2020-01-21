@@ -283,9 +283,11 @@ export default class MultiPlayer extends Vue {
 	 */
 	public showAnswers():void {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
-			this.tracksToPlay[i].enabled = true;
 			// this.audioObjects[i].pause();
-			(<TrackEntry>this.$refs.track[i]).allowManualStop();
+			if(!this.tracksToPlay[i].enabled) {
+				(<TrackEntry>this.$refs.track[i]).allowManualStop();
+			}
+			this.tracksToPlay[i].enabled = true;
 		}
 		this.complete = true;
 	}
