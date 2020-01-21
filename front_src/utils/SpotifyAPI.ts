@@ -65,8 +65,8 @@ export default class SpotifyAPI {
 			return new Promise((resolve, reject) => {
 				//Wait for the requested amount of time and reissue the query
 				setTimeout(async ()=> {
-					await this.call(endpoint, params);
-					resolve();
+					let res = await this.call(endpoint, params);
+					resolve(res);
 				}, parseInt(result.headers.get("retry-after")) * 1000+500);
 			})
 		}

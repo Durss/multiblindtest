@@ -50,7 +50,6 @@ export default new Vuex.Store({
 			state.playlistsCache = payload;
 			try {
 				localStorage.setItem("playlistsCache", JSON.stringify(payload));
-				localStorage.setItem("playlistsCache2", JSON.stringify(payload));
 			}catch(error) {
 				state.alert = "Maximum cache space reached, cannot cache your playlists sorry :("
 			}

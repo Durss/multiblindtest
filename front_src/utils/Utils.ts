@@ -20,6 +20,17 @@ export default class Utils {
 		return distance % maxA;
 	}
 
+	/**
+	 * Shuffle an array
+	 */
+	public static shuffle(a:any[]):any[] {
+		for (let i = a.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[a[i], a[j]] = [a[j], a[i]];
+		}
+		return a;
+	}
+
 	public static levenshtein(a: string, b: string): number {
 		if (a.length == 0) return b.length;
 		if (b.length == 0) return a.length;
