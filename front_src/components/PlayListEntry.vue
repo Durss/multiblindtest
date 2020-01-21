@@ -14,8 +14,8 @@
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import Button from './Button.vue';
-import SpotifyAPI from '../utils/SpotifyAPI';
-import PlaylistData from '../vo/PlaylistData';
+import SpotifyAPI from '@/utils/SpotifyAPI';
+import PlaylistData from '@/vo/PlaylistData';
 
 @Component({
 	components:{

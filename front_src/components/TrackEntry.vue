@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import TrackData from '../vo/TrackData';
+import TrackData from '@/vo/TrackData';
 
 @Component({
 	components:{}

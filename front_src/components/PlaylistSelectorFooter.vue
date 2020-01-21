@@ -18,8 +18,8 @@
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import PlaylistData from '../vo/PlaylistData';
-import Button from '../components/Button.vue';
+import PlaylistData from '@/vo/PlaylistData';
+import Button from '@/components/Button.vue';
 
 @Component({
 	components:{

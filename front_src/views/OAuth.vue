@@ -10,9 +10,9 @@
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import SpotifyAPI from '../utils/SpotifyAPI';
+import SpotifyAPI from '@/utils/SpotifyAPI';
 import Home from './Home.vue';
-import Utils from '../utils/Utils';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
