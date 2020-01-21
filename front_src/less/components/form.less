@@ -1,0 +1,124 @@
+input, textarea, select {
+	color: @mainColor_dark;
+	border-radius: 20px;
+	border: none;
+	border-top: 1px solid @mainColor_dark;
+	border-right: 1px solid @mainColor_dark;
+	background-color: @mainColor_normal_extralight;
+	font-size: 16px;
+	padding: 10px;
+	box-sizing: border-box;
+	&::placeholder {
+		font-style: italic;
+		color: fade(#000, 25%);
+	}
+	&:-webkit-autofill,
+	&:-webkit-autofill:hover, 
+	&:-webkit-autofill:active, 
+	&:-webkit-autofill:valid, 
+	&:-webkit-autofill:focus {
+		color: @mainColor_dark;
+		background-color: @mainColor_normal_extralight;
+		box-shadow: none !important;
+	}
+
+	&.dark {
+		color: @mainColor_dark;
+		background-color: @mainColor_dark_light;
+	}
+	
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	&:disabled {
+		color: fade(#fff, 50%);
+
+		&.dark {
+			color: fade(@mainColor_normal, 25%);
+		}
+	}
+}
+
+textarea {
+	min-height: 65px;
+}
+
+input[type="submit"],
+button,
+.button {
+	cursor: pointer;
+	border: none;
+	border-radius: 20px;
+	padding: 10px 20px;
+	font-size: 16px;
+	color: @mainColor_dark;
+	font-weight: bold;
+	font-family: "Futura";
+	color: #fff;
+	background-color: @mainColor_normal;
+	transition: color .25s, background-color .25s;
+	padding-top: 12px;
+	box-sizing: border-box;
+	text-align: center;
+
+	&:hover {
+		background-color: @mainColor_normal_light;
+	}
+
+	&.dark {
+		color: #fff;
+		background-color: @mainColor_dark;
+
+		&:hover {
+			background-color: @mainColor_dark_light;
+		}
+	}
+
+	&.disabled {
+		pointer-events: none;
+		color: fade(@mainColor_dark, 25%);
+		// text-decoration: line-through;
+		// font-style: italic;
+		&.dark {
+			color: fade(#000, 25%);
+			background-color: fade(@mainColor_dark_extralight, 50%);
+		}
+	}
+}
+
+input[type="cancel"],
+button[type="cancel"] {
+	background-color: @mainColor_light;
+
+	&:hover {
+		background-color: @mainColor_light_light;
+	}
+}
+
+// input[type="checkbox"] {
+// 	@size: 25px;
+// 	width: @size;
+// 	height: @size;
+// 	cursor: pointer;
+// 	&:hover {
+// 		&::before {
+// 			background-color: @mainColor_highlight_extralight;
+// 		}
+// 	}
+// 	&::before {
+// 		content:"";
+// 		color: @mainColor_light_extralight;
+// 		display: block;
+// 		width: @size;
+// 		height: @size;
+// 		border-radius: 8px;
+// 		box-sizing: border-box;
+// 		background-color: @mainColor_highlight_light;
+// 	}
+// 	&:checked::before {
+// 		content:"✔";
+// 		font-size: 20px;
+// 		padding-left: 5px;
+// 	}
+// }
