@@ -131,12 +131,11 @@ export default class PlaylistSelector extends Vue {
 	 * Loads playlists, covers and tracks from spotify
 	 */
 	public async load(offset:number = 0):Promise<void> {
-		this.playlists = [];
+		if(offset==0) this.playlists = [];
 		let playlistsPerBatch = 50;
 		this.loading = true;
 		//Load a batch of playlists
 		let json = await SpotifyAPI.instance.call("v1/me/playlists", {offset:(offset*playlistsPerBatch), limit:playlistsPerBatch});
-		
 		for (let i = 0; i < json.items.length; i++) {
 			//Load tracks from the playlists 
 			const p = json.items[i];
@@ -170,6 +169,7 @@ export default class PlaylistSelector extends Vue {
 				cover:jsonCover && jsonCover.length > 0? jsonCover[0].url : require("@/assets/icons/playlist.svg"),
 				tracks:tracksWithPreview,
 			};
+			
 			this.playlists.push(data);
 		}
 
