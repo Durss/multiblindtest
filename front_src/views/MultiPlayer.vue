@@ -95,7 +95,8 @@ export default class MultiPlayer extends Vue {
 	private loadCompleteHandler:any = null;
 
 	public mounted():void {
-		if(this.playlistids.length == 0 && this.tracksids.length == 0) {
+		//if no data is found on URL or if no cache exists on storage, redirect to playlists loading
+		if((this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0) {
 			this.$router.push({name:"playlists"});
 			return;
 		}
@@ -162,8 +163,9 @@ export default class MultiPlayer extends Vue {
 		}
 
 		this.tracksToPlay = [];
+		this.tracks = Utils.shuffle(this.tracks);
 		for (let i = 0; i < Config.TRACKS_COUNT; i++) {
-			let t = this.tracks[Math.floor(Math.random() * this.tracks.length)];
+			let t = this.tracks[i];
 			if(!t.audioPath) {
 				i--;
 				continue;
