@@ -83,12 +83,6 @@ export default class TrackAnswerForm extends Vue {
 		}
 	}
 
-	.label {
-		font-weight: bold;
-		font-size: 20px;
-		margin-bottom: 5px;
-	}
-
 	.input {
 		margin-bottom: 10px;
 		position: relative;
