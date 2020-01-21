@@ -26,6 +26,7 @@
 		</div>
 
 		<div class="actions">
+			<Button :icon="require('@/assets/icons/home.svg')" :to="{name:'playlists'}" />
 			<Button :icon="require('@/assets/icons/'+(testing? 'stop_square' : 'play')+'.svg')" title="Test" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
 			<Button :icon="require('@/assets/icons/checkmark_white.svg')" title="Create" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
 		</div>
