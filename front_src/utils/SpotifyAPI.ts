@@ -24,14 +24,6 @@ export default class SpotifyAPI {
 		return this._instance;
 	}
 
-	public getAuthUrl():string {
-		let url = document.location.protocol+"//"+document.location.host+"/oauth";
-		let redir = encodeURIComponent(url);
-		let clientID = Config.SPOTIFY_CLIENT_ID;
-		let scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");
-		return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=token";
-	}
-
 
 
 	/******************
@@ -55,6 +47,7 @@ export default class SpotifyAPI {
 		};
 		let result = await fetch(url, options);
 		if(result.status == 401) {
+			localStorage.setItem("redirect", document.location.href);//will allow to redirect the user to the current page after oauth result
 			this.authenticate();
 			return Promise.reject();
 		}
@@ -80,6 +73,14 @@ export default class SpotifyAPI {
 
 	public authenticate():void {
 		document.location.href = this.getAuthUrl();
+	}
+
+	public getAuthUrl():string {
+		let url = document.location.protocol+"//"+document.location.host+"/oauth";
+		let redir = encodeURIComponent(url);
+		let clientID = Config.SPOTIFY_CLIENT_ID;
+		let scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");
+		return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=token";
 	}
 
 

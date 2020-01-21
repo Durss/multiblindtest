@@ -3,5 +3,7 @@ export default interface TrackData {
 	name: string;
 	artist: string;
 	audioPath: string;
-	enabled:boolean;
+	enabled?:boolean;
+	isPlaying?:boolean;
+	picture?:string;
  }

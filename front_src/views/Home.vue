@@ -10,7 +10,8 @@
 				<!-- <p>Connect with spotify, select some playlists to pick song from and try to guess all the songs between the 5 playing at the same time.<br />Everytime you find an answer, the song is paused to help you find the others.</p> -->
 			</div>
 
-			<Button title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
+			<Button v-if="!loggedIn" title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
+			<Button v-if="loggedIn" title="Start" :to="{name:'playlists'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 		</div>
 		<div class="footer">
 			Coded by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get <a href="https://github.com/Durss/multiblindtest" target="_blank">sources</a><br />
@@ -34,6 +35,10 @@ export default class Home extends Vue {
 
 	@Prop()
 	public from:string;
+
+	public get loggedIn() {
+		return this.$store.state.loggedin;
+	}
 
 	public get authUrl():string {
 		if(this.from) {

@@ -42,7 +42,7 @@
 				/>
 			</div>
 
-			<div class="dimmer" v-if="needUserInteraction"></div>
+			<div class="dimmer" v-if="needUserInteraction" @click="startPlay()"></div>
 
 			<button v-if="needUserInteraction" @click="startPlay()" class="playBt">
 				<img :src="require('@/assets/icons/play.svg')" alt="play" class="icon">
@@ -60,13 +60,14 @@
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import SpotifyAPI from '../utils/SpotifyAPI';
-import TrackData from '../vo/TrackData';
-import Button from '../components/Button.vue';
-import TrackEntry from '../components/TrackEntry.vue';
-import TrackAnswerForm from '../components/TrackAnswerForm.vue';
-import Utils from '../utils/Utils';
-import Config from '../utils/Config';
+import SpotifyAPI from '@/utils/SpotifyAPI';
+import TrackData from '@/vo/TrackData';
+import Button from '@/components/Button.vue';
+import AudioPlayer from '@/components/AudioPlayer';
+import TrackEntry from '@/components/TrackEntry.vue';
+import TrackAnswerForm from '@/components/TrackAnswerForm.vue';
+import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -86,14 +87,12 @@ export default class MultiPlayer extends Vue {
 	public loading:boolean = false;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
-	public loadedCount:number = 0;
 	public tracks:TrackData[] = [];
 	public tracksToPlay:TrackData[] = [];
 	public needUserInteraction:boolean = false;
-	
-	private audioObjects:HTMLAudioElement[] = [];
-	private loadCompleteHandler:any = null;
 
+	private audioPlayer:AudioPlayer;
+	
 	public mounted():void {
 		//if no data is found on URL or if no cache exists on storage, redirect to playlists loading
 		if((this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0) {
@@ -111,26 +110,18 @@ export default class MultiPlayer extends Vue {
 	}
 
 	public beforeDestroy():void {
-		for (let i = 0; i < this.audioObjects.length; i++) {
-			const element = this.audioObjects[i];
-			element.pause();
-			element.removeEventListener("canplaythrough", this.loadCompleteHandler)
-		}
+		this.audioPlayer.dispose();
 	}
 
 	/**
 	 * Create reusable audio elements
 	 */
 	public initAudioElements():void {
-		this.loadCompleteHandler = (e) => this.onLoadComplete(e)
-		for (let i = 0; i < Config.TRACKS_COUNT; i++) {
-			let elem = new Audio();
-			elem.loop = true;
-			elem.autoplay = false;
-			elem.volume = 1;
-			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
-			this.audioObjects.push(elem);
-		}
+		this.audioPlayer = new AudioPlayer(Config.TRACKS_COUNT);
+		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
+		this.audioPlayer.onNeedUserInteraction = _=> {
+			this.needUserInteraction = true;
+		};
 	}
 
 	/**
@@ -143,7 +134,6 @@ export default class MultiPlayer extends Vue {
 		this.tracksMode = false;
 		this.loading = true;
 		this.complete = false;
-		this.loadedCount = 0;
 		this.needUserInteraction = false;
 
 		let playlistIds = this.playlistids;
@@ -171,8 +161,8 @@ export default class MultiPlayer extends Vue {
 				continue;
 			}
 			this.tracksToPlay.push(t);
-			this.audioObjects[i].setAttribute("src", t.audioPath);
 		}
+		this.audioPlayer.populate(this.tracksToPlay);
 	}
 
 	/**
@@ -182,7 +172,6 @@ export default class MultiPlayer extends Vue {
 		this.tracksMode = true;
 		this.loading = true;
 		this.complete = false;
-		this.loadedCount = 0;
 		this.needUserInteraction = false;
 
 		let tracks:TrackData[] = [];
@@ -199,28 +188,18 @@ export default class MultiPlayer extends Vue {
 				artist:track.artists[0].name,
 				audioPath:track.preview_url,
 			});
-			this.audioObjects[i].setAttribute("src", track.preview_url);
 		}
 
 		this.tracksToPlay = tracks;
+		this.audioPlayer.populate(this.tracksToPlay);
 	}
 
 	/**
 	 * Called when an audio file loading completes
 	 * Check for all complete to start playing
 	 */
-	public onLoadComplete(event):void {
-		if(++this.loadedCount == Config.TRACKS_COUNT) {
-			//All tracks are ready to be played
-			for (let i = 0; i < this.audioObjects.length; i++) {
-				this.loading = false;
-				const audio = this.audioObjects[i];
-				audio.play().catch(error=> {
-					//Autoplay failed, show play button
-					this.needUserInteraction = true;
-				});
-			}
-		}
+	public onLoadComplete():void {
+		this.loading = false;
 	}
 
 	/**
@@ -228,10 +207,7 @@ export default class MultiPlayer extends Vue {
 	 */
 	public startPlay():void {
 		this.needUserInteraction = false;
-		for (let i = 0; i < this.audioObjects.length; i++) {
-			const audio = this.audioObjects[i];
-			audio.play();
-		}
+		this.audioPlayer.play();
 	}
 
 	/**
@@ -249,13 +225,13 @@ export default class MultiPlayer extends Vue {
 				|| Utils.levenshtein(t.artist, value) < t.artist.length * .25
 				//check for exact occurence in title and artist to be able to write a shortened
 				//version of an artist's name for example.
-				|| (value.length >= t.name.length * .25 && t.name.toLowerCase().indexOf(value) > -1)
-				|| (value.length >= t.artist.length * .25 && t.artist.toLowerCase().indexOf(value) > -1)
+				|| ((value.length >= 5 || value.length >= t.name.length * .25) && t.name.toLowerCase().indexOf(value) > -1)
+				|| ((value.length >= 5 || value.length >= t.artist.length * .25) && t.artist.toLowerCase().indexOf(value) > -1)
 			)
 			) {
 				t.enabled = true;
 				goodAnswer = true;
-				this.audioObjects[i].pause();
+				this.audioPlayer.stopTrack(t);
 				break;
 			}
 		}
@@ -314,12 +290,7 @@ export default class MultiPlayer extends Vue {
 	 * We can stop a track after revealing all the answers manually
 	 */
 	public stopTrack(data:TrackData):void {
-		for (let i = 0; i < this.audioObjects.length; i++) {
-			const element = <HTMLAudioElement>this.audioObjects[i];
-			if(element.getAttribute("src") == data.audioPath) {
-				element.pause();
-			}
-		}
+		this.audioPlayer.stopTrack(data);
 	}
 
 }

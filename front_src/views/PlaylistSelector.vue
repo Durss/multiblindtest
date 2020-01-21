@@ -10,7 +10,9 @@
 		<div class="playlists" v-if="!loading">
 			<div class="header">
 				<h1>Select playlists</h1>
-				<p>Select playlists from which you want songs to be picked up for your Multiblind Tests</p>
+				<p>Select playlists from which you want songs to be picked up randomly for your Multiblind Tests</p>
+				<div class="or"><strong>OR</strong></div>
+				<Button title="Create trom tracks" :icon="require('@/assets/icons/song.svg')" :to="{name:'create'}" />
 			</div>
 
 			<PlayListEntry
@@ -54,10 +56,10 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import Utils from "@/utils/Utils";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import PlaylistData from "@/vo/PlaylistData";
-import PlayListEntry from '../components/PlayListEntry.vue';
-import Button from '../components/Button.vue';
-import TrackData from '../vo/TrackData';
-import PlaylistSelectorFooter from '../components/PlaylistSelectorFooter.vue';
+import PlayListEntry from '@/components/PlayListEntry.vue';
+import Button from '@/components/Button.vue';
+import TrackData from '@/vo/TrackData';
+import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import gsap from 'gsap';
 
 @Component({
@@ -218,16 +220,12 @@ export default class PlaylistSelector extends Vue {
 	padding-bottom: 150px;
 
 	.header {
-		font-size: 20px;
-		margin-bottom: 20px;
-		padding: 20px;
-		color: @mainColor_dark;
-		border-radius: 25px;
-		// border-bottom-left-radius: 5px;
-		// border-bottom-right-radius: 5px;
-		background-color: @mainColor_normal_light;
-
 		h1 {
+			margin-bottom: 10px;
+		}
+		
+		.or {
+			margin-top: 10px;
 			margin-bottom: 10px;
 		}
 

@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import OAuth from '../views/OAuth.vue'
-import MultiPlayer from '../views/MultiPlayer.vue';
-import PlaylistSelector from '../views/PlaylistSelector.vue';
+import Home from '@/views/Home.vue'
+import OAuth from '@/views/OAuth.vue'
+import MixCreator from '@/views/MixCreator.vue';
+import MultiPlayer from '@/views/MultiPlayer.vue';
+import PlaylistSelector from '@/views/PlaylistSelector.vue';
 
 Vue.use(VueRouter)
 
@@ -38,6 +39,12 @@ const routes = [
 		name: 'playlists',
 		meta: {needAuth:true},
 		component: PlaylistSelector
+	},
+	{
+		path: '/create',
+		name: 'create',
+		meta: {needAuth:true},
+		component: MixCreator
 	},
 	{
 		path: "*",
