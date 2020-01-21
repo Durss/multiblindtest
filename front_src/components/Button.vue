@@ -13,7 +13,7 @@
 			<img v-if="loading &&  white !== false" src="@/assets/loader/loader_light.svg" alt="icon" class="spinner">
 			<img v-if="loading && white === false" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
 		-->
-		<img v-if="loading" src="@/assets/loader/loader.svg" alt="icon" class="spinner">
+		<img v-if="loading" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
 		<input type="file" v-if="type=='file'" class="browse" accept=".zip" ref="browse" @change="$emit('change', $event)" />
 		<input type="checkbox" :name="name" :id="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
@@ -164,7 +164,7 @@ export default class Button extends Vue {
 		}
 
 		&.big {
-			padding: 10px;
+			padding: 19px;
 			.icon {
 				min-width: 40px;
 				max-height: 40px;
@@ -299,6 +299,7 @@ export default class Button extends Vue {
 	
 	&.disabled {
 		opacity: .5;
+		color: #fff;
 	}
 	
 	&.cancel {
