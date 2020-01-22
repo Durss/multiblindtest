@@ -5,7 +5,7 @@ export default class StatsManager {
 
 	private static _instance: StatsManager;
 
-	private _visitor: any;
+	private _visitor: ua.Visitor;
 
 	constructor() {
 		this.initialize();
@@ -40,9 +40,7 @@ export default class StatsManager {
 		let data: any = {};
 		data.dp = path
 		if (title) data.dt = title;
-		console.log(path, title);
-		return;
-		this._visitor.pageView(data).send();
+		this._visitor.pageview(data).send();
 	}
 
 	/**
