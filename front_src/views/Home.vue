@@ -48,7 +48,7 @@ export default class Home extends Vue {
 	}
 
 	public get tracksCount():number {
-		return Config.TRACKS_COUNT;
+		return Config.MAX_TRACK_COUNT;
 	}
 
 	public mounted():void {

@@ -6,20 +6,15 @@ export default class Config {
 
 	private static _ENV_NAME: EnvName;
 
-	public static TRACKS_COUNT:number = 6;
+	public static MAX_TRACK_COUNT:number = 6;
 
 	public static init():void {
-		let path = document.location.host;
-
-		//Check in which env we are running depending on the current URL
-		let dev = /^(localhost|127.0.0.1)/gi.test(path);
-		let prod = document.location.port != "8080" && document.location.port != "8081";
+		let prod = document.location.port == "";
 
 		if(prod) this._ENV_NAME = "prod";
-		else if(dev) this._ENV_NAME = "dev";
+		else this._ENV_NAME = "dev";
 	}
 	
-
 	public static get SERVER_PORT(): number {
 		return this.getEnvData({
 			dev: 3002,
@@ -31,6 +26,13 @@ export default class Config {
 		return this.getEnvData({
 			dev: "944d2c2ba14745f588a370a93e56833c",
 			prod: "944d2c2ba14745f588a370a93e56833c",
+		});
+	}
+
+	public static get UA():string {
+		return this.getEnvData({
+			dev: "UA-156712572-1",
+			prod: "UA-156712572-1",
 		});
 	}
 	

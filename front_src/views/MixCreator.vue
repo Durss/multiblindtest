@@ -63,14 +63,14 @@ export default class MixCreator extends Vue {
 	private debounceTimeout:number;
 	private listInstances:Vue[] = [];
 
-	public get tracksCount():number { return Config.TRACKS_COUNT; }
+	public get tracksCount():number { return Config.MAX_TRACK_COUNT; }
 
 	public mounted():void {
 		this.list = new InfiniteList(<HTMLDivElement>this.$refs.autocomplete, 40, 1);
 		this.list.onRenderItem = (data:any, index:number, holder:HTMLDivElement)=> this.renderItem(data, index, holder);
 		this.list.onItemClicked = (data:any, index:number, holder:HTMLDivElement)=> this.onItemClicked(data, index, holder);
 		this.list.onItemDestroyed = (holder:HTMLDivElement)=> this.onItemDestroyed(holder);
-		this.audioPlayer = new AudioPlayer(Config.TRACKS_COUNT);
+		this.audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
 		this.audioPlayer.onLoadComplete = () => this.loadingAudio = false;
 	}
 

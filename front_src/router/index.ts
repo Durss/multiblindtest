@@ -13,20 +13,38 @@ const routes = [
 		path: '/',
 		name: 'home',
 		props:true,
+		meta: {
+			tag:{
+				path:"/",
+				title:"Home"
+			}
+		},
 		component: Home
 	},
 	{
 		path: '/player/playlists/:playlistids',
 		name: 'player/playlists',
 		props:true,
-		meta: {needAuth:true},
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/player/playlists",
+				title:"Play playlist"
+			}
+		},
 		component: MultiPlayer
 	},
 	{
 		path: '/player/tracks/:tracksids',
 		name: 'player/tracks',
 		props:true,
-		meta: {needAuth:true},
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/player/tracks",
+				title:"Play tracks"
+			}
+		},
 		component: MultiPlayer
 	},
 	{
@@ -37,13 +55,25 @@ const routes = [
 	{
 		path: '/playlists',
 		name: 'playlists',
-		meta: {needAuth:true},
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/playlists",
+				title:"Playlist selector"
+			}
+		},
 		component: PlaylistSelector
 	},
 	{
 		path: '/create',
 		name: 'create',
-		meta: {needAuth:true},
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/create",
+				title:"Create mix"
+			}
+		},
 		component: MixCreator
 	},
 	{
