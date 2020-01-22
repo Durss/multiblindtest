@@ -37,8 +37,10 @@
 					@guess="guessTrack"
 					@share="shareCurrentList()"
 					@showAnswers="showAnswers()"
+					@closeShare="shareUrl=''"
 					ref="trackAnswerForm"
 					:canGuess="!complete"
+					:shareUrl="shareUrl"
 				/>
 			</div>
 
@@ -84,6 +86,7 @@ export default class MultiPlayer extends Vue {
 	@Prop({default:""})
 	public playlistids:string;
 	
+	public shareUrl:string = "";
 	public loading:boolean = false;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
@@ -117,7 +120,7 @@ export default class MultiPlayer extends Vue {
 	 * Create reusable audio elements
 	 */
 	public initAudioElements():void {
-		this.audioPlayer = new AudioPlayer(Config.TRACKS_COUNT);
+		this.audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			this.needUserInteraction = true;
@@ -154,7 +157,7 @@ export default class MultiPlayer extends Vue {
 
 		this.tracksToPlay = [];
 		this.tracks = Utils.shuffle(this.tracks);
-		for (let i = 0; i < Config.TRACKS_COUNT; i++) {
+		for (let i = 0; i < Config.MAX_TRACK_COUNT; i++) {
 			let t = this.tracks[i];
 			if(!t.audioPath) {
 				i--;
@@ -179,7 +182,7 @@ export default class MultiPlayer extends Vue {
 		let json = await SpotifyAPI.instance.call("v1/tracks", {ids:this.tracksids});
 		//TODO manage case if some IDs are missing or if an ID is linked to a track
 		//not available for the user (due to country restrictions)
-		for (let i = 0; i < Math.min(Config.TRACKS_COUNT, json.tracks.length); i++) {
+		for (let i = 0; i < Math.min(Config.MAX_TRACK_COUNT, json.tracks.length); i++) {
 			const track = json.tracks[i];
 			tracks.push({
 				id:track.id,
@@ -273,9 +276,10 @@ export default class MultiPlayer extends Vue {
 	 */
 	public shareCurrentList():void {
 		let ids = this.tracksToPlay.map(t=>t.id);
-		this.$router.push({name:"player/tracks", params:{tracksids:ids.join(",")}});
+		// this.$router.push({name:"player/tracks", params:{tracksids:ids.join(",")}});
 		let path = this.$router.resolve({name:"player/tracks", params:{tracksids:ids.join(",")}});
 		Utils.copyToClipboard(window.location.protocol+"//"+window.location.host+path.href);
+		this.shareUrl = window.location.protocol+"//"+window.location.host+path.href;
 	}
 
 	/**
