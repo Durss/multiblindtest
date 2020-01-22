@@ -26,7 +26,6 @@ router.beforeEach((to:Route, from:Route, next:Function) => {
 function nextStep(next:Function, to:Route):void {
 	let meta = to.matched? to.matched[0].meta : null;
 	if(meta && meta.tag) {
-		console.log("send")
 		StatsManager.instance.pageView(meta.tag.path, meta.tag.title);
 	}
 	next();
