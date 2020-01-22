@@ -12,7 +12,7 @@
 				<h1>Select playlists</h1>
 				<p>Select playlists from which you want songs to be picked up randomly for your Multiblind Tests</p>
 				<div class="or"><strong>OR</strong></div>
-				<Button title="Create trom tracks" :icon="require('@/assets/icons/song.svg')" :to="{name:'create'}" />
+				<Button title="Create from tracks" :icon="require('@/assets/icons/song.svg')" :to="{name:'create'}" />
 			</div>
 
 			<PlayListEntry
