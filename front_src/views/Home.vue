@@ -14,7 +14,7 @@
 			<Button v-if="loggedIn" title="Start" :to="{name:'playlists'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 		</div>
 		<div class="footer">
-			Coded by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get <a href="https://github.com/Durss/multiblindtest" target="_blank">sources</a><br />
+			Coded by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get sources <a href="https://github.com/Durss/multiblindtest" target="_blank">on github</a><br />
 			Based on <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">an idea</a> from <a href="https://twitter.com/navo_" target="_blank">Navo</a> & <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
 		</div>
 	</div>
