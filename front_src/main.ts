@@ -6,8 +6,15 @@ import './less/index.less';
 import StatsManager from './utils/StatsManager';
 import { Route } from 'vue-router';
 import SpotifyAPI from './utils/SpotifyAPI';
+import Config from './utils/Config';
 
 Vue.config.productionTip = false;
+
+//Cleanup local storage if not at the proper version number
+if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
+	localStorage.clear();
+	localStorage.setItem("v", Config.STORAGE_VERSION.toString());
+}
 
 router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded

@@ -7,6 +7,7 @@ export default class Config {
 	private static _ENV_NAME: EnvName;
 
 	public static MAX_TRACK_COUNT:number = 6;
+	public static STORAGE_VERSION:number = 1;
 
 	public static init():void {
 		let prod = document.location.port == "";
