@@ -1,5 +1,6 @@
 import ua from 'universal-analytics';
 import Config from './Config';
+import * as uuidv4 from 'uuid/v4';
 
 export default class StatsManager {
 
@@ -31,6 +32,7 @@ export default class StatsManager {
 	public set clientId(value:string) {
 		localStorage.setItem("uid", value);
 		this._visitor.set("uid", value);
+		console.log("OK", value)
 	}
 
 
@@ -79,7 +81,15 @@ export default class StatsManager {
 	 * Initializes the class
 	 */
 	private initialize(): void {
-		this._visitor = ua(Config.UA);
+		let cid = uuidv4();
+		if(!localStorage.getItem("cid")) {
+			localStorage.setItem("cid", cid);
+		}else{
+			cid = localStorage.getItem("cid");
+		}
+
+		this._visitor = ua(Config.UA, cid);
+
 		if(localStorage.getItem("uid")) {
 			this.clientId = localStorage.getItem("uid");
 		}

@@ -15,6 +15,7 @@
     "express-serve-static-core": "^0.1.1",
     "glob": "^7.1.6",
     "http": "0.0.0",
+    "uuid": "^3.4.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.3.0",
