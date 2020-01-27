@@ -1,8 +1,8 @@
 <template>
 	<div class="mixcreator">
 		<div class="header">
-			<h1>Create a Multiblind Test</h1>
-			<p class="infos">Select up to <strong>{{tracksCount}}</strong> tracks to create your own Multiblind Test</p>
+			<h1>Create a Multi Blindtest</h1>
+			<p class="infos">Select up to <strong>{{tracksCount}}</strong> tracks to create your own Multi Blindest</p>
 		</div>
 
 		<div class="form" v-if="selectedTracks.length < tracksCount">

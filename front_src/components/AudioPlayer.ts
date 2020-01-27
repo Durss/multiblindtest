@@ -84,6 +84,16 @@ export default class AudioPlayer {
 			audio.play();
 		}
 	}
+
+	/**
+	 * Pauses audio playing
+	 */
+	public pause():void {
+		for (let i = 0; i < this.audioObjects.length; i++) {
+			const audio = this.audioObjects[i];
+			audio.pause();
+		}
+	}
 	
 	
 	
@@ -100,7 +110,7 @@ export default class AudioPlayer {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = 1;
+			elem.volume = .02;
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
 			this.audioObjects.push(elem);
 		}

@@ -10,7 +10,7 @@
 		<div class="playlists" v-if="!loading">
 			<div class="header">
 				<h1>Select playlists</h1>
-				<p>Select playlists from which you want songs to be picked up randomly for your Multiblind Tests</p>
+				<p>Select playlists from which you want songs to be picked up randomly for your Multi Blindtest</p>
 				<div class="or"><strong>OR</strong></div>
 				<Button title="Create from tracks" :icon="require('@/assets/icons/song.svg')" :to="{name:'create'}" />
 			</div>
@@ -22,6 +22,20 @@
 				class="playlist"
 				@click.native="selectPlaylist(p)"
 			/>
+
+			<div v-if="filteredPlaylists.length == 0" class="noPlaylist">
+				You have no playlist available on your Spotify account. Create one or subscribe to some then click <strong>Reload</strong> button bellow.<br />
+				<br />
+				Here are some suggestions you can subscribe to :<br />
+				<ul class="list">
+					<li><a class="button" href="https://open.spotify.com/playlist/1kTNITnvHTzXc6iPjr9KYy?si=Mt49vXMwRii8gXtTcWR52g" target="_blank">BlindRest Disney</a></li>
+					<li><a class="button" href="https://open.spotify.com/playlist/1WA7caAqdAWUG3X9nc1yaC?si=RexC42-VRHuSUZVreMCEfQ" target="_blank">BlindRest : Movie</a></li>
+					<li><a class="button" href="https://open.spotify.com/playlist/4qBM20gJ3G758ygaB3mFMc?si=sh8xZ8-aQMahAmcocC3UIw" target="_blank">BlindTest : Movies, series, cartoons and video games</a></li>
+					<li><a class="button" href="https://open.spotify.com/playlist/4lcGPW6HrBRdFropnYJQiE?si=gEhEq_CDS1KbrIphQuje5A" target="_blank">BlindTest 90-2000</a></li>
+					<li><a class="button" href="https://open.spotify.com/playlist/7IYEknPtHEOnmzAz3arfoG?si=gGPCv4SVQvO32jHW3WmUuA" target="_blank">BlindRest/Karaoké pour torturer tes voisin-e-s</a></li>
+					<li><a class="button" href="https://open.spotify.com/playlist/09BfWHr6tID8xqOpDy0W4t?si=J98RJ-s9QUWApYRmKFWtAg" target="_blank">Mega Blindtest</a></li>
+				</ul>
+			</div>
 			
 			<Button title="Reload"
 				v-if="loadedFromCache"
@@ -32,7 +46,7 @@
 			/>
 
 			<div class="header refused" v-if="refusedPlaylists.length > 0">
-				<p>Following playlist don't have enough playable tracks</p>
+				<p>Following playlist(s) don't have enough playable tracks</p>
 			</div>
 
 			<PlayListEntry
@@ -71,7 +85,7 @@ import gsap from 'gsap';
 })
 export default class PlaylistSelector extends Vue {
 
-	private minTracksPerPlaylist:number = 5;
+	private minTracksPerPlaylist:number = 1;
 
 	public playlists:PlaylistData[] = [];
 	public loading = false;
@@ -234,6 +248,22 @@ export default class PlaylistSelector extends Vue {
 		}
 	}
 
+	.noPlaylist {
+		background-color: @mainColor_warn;
+		padding: 20px;
+		color: #fff;
+		border-radius: 20px;
+		.list {
+			margin-top: 20px;
+			li {
+				margin: 5px;
+				a {
+					display: block;
+				}
+			}
+		}
+	}
+
 	.playlists {
 		display: flex;
 		flex-direction: column;
@@ -309,6 +339,7 @@ export default class PlaylistSelector extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.playlistselector {
+		width: 90%;
 		.loader {
 			width: 80vw;
 		}

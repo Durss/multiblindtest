@@ -4,9 +4,9 @@
 			<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
 
 			<div class="head">
-				<h1>Multiblind Test</h1>
+				<h1>Multi Blindtest</h1>
 				<p class="light">- try not to vomit -</p>
-				<p class="subtitle">It's like playing <strong>{{tracksCount}}</strong> simultaneous blind tests, it's awful.</p>
+				<p class="subtitle">It's like playing <strong>{{tracksCount}}</strong> simultaneous blind tests, awful.</p>
 				<!-- <p>Connect with spotify, select some playlists to pick song from and try to guess all the songs between the 5 playing at the same time.<br />Everytime you find an answer, the song is paused to help you find the others.</p> -->
 			</div>
 
@@ -107,6 +107,19 @@ export default class Home extends Vue {
 		text-align: center;
 		width: 100%;
 		font-style: italic;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.home{
+		.holder {
+			width: 90vw;
+			.head {
+				.subtitle {
+					font-size: 18px;
+				}
+			}
+		}
 	}
 }
 </style>

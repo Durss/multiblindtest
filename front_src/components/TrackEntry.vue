@@ -83,9 +83,6 @@ export default class TrackEntry extends Vue {
 		cursor: pointer;
 		position: relative;
 		
-		&:hover {
-
-		}
 		.icon {
 			width: 100%;
 			height: 100%;
@@ -118,6 +115,38 @@ export default class TrackEntry extends Vue {
 		font-size: 40px;
 		font-family: "Arial";
 		font-weight: bold;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.trackentry {
+
+		padding: 7px;
+		&>.icon {
+			max-height: 20px;
+		}
+
+		.trackInfos {
+			font-size: 16px;
+			flex-grow: 1;
+			.artist {
+				font-weight: bold;
+				margin-bottom: 5px;
+			}
+		}
+
+		.placeholder {
+			flex-grow: 1;
+			font-size: 20px;
+			font-family: "Arial";
+			font-weight: bold;
+		}
+
+		.stop {
+			width: 30px;
+			height: 30px;
+			min-width: 30px;
+		}
 	}
 }
 </style>

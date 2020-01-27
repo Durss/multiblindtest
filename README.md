@@ -1,6 +1,6 @@
-# Multiblind Test
+# Multi Blindtest
 
-Web app to play a multiblind test.
+Web app to play a multi blindtest.
 Like a classic blind test but instead of hearing one track you hear 6 at the same time and you have to recognize songs.
 When you find one it's stopped so you can hear the other better.
 

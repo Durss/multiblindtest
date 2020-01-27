@@ -312,16 +312,15 @@ export default class Button extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.button {
-
-		&.big {
-			padding: 15px;
+		&.noTitle.big, &.big {
+			padding: 12px;
 			border-radius: 50px;
 			.label {
 				font-size: 25px;
 			}
 			.icon {
-				min-width: 30px;
-				min-height: 30px;
+				min-width: 25px;
+				min-height: 25px;
 			}
 		}
 	}

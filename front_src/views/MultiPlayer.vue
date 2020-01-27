@@ -14,8 +14,16 @@
 				</div>
 
 				<Button
+					class="playpause"
+					:icon="require('@/assets/icons/'+(isPlaying? 'pause' : 'play')+'.svg')"
+					v-if="!complete"
+					big
+					@click="togglePlayPause()"
+				/>
+
+				<Button
 					class="complete"
-					title="New Multiblind Test"
+					title="New Multi Blindtest"
 					:icon="require('@/assets/icons/refresh.svg')"
 					v-if="complete && !tracksMode"
 					highlight
@@ -25,7 +33,7 @@
 
 				<Button
 					class="complete"
-					title="Create a Multiblind Test"
+					title="Create a Multi Blindtest"
 					:icon="require('@/assets/icons/plus.svg')"
 					v-if="complete && tracksMode"
 					highlight
@@ -88,6 +96,7 @@ export default class MultiPlayer extends Vue {
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;
+	public isPlaying:boolean = false;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
 	public tracks:TrackData[] = [];
@@ -203,6 +212,7 @@ export default class MultiPlayer extends Vue {
 	 */
 	public onLoadComplete():void {
 		this.loading = false;
+		this.isPlaying = true;
 	}
 
 	/**
@@ -283,7 +293,7 @@ export default class MultiPlayer extends Vue {
 	}
 
 	/**
-	 * Called when "create a Multiblind test" button is click
+	 * Called when "create a Multi Blindtest" button is click
 	 */
 	public createBlindTest():void {
 		this.$router.push({name:"playlists"})
@@ -295,6 +305,15 @@ export default class MultiPlayer extends Vue {
 	 */
 	public stopTrack(data:TrackData):void {
 		this.audioPlayer.stopTrack(data);
+	}
+	
+	public togglePlayPause():void {
+		if(this.isPlaying) {
+			this.audioPlayer.pause();
+		}else{
+			this.audioPlayer.play();
+		}
+		this.isPlaying = !this.isPlaying;
 	}
 
 }
@@ -339,7 +358,7 @@ export default class MultiPlayer extends Vue {
 			margin-top: 20px;
 		}
 
-		.complete {
+		.complete, .playpause {
 			align-self: center;
 		}
 	}
@@ -356,7 +375,9 @@ export default class MultiPlayer extends Vue {
 	.playBt {
 		width: @size;
 		height: @size;
-		padding: @size * .15;
+		max-width: 80vw;
+		max-height: 80vw;
+		padding: @size * .2;
 		padding-left: @size * .3;
 		border-radius: 50%;
 		position: fixed;
