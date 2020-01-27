@@ -110,7 +110,7 @@ export default class AudioPlayer {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = .02;
+			elem.volume = 1;
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
 			this.audioObjects.push(elem);
 		}
