@@ -1,4 +1,5 @@
 import store from '@/store';
+import TrackData from '@/vo/TrackData';
 
 /**
  * Created by Durss
@@ -429,5 +430,207 @@ export default class Utils {
 		let date:Date = new Date(dateStr);
 		function tod(nbr:number):string{ return nbr < 9? "0"+nbr : nbr.toString()}
 		return tod(date.getDate())+"/"+tod(date.getMonth()+1)+"/"+date.getFullYear()+" "+tod(date.getHours())+"h"+tod(date.getMinutes());
+	}
+
+	public static getDemoTracks():TrackData[] {
+		
+		let tracks = [];
+		tracks.push({
+			id:"fab3ba2d8224f7006e8c92b7fe1171d50265d37d",
+			enabled:false,
+			name:"Save Tonight",
+			artist:"Eagle-Eye Cherry",
+			audioPath:"/mp3/fab3ba2d8224f7006e8c92b7fe1171d50265d37d.mp3",
+		});
+		tracks.push({
+			id:"aa4f9186e0c3f4436bb40572a63862db80d7ef2d",
+			enabled:false,
+			name:"Highway to Hell",
+			artist:"AC/DC",
+			audioPath:"/mp3/aa4f9186e0c3f4436bb40572a63862db80d7ef2d.mp3",
+		});
+		tracks.push({
+			id:"b56a70770267b00ccae13c2e8c8a34ed54627d02",
+			enabled:false,
+			name:"Like a Prayer",
+			artist:"Madona",
+			audioPath:"/mp3/b56a70770267b00ccae13c2e8c8a34ed54627d02.mp3",
+		});
+		tracks.push({
+			id:"ac8375f8237f6bfd9c03cd074ac674d82f24cc8a",
+			enabled:false,
+			name:"Romeo and Juliet",
+			artist:"Dire Straits",
+			audioPath:"/mp3/ac8375f8237f6bfd9c03cd074ac674d82f24cc8a.mp3",
+		});
+		tracks.push({
+			id:"50e82c99c20ffa4223e82250605bbd8500cb3928",
+			enabled:false,
+			name:"Hotel California",
+			artist:"Eagles",
+			audioPath:"/mp3/50e82c99c20ffa4223e82250605bbd8500cb3928.mp3",
+		});
+		tracks.push({
+			id:"e7eb60e9466bc3a27299ea8803aadf4fa9cf795c",
+			enabled:false,
+			name:"Creep",
+			artist:"Radiohead",
+			audioPath:"/mp3/e7eb60e9466bc3a27299ea8803aadf4fa9cf795c.mp3",
+		});
+		tracks.push({
+			id:"5fcdcfe7ef20abd006bba666b4a7dff01dd5ec21",
+			enabled:false,
+			name:"My heart will go on (Titanic)",
+			artist:"Céline Dion",
+			audioPath:"/mp3/5fcdcfe7ef20abd006bba666b4a7dff01dd5ec21.mp3",
+		});
+		tracks.push({
+			id:"645cd4b425f1d48d37656cac99d640254a8f64a9",
+			enabled:false,
+			name:"Lemon Tree",
+			artist:"Fool's Garden",
+			audioPath:"/mp3/645cd4b425f1d48d37656cac99d640254a8f64a9.mp3",
+		});
+		tracks.push({
+			id:"22b0ba88409ea7a8d7de70a3f0fa8a3f9a20bdfb",
+			enabled:false,
+			name:"Can you feel the love tonight",
+			artist:"Elton John",
+			audioPath:"/mp3/22b0ba88409ea7a8d7de70a3f0fa8a3f9a20bdfb.mp3",
+		});
+		tracks.push({
+			id:"a66864fcfd8923c6084fc2000e3086e4e1e0a657",
+			enabled:false,
+			name:"Basket Case",
+			artist:"Green Day",
+			audioPath:"/mp3/a66864fcfd8923c6084fc2000e3086e4e1e0a657.mp3",
+		});
+		tracks.push({
+			id:"2da7ea19b35ecbfaf2dd7273e9b305a4e090bbc9",
+			enabled:false,
+			name:"Everybody",
+			artist:"Backstreet Boys",
+			audioPath:"/mp3/2da7ea19b35ecbfaf2dd7273e9b305a4e090bbc9.mp3",
+		});
+		tracks.push({
+			id:"2a5b5a9977f58ae525b473455e9f2e67a9edf8d7",
+			enabled:false,
+			name:"Freestyler",
+			artist:"Bomfunk MC's",
+			audioPath:"/mp3/2a5b5a9977f58ae525b473455e9f2e67a9edf8d7.mp3",
+		});
+		tracks.push({
+			id:"0d99160a29e74e74335f3bf7909260c0f2a5ca98",
+			enabled:false,
+			name:"Scatman (ski-ba-bop-ba-dop-bop)",
+			artist:"Scatman John",
+			audioPath:"/mp3/0d99160a29e74e74335f3bf7909260c0f2a5ca98.mp3",
+		});
+		tracks.push({
+			id:"e4ef557302eaf59468e8848415c225f24939361f",
+			enabled:false,
+			name:"Bohemian Rhapsody",
+			artist:"Queen",
+			audioPath:"/mp3/e4ef557302eaf59468e8848415c225f24939361f.mp3",
+		});
+		tracks.push({
+			id:"8ec3a4b322c0df167ad409a668ceaa704fcbd1c0",
+			enabled:false,
+			name:"Life on Mars",
+			artist:"David Bowie",
+			audioPath:"/mp3/8ec3a4b322c0df167ad409a668ceaa704fcbd1c0.mp3",
+		});
+		tracks.push({
+			id:"dd78dafe31bb98f230372c038a126b8808f9349b",
+			enabled:false,
+			name:"Africa",
+			artist:"Toto",
+			audioPath:"/mp3/dd78dafe31bb98f230372c038a126b8808f9349b.mp3",
+		});
+		tracks.push({
+			id:"84462d8e1e4d0f9e5ccd06f0da390f65843774a2",
+			enabled:false,
+			name:"Shape of you",
+			artist:"Ed Sheeran",
+			audioPath:"/mp3/84462d8e1e4d0f9e5ccd06f0da390f65843774a2.mp3",
+		});
+		tracks.push({
+			id:"cda5ee4b7028e5aaca877263844f0de5354dcdfe",
+			enabled:false,
+			name:"Barbie Girl",
+			artist:"Aqua",
+			audioPath:"/mp3/cda5ee4b7028e5aaca877263844f0de5354dcdfe.mp3",
+		});
+		tracks.push({
+			id:"da2134a161f1cb34d17c2d6d7e77cc93d1c1e6f7",
+			enabled:false,
+			name:"...Baby One More Time",
+			artist:"Britney Spears",
+			audioPath:"/mp3/da2134a161f1cb34d17c2d6d7e77cc93d1c1e6f7.mp3",
+		});
+		tracks.push({
+			id:"98959d757d14bc4924e92e91e3d3035ce48059fc",
+			enabled:false,
+			name:"Wannabe",
+			artist:"Spice girls",
+			audioPath:"/mp3/98959d757d14bc4924e92e91e3d3035ce48059fc.mp3",
+		});
+		tracks.push({
+			id:"c0984bf089f7e7534d6c838fd4204cc40ed87368",
+			enabled:false,
+			name:"Sk8er Boi",
+			artist:"Avril Lavigne",
+			audioPath:"/mp3/c0984bf089f7e7534d6c838fd4204cc40ed87368.mp3",
+		});
+		tracks.push({
+			id:"f48d5786b2115ef778856979ab8823072c0d8a7c",
+			enabled:false,
+			name:"Total Eclipse of the Heart",
+			artist:"Bonnie Tyler",
+			audioPath:"/mp3/f48d5786b2115ef778856979ab8823072c0d8a7c.mp3",
+		});
+		tracks.push({
+			id:"75d3d091213d60d9f3ed2c0698b846177076b0d0",
+			enabled:false,
+			name:"Careless Whisper",
+			artist:"George Michael",
+			audioPath:"/mp3/75d3d091213d60d9f3ed2c0698b846177076b0d0.mp3",
+		});
+		tracks.push({
+			id:"5299497db5ba226f388f3a064064cc44b2b51568",
+			enabled:false,
+			name:"Gangsta's Paradise",
+			artist:"Coolio",
+			audioPath:"/mp3/5299497db5ba226f388f3a064064cc44b2b51568.mp3",
+		});
+		tracks.push({
+			id:"48a875fc1117e0c027571813c3c65b7c4fe52cfa",
+			enabled:false,
+			name:"Wonderwall",
+			artist:"Oasis",
+			audioPath:"/mp3/48a875fc1117e0c027571813c3c65b7c4fe52cfa.mp3",
+		});
+		tracks.push({
+			id:"a0aaadd12a0a4c8d925411ed687e5aa0145b2a22",
+			enabled:false,
+			name:"Every Breath You Take",
+			artist:"The Police",
+			audioPath:"/mp3/a0aaadd12a0a4c8d925411ed687e5aa0145b2a22.mp3",
+		});
+		tracks.push({
+			id:"4929799672010ba499c49392f6007f3f017325a4",
+			enabled:false,
+			name:"Born in the U.S.A.",
+			artist:"Bruce Springsteen",
+			audioPath:"/mp3/4929799672010ba499c49392f6007f3f017325a4.mp3",
+		});
+		tracks.push({
+			id:"d1c143357d86d1736806ed7404b71a44feb8451d",
+			enabled:false,
+			name:"Wake Me up Before You Go-Go",
+			artist:"Wham!",
+			audioPath:"/mp3/d1c143357d86d1736806ed7404b71a44feb8451d.mp3",
+		});
+		return tracks;
 	}
 }
