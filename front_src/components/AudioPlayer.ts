@@ -51,6 +51,16 @@ export default class AudioPlayer {
 	}
 
 	/**
+	 * Restart a paused track
+	 * @param track 
+	 */
+	public unpauseTrack(track:TrackData):void {
+		let index = this.trackIdToIndex[track.id];
+		if(index == null || index == undefined) return;
+		this.audioObjects[ index ].play();
+	}
+
+	/**
 	 * Stop all tracks
 	 */
 	public stopAll():void {

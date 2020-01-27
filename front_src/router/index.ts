@@ -22,14 +22,14 @@ const routes = [
 		component: Home
 	},
 	{
-		path: '/example',
-		name: 'example',
+		path: '/demo',
+		name: 'demo',
 		props:true,
 		meta: {
 			needAuth:false,
 			tag:{
-				path:"/example",
-				title:"Example"
+				path:"/demo",
+				title:"Demo"
 			}
 		},
 		component: MultiPlayer
@@ -63,7 +63,11 @@ const routes = [
 	{
 		path: '/oauth',
 		name: 'oauth',
-		component: OAuth
+		component: OAuth,
+		props:true,
+		meta: {
+			needAuth:false,
+		}
 	},
 	{
 		path: '/playlists',

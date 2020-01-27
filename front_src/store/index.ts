@@ -79,9 +79,11 @@ export default new Vuex.Store({
 				state.accessToken = token;
 				SpotifyAPI.instance.setToken(token);
 				state.playlistsCache = JSON.parse( localStorage.getItem("playlistsCache") );
-				let me = await SpotifyAPI.instance.call("v1/me");
-				if(me && me.id) {
-					StatsManager.instance.clientId = me.id;
+				if(payload.route.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
+					let me = await SpotifyAPI.instance.call("v1/me");
+					if(me && me.id) {
+						StatsManager.instance.clientId = me.id;
+					}
 				}
 			}
 

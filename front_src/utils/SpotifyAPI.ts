@@ -95,19 +95,27 @@ export default class SpotifyAPI {
 	}
 
 	/**
-	 * Restart an OAuth process 5 minutes before the access token expires
+	 * Restart an OAuth process if the access token expired
 	 */
 	public refreshTokenIfNecessary():Promise<void> {
 		return new Promise((resolve, reject) => {
-			let minutesBeforeExpiration = 5;
-			let expirationDate = parseInt(localStorage.getItem("expirationDate"));
-			if(!expirationDate || isNaN(expirationDate) || (new Date().getTime() + minutesBeforeExpiration * 60 * 1000) > expirationDate) {
+			if(this.isTokenExpired()) {
 				this.authenticate();
 				reject();
 			}else{
 				resolve();
 			}
 		})
+	}
+
+	/**
+	 * Check if token expired
+	 */
+	public isTokenExpired():boolean {
+		let minutesBeforeExpiration = 2;
+		let expirationDate = parseInt(localStorage.getItem("expirationDate"));
+		return !expirationDate || isNaN(expirationDate) || (new Date().getTime() + minutesBeforeExpiration * 60 * 1000) > expirationDate;
+
 	}
 
 

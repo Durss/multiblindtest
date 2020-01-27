@@ -25,7 +25,7 @@
 					class="complete"
 					title="New Multi Blindtest"
 					:icon="require('@/assets/icons/refresh.svg')"
-					v-if="complete && !tracksMode && !exampleMode"
+					v-if="complete && !tracksMode && !demoMode"
 					highlight
 					big
 					@click="startBlindTestFromPlaylists()"
@@ -33,9 +33,9 @@
 
 				<Button
 					class="complete"
-					title="New example"
+					title="New demo"
 					:icon="require('@/assets/icons/refresh.svg')"
-					v-if="complete && exampleMode"
+					v-if="complete && demoMode"
 					highlight
 					big
 					@click="startBlindTestFromExamples()"
@@ -59,7 +59,7 @@
 					ref="trackAnswerForm"
 					:canGuess="!complete"
 					:shareUrl="shareUrl"
-					:showShare="!exampleMode"
+					:showShare="!demoMode"
 				/>
 			</div>
 
@@ -110,7 +110,7 @@ export default class MultiPlayer extends Vue {
 	public isPlaying:boolean = false;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
-	public exampleMode:boolean = false;
+	public demoMode:boolean = false;
 	public tracks:TrackData[] = [];
 	public tracksToPlay:TrackData[] = [];
 	public needUserInteraction:boolean = false;
@@ -118,10 +118,10 @@ export default class MultiPlayer extends Vue {
 	private audioPlayer:AudioPlayer;
 	
 	public mounted():void {
-		this.exampleMode = this.$route.name == "example";
+		this.demoMode = this.$route.name == "demo";
 
 		//if no data is found on URL or if no cache exists on storage, redirect to playlists loading
-		if(!this.exampleMode && (this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0) {
+		if(!this.demoMode && (this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0) {
 			this.$router.push({name:"playlists"});
 			return;
 		}
@@ -129,7 +129,7 @@ export default class MultiPlayer extends Vue {
 		this.initAudioElements();
 		if(this.playlistids.length > 0) {
 			this.startBlindTestFromPlaylists();
-		}else if(this.exampleMode){
+		}else if(this.demoMode){
 			this.startBlindTestFromExamples();
 		}else{
 			this.startBlindTestFromTracks();
@@ -222,7 +222,7 @@ export default class MultiPlayer extends Vue {
 	}
 
 	/**
-	 * Starts a blind test from local MP3 examples
+	 * Starts a blind test from local MP3 demos
 	 */
 	public startBlindTestFromExamples():void {
 		let allTracks = [];
@@ -534,10 +534,13 @@ export default class MultiPlayer extends Vue {
 	}
 	
 	public togglePlayPause():void {
-		if(this.isPlaying) {
-			this.audioPlayer.pause();
-		}else{
-			this.audioPlayer.play();
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			if(this.isPlaying) {
+				this.audioPlayer.stopTrack(this.tracksToPlay[i]);
+			}else
+			if(!this.tracksToPlay[i].enabled) {
+				this.audioPlayer.unpauseTrack(this.tracksToPlay[i]);
+			}
 		}
 		this.isPlaying = !this.isPlaying;
 	}

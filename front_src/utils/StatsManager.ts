@@ -32,7 +32,6 @@ export default class StatsManager {
 	public set clientId(value:string) {
 		localStorage.setItem("uid", value);
 		this._visitor.set("uid", value);
-		console.log("OK", value)
 	}
 
 

@@ -52,10 +52,6 @@ export default class PlaylistSelectorFooter extends Vue {
 		this.$emit("start");
 	}
 
-	public overSubmit():void {
-		console.log("ok")
-	}
-
 }
 </script>
 

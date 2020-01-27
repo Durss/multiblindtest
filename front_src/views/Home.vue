@@ -12,7 +12,7 @@
 
 			<Button v-if="!loggedIn" title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
 			<p class="or" v-if="!loggedIn">- OR -</p>
-			<Button v-if="!loggedIn" title="Demo" :to="{name:'example'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
+			<Button v-if="!loggedIn" title="Demo" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 			<Button v-if="loggedIn" title="Start" :to="{name:'playlists'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 		</div>
 		<div class="footer">
