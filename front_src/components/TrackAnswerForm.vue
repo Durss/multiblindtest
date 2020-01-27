@@ -12,7 +12,7 @@
 		
 		<div class="actions">
 			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" data-tooltip="Show answers" big v-if="canGuess" />
-			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" data-tooltip="Share current tracks" big />
+			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" data-tooltip="Share current tracks" big v-if="showShare" />
 			<Button :to="{name:'home'}" class="showAnswers" :icon="require('@/assets/icons/home.svg')" data-tooltip="Back home" big />
 		</div>
 	</div>
@@ -32,6 +32,9 @@ export default class TrackAnswerForm extends Vue {
 
 	@Prop({default:true})
 	public canGuess:boolean;
+
+	@Prop({default:true})
+	public showShare:boolean;
 
 	@Prop()
 	public shareUrl:string;

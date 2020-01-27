@@ -5,10 +5,11 @@ import store from './store'
 import './less/index.less';
 import StatsManager from './utils/StatsManager';
 import { Route } from 'vue-router';
+import SpotifyAPI from './utils/SpotifyAPI';
 
 Vue.config.productionTip = false;
 
-router.beforeEach((to:Route, from:Route, next:Function) => {
+router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded
 	if (!store.state.initComplete) {
 		store.dispatch("startApp", { route: to }).then(_ => {
@@ -19,6 +20,9 @@ router.beforeEach((to:Route, from:Route, next:Function) => {
 			}
 		});
 	}else{
+		if(to.matched[0].meta.needAuth === true) {
+			await SpotifyAPI.instance.refreshTokenIfNecessary();
+		}
 		nextStep(next, to);
 	}
 });

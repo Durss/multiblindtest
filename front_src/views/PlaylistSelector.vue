@@ -147,7 +147,10 @@ export default class PlaylistSelector extends Vue {
 	 * Loads playlists, covers and tracks from spotify
 	 */
 	public async load(offset:number = 0):Promise<void> {
-		if(offset==0) this.playlists = [];
+		if(offset==0) {
+			this.playlists = [];
+			this.selectedPlaylists = [];
+		}
 		let playlistsPerBatch = 50;
 		this.loading = true;
 		//Load a batch of playlists

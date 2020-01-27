@@ -6,11 +6,13 @@
 			<div class="head">
 				<h1>Multi Blindtest</h1>
 				<p class="light">- try not to vomit -</p>
-				<p class="subtitle">It's like playing <strong>{{tracksCount}}</strong> simultaneous blind tests, awful.</p>
+				<p class="subtitle">It's like playing <strong>{{tracksCount}}</strong> blind tests simultaneously, awful.</p>
 				<!-- <p>Connect with spotify, select some playlists to pick song from and try to guess all the songs between the 5 playing at the same time.<br />Everytime you find an answer, the song is paused to help you find the others.</p> -->
 			</div>
 
 			<Button v-if="!loggedIn" title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
+			<p class="or" v-if="!loggedIn">- OR -</p>
+			<Button v-if="!loggedIn" title="Demo" :to="{name:'example'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 			<Button v-if="loggedIn" title="Start" :to="{name:'playlists'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
 		</div>
 		<div class="footer">
@@ -97,6 +99,10 @@ export default class Home extends Vue {
 		.connect {
 			margin: auto;
 			font-size: 20px;
+		}
+
+		.or {
+			margin: 10px 0;
 		}
 	}
 

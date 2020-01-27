@@ -22,6 +22,19 @@ const routes = [
 		component: Home
 	},
 	{
+		path: '/example',
+		name: 'example',
+		props:true,
+		meta: {
+			needAuth:false,
+			tag:{
+				path:"/example",
+				title:"Example"
+			}
+		},
+		component: MultiPlayer
+	},
+	{
 		path: '/player/playlists/:playlistids',
 		name: 'player/playlists',
 		props:true,

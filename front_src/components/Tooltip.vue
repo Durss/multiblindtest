@@ -193,15 +193,16 @@ export default class Tooltip extends Vue {
 <style lang="less">
 @import (reference) '../less/_includes.less';
 .tooltip{
-	.holder {
-		strong {
-			color: @mainColor_warn;
-			background-color: rgba(255, 255, 255, .5);
-			text-shadow: 1px 1px 1px #fff;
-			border-radius: 5px;
-			padding: 0 5px;
-			line-height: 20px;
-		}
-	}
+	display: none;
+	// .holder {
+	// 	strong {
+	// 		color: @mainColor_warn;
+	// 		background-color: rgba(255, 255, 255, .5);
+	// 		text-shadow: 1px 1px 1px #fff;
+	// 		border-radius: 5px;
+	// 		padding: 0 5px;
+	// 		line-height: 20px;
+	// 	}
+	// }
 }
 </style>
