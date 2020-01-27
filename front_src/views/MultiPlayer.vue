@@ -105,6 +105,9 @@ export default class MultiPlayer extends Vue {
 
 	@Prop({default:""})
 	public playlistids:string;
+
+	@Prop({default:""})
+	public trackscounts:string;
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;
@@ -117,6 +120,12 @@ export default class MultiPlayer extends Vue {
 	public needUserInteraction:boolean = false;
 
 	private audioPlayer:AudioPlayer;
+
+	public get trackscountsAsNum():number {
+		let v = parseInt(this.trackscounts);
+		if(isNaN(v)) v = Config.MAX_TRACK_COUNT;
+		return Math.min(Config.MAX_TRACK_COUNT, Math.max(2, v));
+	}
 	
 	public mounted():void {
 		this.demoMode = this.$route.name == "demo";
@@ -145,7 +154,7 @@ export default class MultiPlayer extends Vue {
 	 * Create reusable audio elements
 	 */
 	public initAudioElements():void {
-		this.audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
+		this.audioPlayer = new AudioPlayer(this.trackscountsAsNum);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			this.needUserInteraction = true;
@@ -182,7 +191,7 @@ export default class MultiPlayer extends Vue {
 
 		this.tracksToPlay = [];
 		this.tracks = Utils.shuffle(this.tracks);
-		for (let i = 0; i < Config.MAX_TRACK_COUNT; i++) {
+		for (let i = 0; i < this.trackscountsAsNum; i++) {
 			let t = this.tracks[i];
 			if(!t.audioPath) {
 				i--;
@@ -207,7 +216,7 @@ export default class MultiPlayer extends Vue {
 		let json = await SpotifyAPI.instance.call("v1/tracks", {ids:this.tracksids});
 		//TODO manage case if some IDs are missing or if an ID is linked to a track
 		//not available for the user (due to country restrictions)
-		for (let i = 0; i < Math.min(Config.MAX_TRACK_COUNT, json.tracks.length); i++) {
+		for (let i = 0; i < Math.min(this.trackscountsAsNum, json.tracks.length); i++) {
 			const track = json.tracks[i];
 			tracks.push({
 				id:track.id,
@@ -231,7 +240,7 @@ export default class MultiPlayer extends Vue {
 		this.loading = true;
 		this.complete = false;
 		this.needUserInteraction = false;
-		this.tracksToPlay = Utils.getDemoTracks().splice(0, Config.MAX_TRACK_COUNT);
+		this.tracksToPlay = Utils.getDemoTracks().splice(0, this.trackscountsAsNum);
 		this.audioPlayer.populate(this.tracksToPlay);
 	}
 

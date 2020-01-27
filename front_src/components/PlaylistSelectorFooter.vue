@@ -9,6 +9,8 @@
 			<img src="@/assets/icons/song.svg" alt="check">
 			<span>{{totalTracks}} tracks</span>
 		</div>
+
+		<Slider class="slider" label="Difficulty (number of simultaneous tracks) :" :min="2" :max="maxTracks" v-model="tracksCount" />
 		
 		<div class="min" v-if="totalTracks < 20">Select at least 20 tracks</div>
 
@@ -20,16 +22,23 @@
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import PlaylistData from '@/vo/PlaylistData';
 import Button from '@/components/Button.vue';
+import Slider from '@/components/Slider.vue';
+import Config from '../utils/Config';
 
 @Component({
 	components:{
 		Button,
+		Slider,
 	}
 })
 export default class PlaylistSelectorFooter extends Vue {
 
 	@Prop({default:[]})
 	public playlists:PlaylistData[];
+
+	public tracksCount:number = 6;
+
+	public get maxTracks():number { return Config.MAX_TRACK_COUNT; }
 
 	public get totalTracks():number {
 		let res = 0;
@@ -78,6 +87,13 @@ export default class PlaylistSelectorFooter extends Vue {
 		&:not(:last-child) {
 			margin-bottom: 5px;
 		}
+	}
+
+	.slider {
+		width: 100%;
+		max-width: 500px;
+		margin: auto;
+		margin-top: 20px;
 	}
 
 	.min {

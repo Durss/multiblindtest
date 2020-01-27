@@ -60,7 +60,7 @@
 		</div>
 
 		<transition name="slide">
-			<PlaylistSelectorFooter class="footer" :playlists="selectedPlaylists" v-if="selectedPlaylists.length > 0" @start="startBlindtest()" />
+			<PlaylistSelectorFooter class="footer" :playlists="selectedPlaylists" v-if="selectedPlaylists.length > 0" @start="startBlindtest()" ref="footer" />
 		</transition>
 	</div>
 </template>
@@ -91,6 +91,7 @@ export default class PlaylistSelector extends Vue {
 	public loading = false;
 	public loadedFromCache = false;
 	public selectedPlaylists:any[] = [];
+	public numberOfTracks:number = 0;
 
 	public get filteredPlaylists():PlaylistData[] {
 		let playlists = this.playlists.concat();
@@ -221,7 +222,8 @@ export default class PlaylistSelector extends Vue {
 	 */
 	public async startBlindtest():Promise<any> {
 		let ids = this.selectedPlaylists.map(p => p.id);
-		this.$router.push({name:"player/playlists", params:{playlistids:ids.join(",")}});
+		let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
+		this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
 	}
 
 }

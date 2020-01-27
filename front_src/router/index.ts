@@ -35,7 +35,7 @@ const routes = [
 		component: MultiPlayer
 	},
 	{
-		path: '/player/playlists/:playlistids',
+		path: '/player/playlists/:playlistids/:trackscounts?',
 		name: 'player/playlists',
 		props:true,
 		meta: {
