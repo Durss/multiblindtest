@@ -31,7 +31,7 @@ export default class OAuth extends Vue {
 			let vars = JSON.parse('{"' + decodeURI(document.location.hash.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
 			if(vars.access_token) {
 				let redirect = localStorage.getItem("redirect");
-				this.$store.dispatch("authenticate", {access_token:vars.access_token});
+				this.$store.dispatch("authenticate", {access_token:vars.access_token, expires_in:vars.expires_in});
 	
 				if(redirect) {
 					window.location.href = redirect;

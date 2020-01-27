@@ -25,6 +25,14 @@ export default class StatsManager {
 		return this._instance;
 	}
 
+	/**
+	 * Gets the singleton's reference
+	 */
+	public set clientId(value:string) {
+		localStorage.setItem("uid", value);
+		this._visitor.set("uid", value);
+	}
+
 
 
 	/******************
@@ -72,5 +80,8 @@ export default class StatsManager {
 	 */
 	private initialize(): void {
 		this._visitor = ua(Config.UA);
+		if(localStorage.getItem("uid")) {
+			this.clientId = localStorage.getItem("uid");
+		}
 	}
 }

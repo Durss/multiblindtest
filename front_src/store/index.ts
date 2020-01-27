@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import SpotifyAPI from '@/utils/SpotifyAPI';
+import StatsManager from '@/utils/StatsManager';
 
 Vue.use(Vuex)
 
@@ -32,9 +33,13 @@ export default new Vuex.Store({
 			state.loggedin = true;
 			if (payload.access_token) {
 				state.accessToken = payload.access_token;
+				let expirationDate:number = new Date().getTime() + parseInt(payload.expires_in) * 1000;
 				localStorage.setItem("accessToken", payload.access_token);
+				localStorage.setItem("expirationDate", expirationDate.toString());
+				SpotifyAPI.instance.setToken(payload.access_token);
 			} else {
 				localStorage.removeItem("accessToken");
+				localStorage.removeItem("expirationDate");
 			}
 		},
 
@@ -74,6 +79,10 @@ export default new Vuex.Store({
 				state.accessToken = token;
 				SpotifyAPI.instance.setToken(token);
 				state.playlistsCache = JSON.parse( localStorage.getItem("playlistsCache") );
+				let me = await SpotifyAPI.instance.call("v1/me");
+				if(me && me.id) {
+					StatsManager.instance.clientId = me.id;
+				}
 			}
 
 			startPromise = new Promise(async (resolve, reject) => {

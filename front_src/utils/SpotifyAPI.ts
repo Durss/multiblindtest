@@ -29,7 +29,9 @@ export default class SpotifyAPI {
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-
+	/**
+	 * Call a spotify endpoint
+	 */
 	public async call(endpoint: string, params?: any): Promise<any> {
 		let url = "https://api.spotify.com/"+endpoint+"?access_token=" + this.access_token;
 
@@ -66,21 +68,46 @@ export default class SpotifyAPI {
 		return await result.json();
 	}
 
+	/**
+	 * Register the current access token for spotify api calls
+	 */
 	public setToken(token:string):void {
 		this.access_token = token;
 		localStorage.setItem("access_token", token);
 	}
 
+	/**
+	 * Starts OAuth process for user authentication
+	 */
 	public authenticate():void {
 		document.location.href = this.getAuthUrl();
 	}
 
+	/**
+	 * Get OAuth url
+	 */
 	public getAuthUrl():string {
 		let url = document.location.protocol+"//"+document.location.host+"/oauth";
 		let redir = encodeURIComponent(url);
 		let clientID = Config.SPOTIFY_CLIENT_ID;
 		let scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");
 		return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=token";
+	}
+
+	/**
+	 * Restart an OAuth process 5 minutes before the access token expires
+	 */
+	public refreshTokenIfNecessary():Promise<void> {
+		return new Promise((resolve, reject) => {
+			let minutesBeforeExpiration = 5;
+			let expirationDate = parseInt(localStorage.getItem("expirationDate"));
+			if(!expirationDate || isNaN(expirationDate) || (new Date().getTime() + minutesBeforeExpiration * 60 * 1000) > expirationDate) {
+				this.authenticate();
+				reject();
+			}else{
+				resolve();
+			}
+		})
 	}
 
 
