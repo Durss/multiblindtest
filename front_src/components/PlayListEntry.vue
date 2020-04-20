@@ -1,5 +1,7 @@
 <template>
 	<div :class="classes" @click="selected = !selected">
+		<Button type="checkbox" :value="selected" class="checkbox" />
+
 		<img :src="data.cover" class="cover" v-if="data.cover">
 		
 		<div class="title">
@@ -8,6 +10,7 @@
 			<div v-if="reduced === false" class="owner">By {{data.owner}}</div>
 			<div v-if="reduced === false" class="total" data-tooltip="Your playlist may contain more tracks than this, but Spotify only allows this number of tracks to be played from it.">{{data.tracks.length}} playable tracks</div>
 		</div>
+
 	</div>
 </template>
 
@@ -107,6 +110,7 @@ export default class PlayListEntry extends Vue {
 		width: 50px;
 		height: 50px;
 		object-fit: cover;
+		margin-left: 20px;
 	}
 
 	.title {
@@ -115,6 +119,7 @@ export default class PlayListEntry extends Vue {
 		color: #ffffff;
 		margin-left: 20px;
 		text-align: left;
+		flex-grow: 1;
 
 		.total {
 			display: inline-block;
@@ -133,6 +138,13 @@ export default class PlayListEntry extends Vue {
 			text-transform: capitalize;
 			opacity: .75;
 		}
+
+	}
+
+	.checkbox {
+		// border-radius: 50%;
+		background-color: #fff;
+		flex-grow: 0;
 	}
 }
 </style>
