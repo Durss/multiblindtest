@@ -1,6 +1,6 @@
 import ua from 'universal-analytics';
 import Config from './Config';
-import * as uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class StatsManager {
 
@@ -46,6 +46,8 @@ export default class StatsManager {
 	 * @param title page title
 	 */
 	public pageView(path: string, title?: string): void {
+		if(!Config.IS_PROD) return;
+
 		let data: any = {};
 		data.dp = path
 		if (title) data.dt = title;
@@ -62,6 +64,8 @@ export default class StatsManager {
 	 * @param path path
 	 */
 	public event(cat: string, act:string, label?:string, value?:any, path?:string): void {
+		if(!Config.IS_PROD) return;
+		
 		let data: any = {};
 		data.ec = cat;
 		data.ea = act;

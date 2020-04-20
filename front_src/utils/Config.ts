@@ -15,6 +15,10 @@ export default class Config {
 		if(prod) this._ENV_NAME = "prod";
 		else this._ENV_NAME = "dev";
 	}
+
+	public static get IS_PROD():boolean {
+		return this._ENV_NAME == "prod";
+	}
 	
 	public static get SERVER_PORT(): number {
 		return this.getEnvData({
@@ -34,6 +38,13 @@ export default class Config {
 		return this.getEnvData({
 			dev: "UA-156712572-1",
 			prod: "UA-156712572-1",
+		});
+	}
+	
+	public static get API_PATH(): string {
+		return this.getEnvData({
+			dev: "http://localhost:"+this.SERVER_PORT+"/api",
+			prod:"/api",
 		});
 	}
 	
