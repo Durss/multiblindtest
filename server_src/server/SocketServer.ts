@@ -10,7 +10,6 @@ import Config from "../utils/Config";
 export default class SocketServer {
 
 	public onDeleteUser:Function;
-	public onMessage:Function;
 
 	private static _instance: SocketServer;
 	private _DISABLED: boolean = false;
@@ -128,7 +127,7 @@ export default class SocketServer {
 		let users = this._groupIdToUsers[groupId];
 		if(!users) return;
 		for (let i = 0; i < users.length; i++) {
-			if(exceptUserID && users[i].id == exceptUserID || users[i].offline) continue;
+			if(exceptUserID && users[i].id == exceptUserID) continue;
 			this.sendTo(users[i], msg);
 		}
 	}
@@ -183,10 +182,6 @@ export default class SocketServer {
 					this.removeUserFromGroup(uid);
 				}
 
-				//Someone sent a message, log it to history
-				if(json.action == SOCK_ACTIONS.SEND_MESSAGE) {
-					if(this.onMessage) this.onMessage(group, json.data);
-				}
 			}
 		});
 		conn.on("close", (p) => {
