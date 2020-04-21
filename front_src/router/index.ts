@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import OAuth from '@/views/OAuth.vue'
+import GroupGame from '@/views/GroupGame.vue';
+import GroupLoby from '@/views/GroupLoby.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import MultiPlayer from '@/views/MultiPlayer.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
@@ -92,6 +94,32 @@ const routes = [
 			}
 		},
 		component: MixCreator
+	},
+	{
+		path: '/group/:id',
+		name: 'group',
+		props:true,
+		meta: {
+			needGroupAuth:true,
+			tag:{
+				path:"/group",
+				title:"multiplayer loby"
+			}
+		},
+		component: GroupLoby
+	},
+	{
+		path: '/group/:id/play',
+		name: 'group/play',
+		props:true,
+		meta: {
+			needGroupAuth:true,
+			tag:{
+				path:"/group/play",
+				title:"multiplayer play"
+			}
+		},
+		component: GroupGame
 	},
 	{
 		path: "*",

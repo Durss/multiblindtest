@@ -1,6 +1,6 @@
 <template>
 	<div class="app">
-		<router-view/>
+		<router-view class="content"/>
 		<Alert />
 		<Tooltip />
 	</div>
@@ -34,8 +34,10 @@ export default class App extends Vue {
 
 <style scoped lang="less">
 .app{
-	max-width: 500px;
-	margin: auto;
-	padding-top: 20px;
+	.content {
+		max-width: 500px;
+		margin: auto;
+		padding-top: 20px;
+	}
 }
 </style>

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
     "build": "npm run front/build && npm run server/build",
     "front/serve": "vue-cli-service serve",
     "front/build": "vue-cli-service build",
@@ -28,6 +29,7 @@
     "@vue/cli-plugin-typescript": "^4.1.0",
     "@vue/cli-plugin-vuex": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
+    "concurrently": "^5.1.0",
     "gsap": "^3.0.5",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",

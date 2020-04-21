@@ -60,13 +60,19 @@
 		</div>
 
 		<transition name="slide">
-			<PlaylistSelectorFooter class="footer" :playlists="selectedPlaylists" v-if="selectedPlaylists.length > 0" @start="startBlindtest()" ref="footer" />
+			<PlaylistSelectorFooter class="footer"
+			:playlists="selectedPlaylists"
+			v-if="selectedPlaylists.length > 0"
+			@start="startBlindtest()"
+			@startGrouped="startGroupedBlindtest()"
+			ref="footer" />
 		</transition>
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import PlaylistData from "@/vo/PlaylistData";
@@ -75,6 +81,7 @@ import Button from '@/components/Button.vue';
 import TrackData from '@/vo/TrackData';
 import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import gsap from 'gsap';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
 	components:{
@@ -224,6 +231,21 @@ export default class PlaylistSelector extends Vue {
 		let ids = this.selectedPlaylists.map(p => p.id);
 		let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
 		this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
+	}
+
+	/**
+	 * Starts a grouped multi blindtest
+	 */
+	public async startGroupedBlindtest():Promise<any> {
+		console.log(this.selectedPlaylists);
+		let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
+		playlists.forEach(p => delete p.tracks);
+		let data = {
+			playlists,
+			tracksCounts: (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString(),
+		}
+		let res = await Api.post("group/create", data);
+		this.$router.push({name:"group", params:{id:res.roomId}});
 	}
 
 }

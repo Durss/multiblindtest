@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import SpotifyAPI from '@/utils/SpotifyAPI';
 import StatsManager from '@/utils/StatsManager';
+import SockController from '@/sock/SockController';
 
 Vue.use(Vuex)
 
@@ -15,6 +16,8 @@ export default new Vuex.Store({
 		alert: null,
 		accessToken:null,
 		playlistsCache:null,
+		userGroupData:null,
+		groupRoomData:null,
 		confirm:{
 		  title:null,
 		  description:null,
@@ -59,6 +62,15 @@ export default new Vuex.Store({
 				state.alert = "Maximum cache space reached, cannot cache your playlists sorry :("
 			}
 		},
+
+		alert(state, payload) { state.alert = payload; },
+
+		setUserGroupData(state, payload) { 
+			state.userGroupData = payload;
+			SockController.instance.user = payload;
+			localStorage.setItem("userGroupData", JSON.stringify(payload));
+		},
+		setGroupRoomData(state, payload) { state.groupRoomData = payload; }
 		
 	},
 
@@ -72,6 +84,8 @@ export default new Vuex.Store({
 			//Security to make sure startApp isn't executed twice if changing URL while loading
 			if (startPromise && payload.force !== true) return startPromise;
 			
+			SockController.instance.connect();
+			
 			state.initComplete = false;
 			let token = localStorage.getItem("accessToken");
 			if(token) {
@@ -79,12 +93,18 @@ export default new Vuex.Store({
 				state.accessToken = token;
 				SpotifyAPI.instance.setToken(token);
 				state.playlistsCache = JSON.parse( localStorage.getItem("playlistsCache") );
-				if(payload.route.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
+				if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
 					let me = await SpotifyAPI.instance.call("v1/me");
 					if(me && me.id) {
 						StatsManager.instance.clientId = me.id;
 					}
 				}
+			}
+			
+			let user = localStorage.getItem("userGroupData");
+			if(payload.route.meta.needGroupAuth && user) {
+				//Auto log user if joining a group
+				commit("setUserGroupData", JSON.parse(user));
 			}
 
 			startPromise = new Promise(async (resolve, reject) => {
@@ -104,5 +124,11 @@ export default new Vuex.Store({
 		authenticate({commit}, payload) { commit("authenticate", payload); },
 
 		playlistsCache({commit}, payload) { commit("playlistsCache", payload); },
+
+		alert({commit}, payload) { commit("alert", payload); },
+
+		setUserGroupData({commit}, payload) { commit("setUserGroupData", payload); },
+
+		setGroupRoomData({commit}, payload) { commit("setGroupRoomData", payload); },
 	}
 })

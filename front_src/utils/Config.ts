@@ -22,10 +22,18 @@ export default class Config {
 	
 	public static get SERVER_PORT(): number {
 		return this.getEnvData({
-			dev: 3002,
+			dev: 3004,
 			prod: document.location.port,
 		});
 	}
+	
+	public static get SOCKET_PATH():string{
+		if(this.IS_PROD) {
+			return "/sock";
+		}else{
+			return window.location.origin.replace(/(.*):[0-9]+/gi, "$1")+":"+this.SERVER_PORT+"/sock";
+		}
+	};
 
 	public static get SPOTIFY_CLIENT_ID():string {
 		return this.getEnvData({

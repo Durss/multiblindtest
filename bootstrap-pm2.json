@@ -1,5 +1,5 @@
 {
-  "script": ".\\bootstrap.js",
+  "script": "./server/bootstrap.js",
   "name": "MultiblindTest",
   "env": {},
   "merge_logs": true,
