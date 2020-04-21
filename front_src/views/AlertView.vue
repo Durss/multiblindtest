@@ -25,7 +25,7 @@ export default class AlertView extends Vue {
 			this.$nextTick().then(_=> {
 				this.$el.removeAttribute("style");
 				gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-				setTimeout(_=> this.close(), 6000);
+				// setTimeout(_=> this.close(), 6000);
 			});
 		}else{
 			this.$nextTick().then(_=> {
@@ -62,13 +62,14 @@ export default class AlertView extends Vue {
 		padding: 0 30px 0 10px;
 		text-align: center;
 		&::after {
-			content: "X";
-			color: #fff;
+			content: " ";
+			background-image: url("../assets/icons/cross_white.svg");
 			position: absolute;
 			top: 16px;
 			right: 10px;
-			padding-left: 20px;
-			font-size: 20px;
+			margin-left: 20px;
+			width: 20px;
+			height: 20px;
 		}
 	}
 }
