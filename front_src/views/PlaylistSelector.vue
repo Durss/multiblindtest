@@ -237,7 +237,6 @@ export default class PlaylistSelector extends Vue {
 	 * Starts a grouped multi blindtest
 	 */
 	public async startGroupedBlindtest():Promise<any> {
-		console.log(this.selectedPlaylists);
 		let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
 		playlists.forEach(p => delete p.tracks);
 		let data = {

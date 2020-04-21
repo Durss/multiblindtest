@@ -102,8 +102,8 @@ export default new Vuex.Store({
 			}
 			
 			let user = localStorage.getItem("userGroupData");
-			if(payload.route.meta.needGroupAuth && user) {
-				//Auto log user if joining a group
+			if(user) {
+				//load last group user from storage
 				commit("setUserGroupData", JSON.parse(user));
 			}
 

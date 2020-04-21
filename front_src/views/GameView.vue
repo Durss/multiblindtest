@@ -98,7 +98,7 @@ import StatsManager from '../utils/StatsManager';
 		TrackAnswerForm,
 	}
 })
-export default class MultiPlayer extends Vue {
+export default class GameView extends Vue {
 
 	@Prop({default:""})
 	public tracksids:string;
@@ -108,12 +108,16 @@ export default class MultiPlayer extends Vue {
 
 	@Prop({default:""})
 	public trackscounts:string;
+
+	@Prop({default:""})
+	public rawTracksData:TrackData[];
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;
 	public isPlaying:boolean = false;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
+	public multiplayerMode:boolean = false;
 	public demoMode:boolean = false;
 	public tracks:TrackData[] = [];
 	public tracksToPlay:TrackData[] = [];
@@ -121,7 +125,7 @@ export default class MultiPlayer extends Vue {
 
 	private audioPlayer:AudioPlayer;
 
-	public get trackscountsAsNum():number {
+	public get tracksCountAsNum():number {
 		let v = parseInt(this.trackscounts);
 		if(isNaN(v)) v = Config.MAX_TRACK_COUNT;
 		return Math.min(Config.MAX_TRACK_COUNT, Math.max(2, v));
@@ -131,13 +135,19 @@ export default class MultiPlayer extends Vue {
 		this.demoMode = this.$route.name == "demo";
 
 		//if no data is found on URL or if no cache exists on storage, redirect to playlists loading
-		if(!this.demoMode && (this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0) {
-			this.$router.push({name:"playlists"});
+		if(!this.demoMode && (this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0 && !this.rawTracksData) {
+			if(this.$store.state.loggedin) {
+				this.$router.push({name:"playlists"});
+			}else{
+				this.$router.push({name:"home"});
+			}
 			return;
 		}
 
 		this.initAudioElements();
-		if(this.playlistids.length > 0) {
+		if(this.rawTracksData.length > 0) {
+			this.startBlindTestFromTracksData();
+		}else if(this.playlistids.length > 0) {
 			this.startBlindTestFromPlaylists();
 		}else if(this.demoMode){
 			this.startBlindTestFromExamples();
@@ -146,15 +156,20 @@ export default class MultiPlayer extends Vue {
 		}
 	}
 
+	/**
+	 * Dispose everything to free memory
+	 */
 	public beforeDestroy():void {
-		this.audioPlayer.dispose();
+		if(this.audioPlayer) {
+			this.audioPlayer.dispose();
+		}
 	}
 
 	/**
 	 * Create reusable audio elements
 	 */
 	public initAudioElements():void {
-		this.audioPlayer = new AudioPlayer(this.trackscountsAsNum);
+		this.audioPlayer = new AudioPlayer(this.tracksCountAsNum);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			this.needUserInteraction = true;
@@ -162,16 +177,38 @@ export default class MultiPlayer extends Vue {
 	}
 
 	/**
-	 * Start a new blind test from playlists
+	 * Resets view state
 	 */
-	public async startBlindTestFromPlaylists():Promise<void> {
-		for (let i = 0; i < this.tracksToPlay.length; i++) {
-			this.tracksToPlay[i].enabled = false;//Avoid having answer displayed if using a song already answered
-		}
+	private resetState():void {
 		this.tracksMode = false;
+		this.multiplayerMode = false;
 		this.loading = true;
 		this.complete = false;
 		this.needUserInteraction = false;
+	}
+
+	/**
+	 * Starts a blind test from raw tracks data
+	 * This is useful for multiplayer mode. This way, the host can simply send
+	 * raw tracks infos as JSON and people will be able to load covers and MP3
+	 * without having to be authenticated
+	 */
+	public async startBlindTestFromTracksData():Promise<void> {
+		console.log("START FROM RAW", this.rawTracksData);
+		this.resetState();
+		this.tracksToPlay = this.rawTracksData;
+		this.multiplayerMode = true;
+		this.audioPlayer.populate(this.rawTracksData);
+	}
+
+	/**
+	 * Start a new blind test from playlists
+	 */
+	public async startBlindTestFromPlaylists():Promise<void> {
+		this.resetState();
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			this.tracksToPlay[i].enabled = false;//Avoid having answer displayed if using a song already answered
+		}
 
 		let playlistIds = this.playlistids;
 		let playlists = this.$store.state.playlistsCache;
@@ -191,7 +228,7 @@ export default class MultiPlayer extends Vue {
 
 		this.tracksToPlay = [];
 		this.tracks = Utils.shuffle(this.tracks);
-		for (let i = 0; i < this.trackscountsAsNum; i++) {
+		for (let i = 0; i < this.tracksCountAsNum; i++) {
 			let t = this.tracks[i];
 			if(!t.audioPath) {
 				i--;
@@ -206,17 +243,15 @@ export default class MultiPlayer extends Vue {
 	 * Starts a blind test from specific tracks IDs
 	 */
 	public async startBlindTestFromTracks():Promise<void> {
+		this.resetState();
 		this.tracksMode = true;
-		this.loading = true;
-		this.complete = false;
-		this.needUserInteraction = false;
 
 		let tracks:TrackData[] = [];
 		//Get tracks infos from spotify
 		let json = await SpotifyAPI.instance.call("v1/tracks", {ids:this.tracksids});
 		//TODO manage case if some IDs are missing or if an ID is linked to a track
 		//not available for the user (due to country restrictions)
-		for (let i = 0; i < Math.min(this.trackscountsAsNum, json.tracks.length); i++) {
+		for (let i = 0; i < Math.min(this.tracksCountAsNum, json.tracks.length); i++) {
 			const track = json.tracks[i];
 			tracks.push({
 				id:track.id,
@@ -235,12 +270,9 @@ export default class MultiPlayer extends Vue {
 	 * Starts a blind test from local MP3 demos
 	 */
 	public startBlindTestFromExamples():void {
+		this.resetState();
 		this.tracks = Utils.getDemoTracks();
-		this.tracksMode = false;
-		this.loading = true;
-		this.complete = false;
-		this.needUserInteraction = false;
-		this.tracksToPlay = Utils.getDemoTracks().splice(0, this.trackscountsAsNum);
+		this.tracksToPlay = Utils.getDemoTracks().splice(0, this.tracksCountAsNum);
 		this.audioPlayer.populate(this.tracksToPlay);
 	}
 

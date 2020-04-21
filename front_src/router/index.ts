@@ -5,7 +5,7 @@ import OAuth from '@/views/OAuth.vue'
 import GroupGame from '@/views/GroupGame.vue';
 import GroupLoby from '@/views/GroupLoby.vue';
 import MixCreator from '@/views/MixCreator.vue';
-import MultiPlayer from '@/views/MultiPlayer.vue';
+import GameView from '@/views/GameView.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 
 Vue.use(VueRouter)
@@ -34,7 +34,7 @@ const routes = [
 				title:"Demo"
 			}
 		},
-		component: MultiPlayer
+		component: GameView
 	},
 	{
 		path: '/player/playlists/:playlistids/:trackscounts?',
@@ -47,7 +47,7 @@ const routes = [
 				title:"Play playlist"
 			}
 		},
-		component: MultiPlayer
+		component: GameView
 	},
 	{
 		path: '/player/tracks/:tracksids',
@@ -60,7 +60,7 @@ const routes = [
 				title:"Play tracks"
 			}
 		},
-		component: MultiPlayer
+		component: GameView
 	},
 	{
 		path: '/oauth',

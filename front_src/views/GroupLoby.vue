@@ -13,7 +13,7 @@
 				</div>
 			</div>
 
-			<div class="users">
+			<div class="users" v-if="room.users.length > 0">
 				<h2>Connected users</h2>
 				<ul>
 					<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
@@ -39,9 +39,18 @@
 				v-if="canStartGame"
 				@click="startGame()" />
 
-			<div v-if="!canStartGame" class="waitHost">
+			<div v-if="!canStartGame && room.users.length > 0" class="waitHost">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
 				<span>Wait for your host, <strong>{{creatorName}}</strong>, to start the game</span>
+			</div>
+
+			<div v-if="room" class="shareUrl" ref="share">
+				<span class="title">Invite friends :</span>
+				<div class="inputs">
+					<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
+					<Button :icon="require('@/assets/icons/copy.svg')" data-tooltip="Copy" class="copy" @click="shareCurrentRoom()" />
+				</div>
+				<p class="copied" v-if="showCopied">Link copied to clipboard</p>
 			</div>
 		</div>
 	</div>
@@ -50,11 +59,13 @@
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import Api from '../utils/Api';
+import Utils from '../utils/Utils';
 import RoomData from '../vo/RoomData';
 import Button from '../components/Button.vue';
 import UserData from '../vo/UserData';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
+import gsap from 'gsap';
 
 @Component({
 	components:{
@@ -66,12 +77,14 @@ export default class GroupLoby extends Vue {
 	@Prop()
 	public id:string;
 
+	public showCopied:boolean = false;
 	public loading:boolean = true;
 	public joining:boolean = false;
 	public room:RoomData = null;
 	public userName:string = "";
 	public joinHandler:any;
 	public leaveHandler:any;
+	public startGameHandler:any;
 
 	//Sort playlists by name size for a better looking list rendering
 	public get sortedPlaylists():any[] {
@@ -91,6 +104,10 @@ export default class GroupLoby extends Vue {
 		return this.$store.state.userGroupData;
 	}
 
+	public get shareUrl():string {
+		return window.location.href;
+	}
+
 	public get creatorName():string {
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.creator == this.room.users[i].id) {
@@ -103,14 +120,17 @@ export default class GroupLoby extends Vue {
 	public mounted():void {
 		this.joinHandler = (e) => this.onJoin(e);
 		this.leaveHandler = (e) => this.onLeave(e);
-		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, (e) => this.onJoin(e))
-		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, (e) => this.onLeave(e))
+		this.startGameHandler = (e) => this.onStartGame(e);
+		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 		this.loadDetails();
 	}
 
 	public beforeDestroy():void {
-		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, (e) => this.onJoin(e))
-		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, (e) => this.onLeave(e))
+		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 	}
 
 	public userClasses(u:UserData):string[] {
@@ -152,6 +172,7 @@ export default class GroupLoby extends Vue {
 		}
 		try {
 			res = await Api.post("group/join", data);
+			this.room = res.room;
 		}catch(error) {
 			this.joining = false;
 			this.$store.dispatch("alert", error.message);
@@ -160,7 +181,6 @@ export default class GroupLoby extends Vue {
 		
 		this.$store.dispatch("setUserGroupData", res.me);
 		this.joining = false;
-		this.room = res.room;
 	}
 
 	public onJoin(e:SocketEvent):void {
@@ -182,10 +202,28 @@ export default class GroupLoby extends Vue {
 		}
 	}
 
-	public startGame():void {
-		this.$store.dispatch("setGroupRoomData", this.room);
+	public onStartGame(e:SocketEvent):void {
+		this.$store.dispatch("setGroupRoomData", e.data);
 		this.$router.push({name:"group/play"});
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, includeSelf:true, data:null});
+	}
+
+	public startGame():void {
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
+	}
+
+	/**
+	 * Copies the current link to share it with people
+	 */
+	public shareCurrentRoom():void {
+		Utils.copyToClipboard(window.location.href);
+		this.showCopied = true;
+		setTimeout(() => {
+			this.showCopied = false;
+		}, 5000);
+		this.$nextTick().then(_=> {
+			gsap.set(this.$refs.share, {filter:"brightness(1)"});
+			gsap.from(this.$refs.share, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
+		})
 	}
 
 }
@@ -271,13 +309,22 @@ export default class GroupLoby extends Vue {
 		}
 
 		.user {
-			margin: 0 30px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			line-height: 30px;
+			background-color: @mainColor_normal_light;
+			border-radius: 50px;
+			padding: 0 10px;
+			color: @mainColor_dark;
+			margin-bottom: 2px;
+
 			&.me {
 				font-family: "Futura";
 			}
 			&::before {
 				content: " ";
-				background-color: @mainColor_normal;
+				background-color: @mainColor_dark;
 				border-radius: 50%;
 				display: inline-block;
 				width: 5px;
@@ -290,8 +337,9 @@ export default class GroupLoby extends Vue {
 				&::before {
 					background-color: transparent;
 					background-image: url("../assets/icons/king.svg");
-					width: 20px;
-					height: 14.6px;
+					@ratio: 16 / 72;
+					width: 100px * @ratio;
+					height: 72px * @ratio;
 					margin-right: 5px;
 					margin-left: 0;
 					border-radius: 0;
@@ -319,7 +367,41 @@ export default class GroupLoby extends Vue {
 			width: 20px;
 			height: 20px;
 		}
+	}
 
+	.shareUrl {
+		margin:auto;
+		margin-top: 50px;
+		width:260px;
+		padding: 10px;
+		border-radius: 20px;
+		color: @mainColor_dark;
+		background-color: @mainColor_normal_light;
+
+		.title {
+			font-family:"Futura";
+			text-align: center;
+			font-size: 20px;
+			margin-bottom: 5px;
+			display: block;
+		}
+		.copied {
+			background-color: @mainColor_highlight;
+			color: #fff;
+			border-radius: 50px;
+			padding: 5px 10px;
+			text-align: center;
+			margin-top: 5px;
+		}
+		.inputs {
+			display: flex;
+			flex-direction: row;
+			.copy {
+				height: 38px;
+				width: 38px;
+				margin-left:2px;
+			}
+		}
 	}
 }
 </style>

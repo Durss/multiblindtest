@@ -74,7 +74,12 @@ export default class SockController extends EventDispatcher {
 	}
 
 	public sendMessage(data:{action:string, data:any, includeSelf?:boolean}):void {
-		this._sockjs.send(JSON.stringify(data));
+		if(!this._connected) {
+			//Postpone send if connexion not yet establised
+			setTimeout(_=> this.sendMessage(data), 250);
+		}else{
+			this._sockjs.send(JSON.stringify(data));
+		}
 	}
 
 
@@ -136,4 +141,5 @@ export enum SOCK_ACTIONS {
 	JOIN_ROOM="JOIN_ROOM",
 	LEAVE_ROOM="LEAVE_ROOM",
 	START_GROUP_GAME="START_GROUP_GAME",
+	TRACKS_DATA="TRACKS_DATA",
 };

@@ -9,6 +9,7 @@ import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
 
 Vue.config.productionTip = false;
+Config.init();
 
 //Cleanup local storage if not at the proper version number
 if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
