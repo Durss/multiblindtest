@@ -49,14 +49,15 @@ export default class GroupGame extends Vue {
 		
 		await this.getRoomDetails();
 		if(!this.room) return;
+		await this.joinRoom();
 
-		if(this.room.creator == this.me.id) {
-			this.pickRandomTracks();
-		}else if(this.room.currentTracks) {
+		if(this.room.currentTracks) {
 			//If there are tracks it's because the game is already started
 			//don't wait for socket event and just start it
 			this.tracksToPlay = this.room.currentTracks;
 			this.loading = false;
+		}else if(this.room.creator == this.me.id) {
+			this.pickRandomTracks();
 		}
 	}
 
@@ -125,6 +126,14 @@ export default class GroupGame extends Vue {
 				return;
 			}
 		}
+	}
+
+	private async joinRoom():Promise<void> {
+		let data:any = {
+				user: this.me,
+				roomId:this.room.id
+			};
+		let res = await Api.post("group/join", data);
 	}
 
 	/**

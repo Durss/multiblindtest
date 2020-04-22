@@ -178,8 +178,8 @@ export default class HTTPServer {
 			let exists = room.users.map((e) => { return e.id; }).indexOf(me.id) != -1;
 			if(!exists) {
 				room.users.push(me);
-				SocketServer.instance.addToGroup(roomId, me);
 			}
+			SocketServer.instance.addToGroup(roomId, me);
 			
 			res.status(200).send(JSON.stringify({success:true, room, me}));
 		});

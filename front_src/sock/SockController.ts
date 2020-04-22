@@ -37,7 +37,6 @@ export default class SockController extends EventDispatcher {
 		this._user = value;
 		if(this._connected) {
 			this.registerCurrentUser();
-		}else{
 		}
 	}
 
