@@ -10,7 +10,7 @@
 			<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
 		</div>
 		
-		<div class="actions">
+		<div class="actions" v-if="showActions">
 			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" data-tooltip="Show answers" big v-if="canGuess" />
 			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" data-tooltip="Share current tracks" big v-if="showShare" />
 			<Button :to="{name:'home'}" class="showAnswers" :icon="require('@/assets/icons/home.svg')" data-tooltip="Back home" big />
@@ -35,6 +35,9 @@ export default class TrackAnswerForm extends Vue {
 
 	@Prop({default:true})
 	public showShare:boolean;
+
+	@Prop({default:true})
+	public showActions:boolean;
 
 	@Prop()
 	public shareUrl:string;

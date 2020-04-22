@@ -270,6 +270,7 @@ export default class GroupLoby extends Vue {
 				width: 30px;
 				height: 30px;
 				border-radius: 10px;
+				object-fit: cover;
 			}
 		}
 	}

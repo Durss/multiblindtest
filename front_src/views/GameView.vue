@@ -60,6 +60,7 @@
 					:canGuess="!complete"
 					:shareUrl="shareUrl"
 					:showShare="!demoMode"
+					:showActions="!multiplayerMode"
 				/>
 			</div>
 
@@ -194,7 +195,6 @@ export default class GameView extends Vue {
 	 * without having to be authenticated
 	 */
 	public async startBlindTestFromTracksData():Promise<void> {
-		console.log("START FROM RAW", this.rawTracksData);
 		this.resetState();
 		this.tracksToPlay = this.rawTracksData;
 		this.multiplayerMode = true;
@@ -315,6 +315,7 @@ export default class GameView extends Vue {
 				t.enabled = true;
 				goodAnswer = true;
 				this.audioPlayer.stopTrack(t);
+				this.$emit("guessed", t);
 				break;
 			}
 		}

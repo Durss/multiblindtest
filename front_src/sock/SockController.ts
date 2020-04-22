@@ -123,14 +123,6 @@ export default class SockController extends EventDispatcher {
 		let json:any = JSON.parse(message.data);
 		// console.log("Sock message");
 		// console.log(json);
-		// switch(json.action) {
-		// 	case SOCK_ACTIONS.JOIN_ROOM:
-		// 		store.dispatch("userJoined", json.data)
-		// 		break;
-		// 	case SOCK_ACTIONS.LEAVE_ROOM:
-		// 		store.dispatch("userLeft", json.data)
-		// 		break;
-		// }
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }
@@ -142,4 +134,5 @@ export enum SOCK_ACTIONS {
 	LEAVE_ROOM="LEAVE_ROOM",
 	START_GROUP_GAME="START_GROUP_GAME",
 	TRACKS_DATA="TRACKS_DATA",
+	GUESSED_TRACK="GUESSED_TRACK",
 };

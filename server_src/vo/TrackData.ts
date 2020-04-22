@@ -1,4 +1,4 @@
-import UserData from './UserData';
+import UserData from "./UserData";
 
 export default interface TrackData {
 	id: string;
@@ -8,5 +8,5 @@ export default interface TrackData {
 	enabled?:boolean;
 	isPlaying?:boolean;
 	picture?:string;
-	guessedBy?:UserData;//For multiplayer mode
+	guessedBy?:UserData;
  }

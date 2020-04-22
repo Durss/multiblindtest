@@ -127,7 +127,7 @@ export default class SocketServer {
 		let users = this._groupIdToUsers[groupId];
 		if(!users) return;
 		for (let i = 0; i < users.length; i++) {
-			if(exceptUserID && users[i].id == exceptUserID) continue;
+			if(exceptUserID && users[i].id == exceptUserID || users[i].offline) continue;
 			this.sendTo(users[i], msg);
 		}
 	}
@@ -232,4 +232,5 @@ export enum SOCK_ACTIONS {
 	LEAVE_ROOM="LEAVE_ROOM",
 	START_GROUP_GAME="START_GROUP_GAME",
 	TRACKS_DATA="TRACKS_DATA",
+	GUESSED_TRACK="GUESSED_TRACK",
 };

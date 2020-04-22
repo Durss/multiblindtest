@@ -13,6 +13,8 @@
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="$emit('stop', data)">
 			<img src="@/assets/loader/loader_border.svg" alt="song" class="icon loader" @click="onClickStop()">
 		</div>
+
+		<div class="guesser" v-if="data.guessedBy">{{data.guessedBy.name}}</div>
 	</div>
 </template>
 
@@ -71,6 +73,7 @@ export default class TrackEntry extends Vue {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	position: relative;
 
 	&>.icon {
 		max-height: 45px;
@@ -115,6 +118,17 @@ export default class TrackEntry extends Vue {
 		font-size: 40px;
 		font-family: "Arial";
 		font-weight: bold;
+	}
+
+	.guesser {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		background-color: @mainColor_warn;
+		padding: 5px 10px;
+		border-radius: 100px;
+		font-family: "Futura";
+		transform: translate(10px, 25%);
 	}
 }
 

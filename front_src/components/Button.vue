@@ -298,8 +298,11 @@ export default class Button extends Vue {
 	}
 	
 	&.disabled {
-		opacity: .5;
-		color: #fff;
+		opacity: .35;
+		color: rgba(255,255,255,.5);
+		.icon {
+			opacity: .35;
+		}
 	}
 	
 	&.cancel {

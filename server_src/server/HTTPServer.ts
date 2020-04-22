@@ -9,6 +9,7 @@ import SocketServer, { SOCK_ACTIONS } from "./SocketServer";
 import { v4 as uuidv4 } from 'uuid';
 import RoomData from "../vo/RoomData";
 import UserData from "../vo/UserData";
+import TrackData from "../vo/TrackData";
 
 export default class HTTPServer {
 
@@ -27,12 +28,17 @@ export default class HTTPServer {
 				Logger.error("Room not found")
 				return;
 			}
+			let allOffline = true;
 			for (let i = 0; i < this._rooms[roomId].users.length; i++) {
 				if(this._rooms[roomId].users[i].id == user.id) {
-					this._rooms[roomId].users.splice(i, 1);
+					this._rooms[roomId].users[i].offline = true;
+					// this._rooms[roomId].users.splice(i, 1);
+				}
+				if(!this._rooms[roomId].users[i].offline) {
+					allOffline = false;
 				}
 			}
-			if(this._rooms[roomId].users.length == 0) {
+			if(this._rooms[roomId].users.length == 0 || allOffline) {
 				Logger.log("Room empty, delete it ", roomId);
 				delete this._rooms[roomId];
 			}
@@ -117,6 +123,14 @@ export default class HTTPServer {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
+			if(req.query.user) {
+				for (let i = 0; i < room.users.length; i++) {
+					const u = room.users[i];
+					if(u.id == req.query.user) {
+						u.offline = false;
+					}
+				}
+			}
 			res.status(200).send(JSON.stringify({success:true, room}));
 		});
 
@@ -168,6 +182,50 @@ export default class HTTPServer {
 			}
 			
 			res.status(200).send(JSON.stringify({success:true, room, me}));
+		});
+
+		/**
+		 * Define current tracks of the group
+		 */
+		this.app.post("/api/group/setTracks", (req, res) => {
+			let roomId = req.body.roomId;
+			let room = this._rooms[roomId];
+			if(!room) {
+				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			room.currentTracks = req.body.tracks;
+			// room.guessesTrackIdToUserId = {};
+			res.status(200).send(JSON.stringify({success:true, roomId}));
+			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.TRACKS_DATA, data:room});
+		});
+
+		/**
+		 * Called when someone guessed a track
+		 */
+		this.app.post("/api/group/guessed", (req, res) => {
+			let roomId = req.body.roomId;
+			let trackId = req.body.trackId;
+			let uid = req.body.user;
+			let room = this._rooms[roomId];
+			if(!room) {
+				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			// if(!room.guessesTrackIdToUserId[trackId]) {
+			// 	room.guessesTrackIdToUserId[trackId] = user;
+			// }
+			for (let i = 0; i < room.currentTracks.length; i++) {
+				const t:TrackData = room.currentTracks[i];
+				if(t.id == trackId && !t.guessedBy) {
+					let user = room.users.find(u => u.id == uid);
+					t.guessedBy = user;
+					t.enabled = true;
+				}
+			}
+
+			res.status(200).send(JSON.stringify({success:true, room}));
+			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.GUESSED_TRACK, data:room});
 		});
 	}
 
