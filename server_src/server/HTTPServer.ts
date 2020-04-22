@@ -155,7 +155,7 @@ export default class HTTPServer {
 		this.app.post("/api/group/join", (req, res) => {
 			let roomId = req.body.roomId;
 			let room = this._rooms[roomId];
-			let me;
+			let me:UserData;
 			let user = req.body.user;
 			if(user) {
 				me = user;
@@ -163,6 +163,8 @@ export default class HTTPServer {
 				let username = req.body.username;
 				me = {
 					id: uuidv4(),
+					score :0,
+					offline: false,
 					name: username.substr(0, 50),
 				};
 			}
@@ -172,6 +174,8 @@ export default class HTTPServer {
 				return;
 			}
 			
+			me.score = 0;
+			me.offline = false;
 			if(room.users.length == 0) {
 				room.creator = me.id;
 			}
@@ -215,17 +219,24 @@ export default class HTTPServer {
 			// if(!room.guessesTrackIdToUserId[trackId]) {
 			// 	room.guessesTrackIdToUserId[trackId] = user;
 			// }
+			let score = 6;
+			let user:UserData;
 			for (let i = 0; i < room.currentTracks.length; i++) {
 				const t:TrackData = room.currentTracks[i];
 				if(t.id == trackId && !t.guessedBy) {
-					let user = room.users.find(u => u.id == uid);
+					user = room.users.find(u => u.id == uid);
 					t.guessedBy = user;
 					t.enabled = true;
+				}else if(t.enabled) {
+					score --;
 				}
+			}
+			if(user) {
+				user.score += score;
 			}
 
 			res.status(200).send(JSON.stringify({success:true, room}));
-			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.GUESSED_TRACK, data:room});
+			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.GUESSED_TRACK, data:{room, score}});
 		});
 	}
 

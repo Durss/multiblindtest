@@ -1,12 +1,20 @@
 <template>
 	<div class="groupgame">
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
-		<GameView
-			v-if="tracksToPlay && tracksToPlay.length > 0"
-			:rawTracksData="tracksToPlay"
-			:trackscounts="tracksToPlay.length"
-			@guessed="onTackFound"
-		/>
+		<div v-if="room">
+			<GameView
+				v-if="tracksToPlay && tracksToPlay.length > 0"
+				:rawTracksData="tracksToPlay"
+				:trackscounts="tracksToPlay.length"
+				@guessed="onTrackFound"
+			/>
+
+			<div class="players">
+				<div v-for="u in room.users" :key="u.id">
+					{{u.name}} : {{u.score}}
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -49,7 +57,6 @@ export default class GroupGame extends Vue {
 		
 		await this.getRoomDetails();
 		if(!this.room) return;
-		await this.joinRoom();
 
 		if(this.room.currentTracks) {
 			//If there are tracks it's because the game is already started
@@ -125,9 +132,13 @@ export default class GroupGame extends Vue {
 				}
 				return;
 			}
+			await this.joinRoom();
 		}
 	}
 
+	/**
+	 * Join a room
+	 */
 	private async joinRoom():Promise<void> {
 		let data:any = {
 				user: this.me,
@@ -139,7 +150,7 @@ export default class GroupGame extends Vue {
 	/**
 	 * Called when finding a track
 	 */
-	private onTackFound(track:TrackData):void {
+	private onTrackFound(track:TrackData):void {
 		Api.post("group/guessed", {roomId:this.room.id, user:this.me.id, trackId:track.id});
 	}
 
@@ -148,26 +159,26 @@ export default class GroupGame extends Vue {
 	 */
 	private onTracksData(event:SocketEvent):void {
 		console.log("TRACKS DATA", event.data);
+		this.loading = false;
 		this.room = event.data;
 		this.tracksToPlay = this.room.currentTracks;
-		this.loading = false;
 	}
 
 	/**
 	 * Called when a player found a track
 	 */
 	private onGuessedTrack(event:SocketEvent):void {
-		console.log("TRACK GUESSED", event.data);
-		let room:RoomData = event.data;
+		let room:RoomData = event.data.room;
+		let score:number = event.data.score;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const track = this.tracksToPlay[i];
 			let t = room.currentTracks.find(t => t.id == track.id);
-			Vue.set(track, "guessedBy", t.guessedBy);
-			if(track.guessedBy) {
+			if(t.guessedBy) {
+				Vue.set(track, "guessedBy", t.guessedBy);
 				track.enabled = true;
-				console.log(track.name, "found by ", track.guessedBy.name);
 			}
 		}
+		Vue.set(this.room, "users", room.users);
 	}
 
 }

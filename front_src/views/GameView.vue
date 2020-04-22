@@ -25,7 +25,7 @@
 					class="complete"
 					title="New Multi Blindtest"
 					:icon="require('@/assets/icons/refresh.svg')"
-					v-if="complete && !tracksMode && !demoMode"
+					v-if="complete && !tracksMode && !demoMode && !multiplayerMode"
 					highlight
 					big
 					@click="startBlindTestFromPlaylists()"
@@ -283,6 +283,16 @@ export default class GameView extends Vue {
 	public onLoadComplete():void {
 		this.loading = false;
 		this.isPlaying = true;
+		
+		//Stops the tracks that have been guessed.
+		//This is usefull for multiplayer mode if a player
+		//refreshes the page.
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			if(t.enabled) {
+				this.stopTrack(t);
+			}
+		}
 	}
 
 	/**
@@ -326,20 +336,7 @@ export default class GameView extends Vue {
 		}else{
 			//Good answer, shine and clear the field
 			(<TrackAnswerForm>this.$refs["trackAnswerForm"]).shine();
-			let allGood = true;
-			//Check if all the tracks have been found
-			for (let i = 0; i < this.tracksToPlay.length; i++) {
-				const t = this.tracksToPlay[i];
-				if(!t.enabled) {
-					allGood = false;
-					break;
-				}
-			}
-			this.complete = allGood;
-			StatsManager.instance.event("play","guess-success", "Guess track success");
-			if(allGood) {
-				StatsManager.instance.event("play","complete", "Game complete");
-			}
+			this.checkComplete();
 		}
 	}
 
@@ -385,6 +382,9 @@ export default class GameView extends Vue {
 		this.audioPlayer.stopTrack(data);
 	}
 	
+	/**
+	 * Toggle the play/pause state
+	 */
 	public togglePlayPause():void {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			if(this.isPlaying) {
@@ -395,6 +395,29 @@ export default class GameView extends Vue {
 			}
 		}
 		this.isPlaying = !this.isPlaying;
+	}
+
+	/**
+	 * Used to catch changes made by the GroupGame view
+	 * when playing in multi player mode
+	 */
+	@Watch("tracksToPlay", {immediate: true, deep:true})
+	public checkComplete():void {
+		let allGood = true;
+		//Check if all the tracks have been found
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			if(!t.enabled) {
+				allGood = false;
+			}else{
+				this.stopTrack(t);
+			}
+		}
+		this.complete = allGood;
+		StatsManager.instance.event("play","guess-success", "Guess track success");
+		if(allGood) {
+			StatsManager.instance.event("play","complete", "Game complete");
+		}
 	}
 
 }
