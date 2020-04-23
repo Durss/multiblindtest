@@ -64,7 +64,7 @@ export default class ShareMultiplayerLink extends Vue {
 	margin-top: 50px;
 	width: min-content;
 	border-radius: 20px;
-	opacity: 80%;
+	opacity: .8;
 
 	.content {
 		display: flex;

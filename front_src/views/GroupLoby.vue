@@ -21,7 +21,8 @@
 			</div>
 
 			<form @submit.prevent="onSubmit()" class="form" v-if="!me">
-				<h2 class="highlight">Join game :</h2>
+				<h2 class="highlight" v-if="room.users.length == 0">Set your username :</h2>
+				<h2 class="highlight" v-if="room.users.length > 0">Join game :</h2>
 				<div class="content">
 					<label for="username">Username</label>
 					<input type="text" id="username" class="dark" v-model="userName" maxlength="50" placeholder="username...">

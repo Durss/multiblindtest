@@ -30,10 +30,10 @@
 			</div>
 
 			<div v-if="gameStepComplete" class="complete">
-				<div class="title">⭐ Complete ⭐</div>
+				<div class="title" v-if="gameComplete">Game Finished</div>
 				<div v-if="isHost">
 					<Button title="Next game" @click="pickRandomTracks()" v-if="!gameComplete" />
-					<Button title="Start new game" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" />
+					<Button title="Start new game" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
 				</div>
 				<div v-if="!isHost" class="wait">
 					<img src="@/assets/loader/loader.svg" alt="loading">
@@ -98,7 +98,7 @@ export default class GroupGame extends Vue {
 		return null;
 	}
 
-	public gameComplete():boolean {
+	public get gameComplete():boolean {
 		return this.gameStepComplete && this.room.gamesCount == this.room.gameStepIndex;
 	}
 
@@ -152,10 +152,6 @@ export default class GroupGame extends Vue {
 	 * Select tracks to be played
 	 */
 	public pickRandomTracks():void {
-		if(this.room.gameStepIndex == this.room.gamesCount) {
-			console.log("GAME COMPLETE !!!");
-			return;
-		}
 		this.loading = true;
 		let playlistIds = this.room.playlists.map(p => p.id);
 		let playlists = this.$store.state.playlistsCache;
@@ -183,6 +179,7 @@ export default class GroupGame extends Vue {
 			}
 			toPlay.push(t);
 		}
+		this.room.currentTracks = toPlay;
 
 		// console.log(toPlay.map(t => t.name));
 
