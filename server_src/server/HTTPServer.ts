@@ -219,7 +219,7 @@ export default class HTTPServer {
 			// if(!room.guessesTrackIdToUserId[trackId]) {
 			// 	room.guessesTrackIdToUserId[trackId] = user;
 			// }
-			let score = 6;
+			let score = room.currentTracks.length;
 			let user:UserData;
 			for (let i = 0; i < room.currentTracks.length; i++) {
 				const t:TrackData = room.currentTracks[i];

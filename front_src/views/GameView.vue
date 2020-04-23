@@ -304,6 +304,16 @@ export default class GameView extends Vue {
 	public startPlay():void {
 		this.needUserInteraction = false;
 		this.audioPlayer.play();
+		
+		//Stops the tracks that have been guessed.
+		//This is usefull for multiplayer mode if a player
+		//refreshes the page and is asked to click to start playing.
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			if(t.enabled) {
+				this.stopTrack(t);
+			}
+		}
 	}
 
 	/**
@@ -408,7 +418,7 @@ export default class GameView extends Vue {
 	 * Used to catch changes made by the GroupGame view
 	 * when playing in multi player mode
 	 */
-	@Watch("tracksToPlay", {immediate: true, deep:true})
+	// @Watch("tracksToPlay", {immediate: false, deep:false})
 	public checkComplete():void {
 		let allGood = true;
 		//Check if all the tracks have been found
@@ -423,9 +433,13 @@ export default class GameView extends Vue {
 		this.complete = allGood;
 	}
 
-	@Watch("rawTracksData")
-	public onRawTracksDataChanged():void {
-		this.startBlindTestFromTracksData();
+	@Watch("rawTracksData", {immediate: true, deep:true})
+	public onRawTracksDataChanged(a, b):void {
+		this.checkComplete();
+		if(b && a[0].name != b[0].name) {
+			//New tracks, restart everything
+			this.startBlindTestFromTracksData();
+		}
 	}
 
 }
