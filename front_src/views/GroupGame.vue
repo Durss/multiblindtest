@@ -6,33 +6,38 @@
 				v-if="tracksToPlay && tracksToPlay.length > 0"
 				:rawTracksData="tracksToPlay"
 				:trackscounts="tracksToPlay.length"
+				:hideForm="gameComplete"
 				@guessed="onTrackFound"
 				ref="game"
 			/>
 
 			<div class="players">
-				<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
-					<div class="position">{{index + 1}}</div>
-					<div class="content">
-						<div class="info">
-							<div class="username">{{u.name}}</div>
-							<div class="score">{{u.score}}</div>
-						</div>
-						<div class="progressBar">
-							<div class="fill" :style="userScorePercentStyles(u)"></div>
+				<h2>Game N°{{room.gameStepIndex}}/{{room.gamesCount}}</h2>
+				<div class="content">
+					<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
+						<div class="position">{{index + 1}}</div>
+						<div class="content">
+							<div class="info">
+								<div class="username">{{u.name}}</div>
+								<div class="score">{{u.score}}</div>
+							</div>
+							<div class="progressBar">
+								<div class="fill" :style="userScorePercentStyles(u)"></div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div v-if="gameComplete" class="complete">
+			<div v-if="gameStepComplete" class="complete">
 				<div class="title">⭐ Complete ⭐</div>
 				<div v-if="isHost">
-					<Button title="Next game" @click="pickRandomTracks()" />
+					<Button title="Next game" @click="pickRandomTracks()" v-if="!gameComplete" />
+					<Button title="Start new game" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" />
 				</div>
 				<div v-if="!isHost" class="wait">
 					<img src="@/assets/loader/loader.svg" alt="loading">
-					<div>Wait for {{creatorName}} to start next game...</div>
+					<div>Wait for {{hostName}} to start next game...</div>
 				</div>
 			</div>
 		</div>
@@ -66,7 +71,7 @@ export default class GroupGame extends Vue {
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
 	public loading:boolean = false;
-	public gameComplete:boolean = false;
+	public gameStepComplete:boolean = false;
 	public me:UserData = null;
 
 	public tracksDataHandler:any;
@@ -84,13 +89,17 @@ export default class GroupGame extends Vue {
 		return list;
 	}
 
-	public get creatorName():string {
+	public get hostName():string {
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.creator == this.room.users[i].id) {
 				return this.room.users[i].name;
 			}
 		}
 		return null;
+	}
+
+	public gameComplete():boolean {
+		return this.gameStepComplete && this.room.gamesCount == this.room.gameStepIndex;
 	}
 
 	public async mounted():Promise<void> {
@@ -126,11 +135,16 @@ export default class GroupGame extends Vue {
 		return res;
 	}
 
+	/**
+	 * Compute the size of a user's bar
+	 */
 	public userScorePercentStyles(user:UserData):any {
-		let maxScore = this.room.tracksCount * this.room.gamesCount;
+		let maxScore = 0;
+		for (let i = 0; i < this.room.tracksCount; i++) maxScore += i+1;
+		maxScore *= this.room.gamesCount;
 		let w = (user.score/maxScore*100)+"%";
 		return {
-			width:w
+			width:w,
 		}
 	}
 
@@ -138,6 +152,10 @@ export default class GroupGame extends Vue {
 	 * Select tracks to be played
 	 */
 	public pickRandomTracks():void {
+		if(this.room.gameStepIndex == this.room.gamesCount) {
+			console.log("GAME COMPLETE !!!");
+			return;
+		}
 		this.loading = true;
 		let playlistIds = this.room.playlists.map(p => p.id);
 		let playlists = this.$store.state.playlistsCache;
@@ -166,7 +184,7 @@ export default class GroupGame extends Vue {
 			toPlay.push(t);
 		}
 
-		console.log(toPlay.map(t => t.name));
+		// console.log(toPlay.map(t => t.name));
 
 		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay});
 	}
@@ -219,10 +237,9 @@ export default class GroupGame extends Vue {
 	 * Called when host sends tracks to be played
 	 */
 	private onTracksData(event:SocketEvent):void {
-		console.log("TRACKS DATA", event.data);
 		this.loading = false;
 		this.room = event.data;
-		this.gameComplete = false;
+		this.gameStepComplete = false;
 		this.tracksToPlay = this.room.currentTracks;
 	}
 
@@ -246,17 +263,19 @@ export default class GroupGame extends Vue {
 				allGuessed = false;
 			}
 		}
-		this.gameComplete = allGuessed;
-		// this.gameComplete = true;//TODO REMOVE
+		this.gameStepComplete = allGuessed;
 		Vue.set(this.room, "users", room.users);
 	}
 
+	/**
+	 * Check if game is complete
+	 */
 	public checkComplete():void {
 		let complete = true;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			if(!this.tracksToPlay[i].enabled) complete = false;
 		}
-		this.gameComplete = complete;
+		this.gameStepComplete = complete;
 	}
 
 }
@@ -270,97 +289,101 @@ export default class GroupGame extends Vue {
 		flex-direction: column;
 		width: min-content;
 		margin: auto;
-		padding: 15px;
 		border-radius: 20px;
-		color: @mainColor_dark;
-		background-color: @mainColor_normal_light;
-		.player {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
+		box-sizing: border-box;
+		// color: @mainColor_dark;
+		// background-color: @mainColor_normal_light;
 
-			&:not(:last-child) {
-				margin-bottom: 10px;
-				padding-bottom: 10px;
-				border-bottom: 1px solid @mainColor_normal;
-			}
-			&.me {
-				font-family: "Futura";
-			}
+		&>.content {
+			.blockContent();
+			.player {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
 
-			&.host {
-				.content {
-					.info {
-						&::before {
-							background-color: transparent;
-							background-image: url("../assets/icons/king.svg");
-							@ratio: 16 / 72;
-							width: 100px * @ratio;
-							height: 72px * @ratio;
-							margin-right: 5px;
-							margin-left: 0;
-							margin-top: 0;
-							border-radius: 0;
-							vertical-align: baseline;
+				&:not(:last-child) {
+					margin-bottom: 10px;
+					padding-bottom: 10px;
+					border-bottom: 1px solid @mainColor_normal;
+				}
+				&.me {
+					font-family: "Futura";
+				}
+
+				&.host {
+					.content {
+						.info {
+							&::before {
+								background-color: transparent;
+								background-image: url("../assets/icons/king.svg");
+								@ratio: 16 / 72;
+								width: 100px * @ratio;
+								height: 72px * @ratio;
+								margin-right: 5px;
+								margin-left: 0;
+								margin-top: 0;
+								border-radius: 0;
+								vertical-align: baseline;
+							}
 						}
 					}
 				}
-			}
 
-			.position {
-				margin-right: 10px;
-				font-family: "FuturaExtraBold";
-				&::before {
-					content: "#";
-					display: inline;
-					font-size: 15px;
-					font-family: "Futura";
-				}
-			}
-
-			.content {
-				display: flex;
-				flex-direction: column;
-				.info {
-					display: flex;
-					flex-direction: row;
-					.username {
-						width: 150px;
-						overflow: hidden;
-						text-overflow: ellipsis;
-					}
+				.position {
+					margin-right: 10px;
+					font-family: "FuturaExtraBold";
 					&::before {
-						content: " ";
-						background-color: @mainColor_dark;
-						border-radius: 50%;
-						display: inline-block;
-						width: 5px;
-						height: 5px;
-						margin-right: 13px;
-						margin-top: 7px;
-						margin-left: 7px;
-						vertical-align: middle;
+						content: "#";
+						display: inline;
+						font-size: 15px;
+						font-family: "Futura";
 					}
 				}
-	
-				.progressBar {
-					display: block;
-					margin-top: 5px;
-					background-color: fade(#fff, 25%);
-					height: 5px;
-					border-radius: 10px;
-					overflow: hidden;
-					.fill {
-						transition: width .5s;
-						height: 100%;
-						width: 50%;
-						background-color: @mainColor_warn_light;
-					}
-				}
-			}
 
-			.score {
-				// color: @mainColor_highlight;
+				.content {
+					display: flex;
+					flex-direction: column;
+					.info {
+						display: flex;
+						flex-direction: row;
+						.username {
+							width: 150px;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+						&::before {
+							content: " ";
+							background-color: @mainColor_dark;
+							border-radius: 50%;
+							display: inline-block;
+							width: 5px;
+							height: 5px;
+							margin-right: 13px;
+							margin-top: 7px;
+							margin-left: 7px;
+							vertical-align: middle;
+						}
+					}
+		
+					.progressBar {
+						display: block;
+						margin-top: 5px;
+						background-color: fade(@mainColor_dark, 25%);
+						height: 5px;
+						border-radius: 10px;
+						overflow: hidden;
+						.fill {
+							transition: width .5s;
+							height: 100%;
+							width: 50%;
+							background-color: @mainColor_warn_light;
+						}
+					}
+				}
+
+				.score {
+					// color: @mainColor_highlight;
+				}
 			}
 		}
 	}

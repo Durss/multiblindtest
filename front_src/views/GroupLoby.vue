@@ -14,27 +14,23 @@
 			</div>
 
 			<div class="users" v-if="room.users.length > 0">
-				<h2>Connected users</h2>
+				<h2 class="highlight">Connected users</h2>
 				<ul>
 					<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
 				</ul>
 			</div>
 
 			<form @submit.prevent="onSubmit()" class="form" v-if="!me">
-				<div class="line">
-					<label for="username"><h2>Enter your name :</h2></label>
-					<input type="text" id="username" class="dark" v-model="userName" maxlength="50">
-				</div>
-				<div class="line">
+				<h2 class="highlight">Join game :</h2>
+				<div class="content">
+					<label for="username">Username</label>
+					<input type="text" id="username" class="dark" v-model="userName" maxlength="50" placeholder="username...">
 					<Button title="Join game" type="submit" :disabled="userName.length < 3" :loading="joining" />
 				</div>
 			</form>
 
-			<div class="gamesCount" v-if="isHost">
+			<div v-if="isHost" class="params">
 				<IncrementForm title="Number of games" v-model="gamesCount" />
-			</div>
-
-			<div class="tracksCount" v-if="isHost">
 				<IncrementForm title="Number of tracks" v-model="tracksCount" maxValue="6" />
 			</div>
 
@@ -49,17 +45,12 @@
 
 			<div v-if="!isHost && room.users.length > 0" class="waitHost">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
-				<span>Wait for your host, <strong>{{creatorName}}</strong>, to start the game</span>
+				<span>Wait for your host, <strong>{{hostName}}</strong>, to start the game</span>
 			</div>
 
-			<div v-if="room" class="shareUrl" ref="share">
-				<span class="title">Invite friends :</span>
-				<div class="inputs">
-					<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
-					<Button :icon="require('@/assets/icons/copy.svg')" data-tooltip="Copy" class="copy" @click="shareCurrentRoom()" />
-				</div>
-				<p class="copied" v-if="showCopied">Link copied to clipboard</p>
-			</div>
+			<ShareMultiplayerLink v-if="room" class="shareUrl" />
+
+			<Button class="backHome" :to="{name:'home'}" :icon="require('@/assets/icons/home.svg')" data-tooltip="Back home" big />
 		</div>
 	</div>
 </template>
@@ -73,13 +64,14 @@ import Button from '../components/Button.vue';
 import UserData from '../vo/UserData';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
-import gsap from 'gsap';
 import IncrementForm from '../components/IncrementForm.vue';
+import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 
 @Component({
 	components:{
 		Button,
 		IncrementForm,
+		ShareMultiplayerLink,
 	}
 })
 export default class GroupLoby extends Vue {
@@ -116,11 +108,7 @@ export default class GroupLoby extends Vue {
 		return this.$store.state.userGroupData;
 	}
 
-	public get shareUrl():string {
-		return window.location.href;
-	}
-
-	public get creatorName():string {
+	public get hostName():string {
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.creator == this.room.users[i].id) {
 				return this.room.users[i].name;
@@ -140,6 +128,7 @@ export default class GroupLoby extends Vue {
 	}
 
 	public beforeDestroy():void {
+		//Cleanup listeners
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
@@ -152,6 +141,9 @@ export default class GroupLoby extends Vue {
 		return res;
 	}
 
+	/**
+	 * Load group's details
+	 */
 	public async loadDetails():Promise<void> {
 		try {
 			let res = await Api.get("group/details", {roomId:this.id});
@@ -159,7 +151,7 @@ export default class GroupLoby extends Vue {
 		}catch(error) {
 			this.$store.dispatch("alert", error.message);
 			if(this.$store.state.loggedin) {
-				this.$router.push({name:"playlists"});
+				this.$router.push({name:"playlists", params:{mode:"multi"}});
 			}else{
 				this.$router.push({name:"home"});
 			}
@@ -171,6 +163,9 @@ export default class GroupLoby extends Vue {
 		}
 	}
 
+	/**
+	 * Called when subitting form
+	 */
 	public async onSubmit():Promise<void> {
 		this.joining = true;
 		var res;
@@ -195,6 +190,9 @@ export default class GroupLoby extends Vue {
 		this.joining = false;
 	}
 
+	/**
+	 * Called when someone joins the room
+	 */
 	public onJoin(e:SocketEvent):void {
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
@@ -205,6 +203,9 @@ export default class GroupLoby extends Vue {
 		}
 	}
 	
+	/**
+	 * Called when someone leaves the room
+	 */
 	public onLeave(e:SocketEvent):void {
 		for (let i = 0; i < this.room.users.length; i++) {
 			const u = this.room.users[i];
@@ -214,31 +215,24 @@ export default class GroupLoby extends Vue {
 		}
 	}
 
+	/**
+	 * Called when socket tells to start the game
+	 */
 	public onStartGame(e:SocketEvent):void {
 		this.$store.dispatch("setGroupRoomData", e.data);
 		this.$router.push({name:"group/play"});
 	}
 
+	/**
+	 * Called when clicking "start" button.
+	 * It sends a socket event to all users including self
+	 * See onStartGame() method
+	 */
 	public startGame():void {
 		this.room.tracksCount = this.tracksCount;
 		this.room.gamesCount = this.gamesCount;
 		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
-	}
-
-	/**
-	 * Copies the current link to share it with people
-	 */
-	public shareCurrentRoom():void {
-		Utils.copyToClipboard(window.location.href);
-		this.showCopied = true;
-		setTimeout(() => {
-			this.showCopied = false;
-		}, 5000);
-		this.$nextTick().then(_=> {
-			gsap.set(this.$refs.share, {filter:"brightness(1)"});
-			gsap.from(this.$refs.share, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
-		})
 	}
 
 }
@@ -254,6 +248,9 @@ export default class GroupLoby extends Vue {
 	}
 
 	.holder {
+		&>div {
+			box-sizing: border-box;
+		}
 		.playlists {
 			display: flex;
 			flex-direction: column;
@@ -292,35 +289,40 @@ export default class GroupLoby extends Vue {
 		}
 	
 		&>.form {
-			margin-top: 50px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			.line {
+			margin: auto;
+			margin-top: 25px;
+			// display: flex;
+			// flex-direction: column;
+			// align-items: center;
+			display: block;
+			width: min-content;
+			.content {
+				.blockContent();
 				display: flex;
 				flex-direction: column;
-				margin-bottom: 10px;
+				width: min-content;
 				input{
-					max-width: 200px;
+					margin-bottom: 5px;
+				}
+				button {
+					width: min-content;
+					align-self: center;
 				}
 			}
-		}
-	
-		.gamesCount, .tracksCount {
-			margin: auto;
-			margin-top: 50px;
-			width: min-content;
 		}
 	
 		.start {
 			display: flex;
 			margin: auto;
-			margin-top: 50px;
+			margin-top: 25px;
 		}
 	
 		.users {
 			width: 200px;
 			margin: auto;
+			ul {
+				.blockContent();
+			}
 	
 			.user {
 				white-space: nowrap;
@@ -364,7 +366,7 @@ export default class GroupLoby extends Vue {
 		}
 	
 		.waitHost {
-			margin-top: 50px;
+			margin-top: 25px;
 			background-color: @mainColor_warn;
 			border-radius: 50px;
 			padding: 10px;
@@ -385,37 +387,25 @@ export default class GroupLoby extends Vue {
 	
 		.shareUrl {
 			margin:auto;
-			margin-top: 50px;
-			width:260px;
-			padding: 10px;
-			border-radius: 20px;
-			color: @mainColor_dark;
-			background-color: @mainColor_normal_light;
-	
-			.title {
-				font-family:"Futura";
-				text-align: center;
-				font-size: 20px;
-				margin-bottom: 5px;
-				display: block;
-			}
-			.copied {
-				background-color: @mainColor_highlight;
-				color: #fff;
-				border-radius: 50px;
-				padding: 5px 10px;
-				text-align: center;
-				margin-top: 5px;
-			}
-			.inputs {
-				display: flex;
-				flex-direction: row;
-				.copy {
-					height: 38px;
-					width: 38px;
-					margin-left:2px;
-				}
-			}
+			margin-top: 25px;
+		}
+	}
+
+	.backHome {
+		margin: auto;
+		margin-top: 25px;
+		width: min-content;
+		display: block;
+	}
+
+	.params {
+		margin: auto;
+		margin-top: 25px;
+		display: flex;
+		flex-direction: row;
+		width: min-content;
+		&>*:not(:last-child) {
+			margin-right: 5px;
 		}
 	}
 }

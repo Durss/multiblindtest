@@ -53,11 +53,14 @@ export default class IncrementForm extends Vue {
 .incrementform{
 	.title {
 		white-space: nowrap;
+		font-size: 18px;
 	}
 	&>.form {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+		color: @mainColor_dark;
+		.blockContent();
 		.count {
 			border: 1px solid @mainColor_normal;
 			font-weight: bold;
@@ -66,7 +69,7 @@ export default class IncrementForm extends Vue {
 			margin: 0 10px;
 		}
 		input{
-			width: 60px;
+			width: 35px;
 			padding: 0;
 			text-align: center;
 			margin: 0 10px;
@@ -78,8 +81,8 @@ export default class IncrementForm extends Vue {
 			}
 		}
 		.button {
-			width: 39px;
-			height: 39px;
+			width: 25px;
+			height: 25px;
 			padding: 0;
 			::v-deep img {
 				width: auto;

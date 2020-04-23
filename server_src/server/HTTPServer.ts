@@ -146,6 +146,7 @@ export default class HTTPServer {
 				playlists : req.body.playlists,
 				tracksCount : req.body.tracksCounts,
 				gamesCount : 3,
+				gameStepIndex : 0,
 			}
 			res.status(200).send(JSON.stringify({success:true, roomId}));
 		});
@@ -209,6 +210,7 @@ export default class HTTPServer {
 				return;
 			}
 			room.currentTracks = req.body.tracks;
+			room.gameStepIndex ++;
 			res.status(200).send(JSON.stringify({success:true, roomId}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.TRACKS_DATA, data:room});
 		});

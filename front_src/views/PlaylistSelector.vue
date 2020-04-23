@@ -60,6 +60,7 @@
 		<transition name="slide">
 			<PlaylistSelectorFooter class="footer"
 				:playlists="selectedPlaylists"
+				:mode="mode"
 				v-if="selectedPlaylists.length > 0"
 				@start="startBlindtest()"
 				ref="footer"

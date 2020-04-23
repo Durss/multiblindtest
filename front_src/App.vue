@@ -37,7 +37,7 @@ export default class App extends Vue {
 	.content {
 		max-width: 500px;
 		margin: auto;
-		padding-top: 20px;
+		padding: 20px 0;
 	}
 }
 

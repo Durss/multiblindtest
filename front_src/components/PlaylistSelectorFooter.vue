@@ -10,7 +10,7 @@
 			<span>{{totalTracks}} tracks</span>
 		</div>
 
-		<Slider class="slider" label="Difficulty (number of simultaneous tracks) :" :min="2" :max="maxTracks" v-model="tracksCount" />
+		<Slider v-if="mode == 'solo'" class="slider" label="Difficulty (number of simultaneous tracks) :" :min="2" :max="maxTracks" v-model="tracksCount" />
 		
 		<div class="min" v-if="totalTracks < 20">Select at least 20 tracks</div>
 
@@ -37,6 +37,8 @@ export default class PlaylistSelectorFooter extends Vue {
 
 	@Prop({default:[]})
 	public playlists:PlaylistData[];
+	@Prop()
+	public mode:string;
 
 	public tracksCount:number = 6;
 

@@ -1,5 +1,9 @@
 <template>
 	<div class="multiplayer">
+		<div v-if="loading" class="loader">
+			<img src="@/assets/loader/loader.svg" alt="loader">
+		</div>
+
 		<div v-if="tracksToPlay && !loading">
 			<div class="trackList">
 				<div class="list">
@@ -15,7 +19,7 @@
 
 				<Button
 					class="playpause"
-					:icon="require('@/assets/icons/'+(isPlaying? 'pause' : 'play')+'.svg')"
+					:icon="require('@/assets/icons/'+(isPlaying? 'unmute' : 'mute')+'.svg')"
 					v-if="!complete"
 					big
 					@click="togglePlayPause()"
@@ -35,7 +39,7 @@
 					class="complete"
 					title="New demo"
 					:icon="require('@/assets/icons/refresh.svg')"
-					v-if="complete && demoMode"
+					v-if="complete && demoMode && !hideForm"
 					highlight
 					big
 					@click="startBlindTestFromExamples()"
@@ -45,7 +49,7 @@
 					class="complete"
 					title="Create a Multi Blindtest"
 					:icon="require('@/assets/icons/plus.svg')"
-					v-if="complete && tracksMode"
+					v-if="complete && tracksMode && !hideForm"
 					highlight
 					big
 					@click="createBlindTest()"
@@ -61,6 +65,7 @@
 					:shareUrl="shareUrl"
 					:showShare="!demoMode"
 					:showActions="!multiplayerMode"
+					v-if="!hideForm"
 				/>
 			</div>
 
@@ -70,13 +75,7 @@
 				<img :src="require('@/assets/icons/play.svg')" alt="play" class="icon">
 				<!-- <img :src="require('@/assets/loader/loader_border.svg')" alt="play" class="load"> -->
 			</button>
-
 		</div>
-
-		<div v-if="loading" class="loader">
-			<img src="@/assets/loader/loader.svg" alt="loader">
-		</div>
-
 	</div>
 </template>
 
@@ -109,6 +108,9 @@ export default class GameView extends Vue {
 
 	@Prop({default:""})
 	public trackscounts:string;
+
+	@Prop({default:""})
+	public hideForm:boolean;
 
 	@Prop({default:""})
 	public rawTracksData:TrackData[];
@@ -388,7 +390,7 @@ export default class GameView extends Vue {
 	 * Called when "create a Multi Blindtest" button is click
 	 */
 	public createBlindTest():void {
-		this.$router.push({name:"playlists"})
+		this.$router.push({name:"home"})
 	}
 
 	/**
@@ -448,15 +450,13 @@ export default class GameView extends Vue {
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
 .multiplayer{
-	@size: 300px;
-
+	@size: 200px;
+	
 	.loader {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		width: @size / 2;
-		height: @size / 2;
-		transform: translate(-50%, -50%);
+		margin: auto;
+		width: 80px;
+		height: 80px;
+		margin-bottom: 20px;
 		img {
 			width: 100%;
 			height: 100%;
@@ -474,7 +474,7 @@ export default class GameView extends Vue {
 		margin-bottom: 20px;
 
 		.list {
-			margin-bottom: 30px;
+			margin-bottom: 20px;
 			.track {
 				margin-bottom: 10px;
 			}
@@ -484,8 +484,16 @@ export default class GameView extends Vue {
 			margin-top: 20px;
 		}
 
-		.complete, .playpause {
+		.complete {
 			align-self: center;
+		}
+
+		.playpause {
+			position: fixed;
+			top: 0;
+			right: 0;
+			border-radius: 0;
+			border-bottom-left-radius: 50%;
 		}
 	}
 

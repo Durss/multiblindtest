@@ -66,7 +66,7 @@ export default class TrackEntry extends Vue {
 	max-width: 500px;
 	border-radius: 50px;
 	text-align: center;
-	padding: 15px;
+	padding: 10px;
 	opacity: .5;
 	transition: all .25s;
 	box-sizing: border-box;
@@ -76,7 +76,7 @@ export default class TrackEntry extends Vue {
 	position: relative;
 
 	&>.icon {
-		max-height: 45px;
+		max-height: 35px;
 	}
 
 	.stop {
@@ -115,7 +115,7 @@ export default class TrackEntry extends Vue {
 
 	.placeholder {
 		flex-grow: 1;
-		font-size: 40px;
+		font-size: 30px;
 		font-family: "Arial";
 		font-weight: bold;
 	}

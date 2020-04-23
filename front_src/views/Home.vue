@@ -14,7 +14,7 @@
 			<p class="or" v-if="!loggedIn">- OR -</p>
 			<Button v-if="!loggedIn" title="Demo" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="play" big />
 			<Button v-if="loggedIn" title="Play solo" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="play" big />
-			<Button v-if="loggedIn" title="Start multiplayer" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="play" big />
+			<Button v-if="loggedIn" title="Multiplayer" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="play" big />
 			<Button v-if="loggedIn" title="Create from tracks" :to="{name:'create'}" :icon="require('@/assets/icons/song.svg')" class="play" big />
 		</div>
 		<div class="footer">
