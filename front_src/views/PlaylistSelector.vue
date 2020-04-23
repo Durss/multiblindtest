@@ -11,8 +11,6 @@
 			<div class="header">
 				<h1>Select playlists</h1>
 				<p>Select playlists from which you want songs to be picked up randomly for your Multi Blindtest</p>
-				<div class="or"><strong>OR</strong></div>
-				<Button title="Create from tracks" :icon="require('@/assets/icons/song.svg')" :to="{name:'create'}" />
 			</div>
 
 			<PlayListEntry
@@ -61,11 +59,11 @@
 
 		<transition name="slide">
 			<PlaylistSelectorFooter class="footer"
-			:playlists="selectedPlaylists"
-			v-if="selectedPlaylists.length > 0"
-			@start="startBlindtest()"
-			@startGrouped="startGroupedBlindtest()"
-			ref="footer" />
+				:playlists="selectedPlaylists"
+				v-if="selectedPlaylists.length > 0"
+				@start="startBlindtest()"
+				ref="footer"
+			/>
 		</transition>
 	</div>
 </template>
@@ -91,6 +89,9 @@ import { v4 as uuidv4 } from 'uuid';
 	}
 })
 export default class PlaylistSelector extends Vue {
+
+	@Prop()
+	public mode:string;
 
 	private minTracksPerPlaylist:number = 1;
 
@@ -228,23 +229,20 @@ export default class PlaylistSelector extends Vue {
 	 * Starts the multi blindtest
 	 */
 	public async startBlindtest():Promise<any> {
-		let ids = this.selectedPlaylists.map(p => p.id);
-		let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
-		this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
-	}
-
-	/**
-	 * Starts a grouped multi blindtest
-	 */
-	public async startGroupedBlindtest():Promise<any> {
-		let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
-		playlists.forEach(p => delete p.tracks);
-		let data = {
-			playlists,
-			tracksCounts: (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString(),
+		if(this.mode == "solo") {
+			let ids = this.selectedPlaylists.map(p => p.id);
+			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
+			this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
+		}else{
+			let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
+			playlists.forEach(p => delete p.tracks);
+			let data = {
+				playlists,
+				tracksCounts: (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString(),
+			}
+			let res = await Api.post("group/create", data);
+			this.$router.push({name:"group", params:{id:res.roomId}});
 		}
-		let res = await Api.post("group/create", data);
-		this.$router.push({name:"group", params:{id:res.roomId}});
 	}
 
 }
@@ -365,7 +363,6 @@ export default class PlaylistSelector extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.playlistselector {
-		width: 90%;
 		.loader {
 			width: 80vw;
 		}

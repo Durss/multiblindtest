@@ -12,8 +12,10 @@
 
 			<Button v-if="!loggedIn" title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
 			<p class="or" v-if="!loggedIn">- OR -</p>
-			<Button v-if="!loggedIn" title="Demo" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
-			<Button v-if="loggedIn" title="Start" :to="{name:'playlists'}" :icon="require('@/assets/icons/play.svg')" class="connect" big />
+			<Button v-if="!loggedIn" title="Demo" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="play" big />
+			<Button v-if="loggedIn" title="Play solo" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="play" big />
+			<Button v-if="loggedIn" title="Start multiplayer" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="play" big />
+			<Button v-if="loggedIn" title="Create from tracks" :to="{name:'create'}" :icon="require('@/assets/icons/song.svg')" class="play" big />
 		</div>
 		<div class="footer">
 			Coded by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get sources <a href="https://github.com/Durss/multiblindtest" target="_blank">on github</a><br />
@@ -99,6 +101,10 @@ export default class Home extends Vue {
 		.connect {
 			margin: auto;
 			font-size: 20px;
+		}
+
+		.play {
+			margin-bottom: 10px;
 		}
 
 		.or {

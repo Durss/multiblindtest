@@ -15,8 +15,7 @@
 		<div class="min" v-if="totalTracks < 20">Select at least 20 tracks</div>
 
 		<div class="buttons">
-			<Button title="Play solo" class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
-			<Button title="Play group" class="submit" @click="startGroupedBlindtest()" white v-if="totalTracks >= 20" />
+			<Button title="Start" big class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
 		</div>
 	</div>
 </template>
@@ -64,10 +63,6 @@ export default class PlaylistSelectorFooter extends Vue {
 		this.$emit("start");
 	}
 
-	public startGroupedBlindtest():void {
-		this.$emit("startGrouped");
-	}
-
 }
 </script>
 
@@ -112,6 +107,9 @@ export default class PlaylistSelectorFooter extends Vue {
 
 	.buttons {
 		margin-top: 5px;
+		.button {
+			color: @mainColor_warn;
+		}
 		.submit {
 			margin-right: 10px;
 		}

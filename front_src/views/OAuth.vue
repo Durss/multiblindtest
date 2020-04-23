@@ -38,7 +38,7 @@ export default class OAuth extends Vue {
 					localStorage.removeItem("redirect");
 				}else{
 					//Redirect to playlist selector
-					this.$router.push({name:"playlists"});
+					this.$router.push({name:"home"});
 				}
 			}
 		}else{

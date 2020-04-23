@@ -72,8 +72,9 @@ const routes = [
 		}
 	},
 	{
-		path: '/playlists',
+		path: '/playlists/:mode',
 		name: 'playlists',
+		props:true,
 		meta: {
 			needAuth:true,
 			tag:{
@@ -96,7 +97,7 @@ const routes = [
 		component: MixCreator
 	},
 	{
-		path: '/group/:id',
+		path: '/group/:id?',
 		name: 'group',
 		props:true,
 		meta: {

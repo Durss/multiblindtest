@@ -40,4 +40,12 @@ export default class App extends Vue {
 		padding-top: 20px;
 	}
 }
+
+@media only screen and (max-width: 500px) {
+	.app{
+		.content {
+			width: 90%;
+		}
+	}
+}
 </style>
