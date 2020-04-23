@@ -420,6 +420,11 @@ export default class GameView extends Vue {
 		}
 	}
 
+	@Watch("rawTracksData")
+	public onRawTracksDataChanged():void {
+		this.startBlindTestFromTracksData();
+	}
+
 }
 </script>
 

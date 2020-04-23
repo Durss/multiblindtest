@@ -7,11 +7,20 @@
 				:rawTracksData="tracksToPlay"
 				:trackscounts="tracksToPlay.length"
 				@guessed="onTrackFound"
+				ref="game"
 			/>
 
 			<div class="players">
-				<div v-for="u in room.users" :key="u.id">
-					{{u.name}} : {{u.score}}
+				<div v-for="u in room.users" :key="u.id" :class="userClasses(u)">
+					<div class="username">{{u.name}}</div>
+					<div class="score">{{u.score}}</div>
+				</div>
+			</div>
+
+			<div v-if="gameComplete" class="complete">
+				<div class="title">⭐ Complete ⭐</div>
+				<div v-if="isHost">
+					<Button title="Next game" @click="pickRandomTracks()" />
 				</div>
 			</div>
 		</div>
@@ -28,10 +37,12 @@ import TrackData from '../vo/TrackData';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
 import UserData from '../vo/UserData';
+import Button from '../components/Button.vue';
 
 @Component({
 	components:{
-		GameView
+		Button,
+		GameView,
 	}
 })
 export default class GroupGame extends Vue {
@@ -43,10 +54,13 @@ export default class GroupGame extends Vue {
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
 	public loading:boolean = false;
-	public me:UserData;
+	public gameComplete:boolean = false;
+	public me:UserData = null;
 
 	public tracksDataHandler:any;
 	public guessedTrackHandler:any;
+
+	public get isHost():boolean { return this.me.id == this.room.creator; }
 
 	public async mounted():Promise<void> {
 		this.tracksDataHandler = (e) => this.onTracksData(e);
@@ -71,6 +85,13 @@ export default class GroupGame extends Vue {
 	public beforeDestroy():void {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
+	}
+
+	public userClasses(u:UserData):string[] {
+		let res = ["player"];
+		if(u.id == this.me.id) res.push("me");
+		if(u.id == this.room.creator) res.push("host");
+		return res;
 	}
 
 	/**
@@ -161,6 +182,7 @@ export default class GroupGame extends Vue {
 		console.log("TRACKS DATA", event.data);
 		this.loading = false;
 		this.room = event.data;
+		this.gameComplete = false;
 		this.tracksToPlay = this.room.currentTracks;
 	}
 
@@ -170,14 +192,19 @@ export default class GroupGame extends Vue {
 	private onGuessedTrack(event:SocketEvent):void {
 		let room:RoomData = event.data.room;
 		let score:number = event.data.score;
+		let allGuessed = true;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const track = this.tracksToPlay[i];
 			let t = room.currentTracks.find(t => t.id == track.id);
 			if(t.guessedBy) {
 				Vue.set(track, "guessedBy", t.guessedBy);
 				track.enabled = true;
+			}else{
+				allGuessed = false;
 			}
 		}
+		this.gameComplete = allGuessed;
+		this.gameComplete = true;//TODO REMOVE
 		Vue.set(this.room, "users", room.users);
 	}
 
@@ -185,7 +212,83 @@ export default class GroupGame extends Vue {
 </script>
 
 <style scoped lang="less">
+@import (reference) '../less/_includes.less';
 .groupgame{
-	
+	.players {
+		display: flex;
+		flex-direction: column;
+		width: min-content;
+		margin: auto;
+		padding: 15px;
+		border-radius: 20px;
+		color: @mainColor_dark;
+		background-color: @mainColor_normal_light;
+		.player {
+			display: flex;
+			flex-direction: row;
+			&:not(:last-child) {
+				margin-bottom: 10px;
+				padding-bottom: 10px;
+				border-bottom: 1px solid @mainColor_normal;
+			}
+			.username {
+				width: 150px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			&.me {
+				font-family: "Futura";
+			}
+			&::before {
+				content: " ";
+				background-color: @mainColor_dark;
+				border-radius: 50%;
+				display: inline-block;
+				width: 5px;
+				height: 5px;
+				margin-right: 13px;
+				margin-top: 7px;
+				margin-left: 7px;
+				vertical-align: middle;
+			}
+			&.host {
+				&::before {
+					background-color: transparent;
+					background-image: url("../assets/icons/king.svg");
+					@ratio: 16 / 72;
+					width: 100px * @ratio;
+					height: 72px * @ratio;
+					margin-right: 5px;
+					margin-left: 0;
+					margin-top: 0;
+					border-radius: 0;
+					vertical-align: baseline;
+				}
+			}
+
+			.score {
+				// color: @mainColor_highlight;
+			}
+		}
+	}
+
+	.complete {
+		margin: auto;
+		margin-top: 50px;
+		width: min-content;
+		display: block;
+		text-align: center;
+		color: @mainColor_dark;
+		padding: 15px;
+		border-radius: 20px;
+		background-color: @mainColor_normal_light;
+
+		.title {
+			font-family: "Futura";
+			font-size: 25px;
+			margin-bottom: 10px;
+			white-space: nowrap;
+		}
+	}
 }
 </style>
