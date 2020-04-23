@@ -173,7 +173,10 @@ export default class GameView extends Vue {
 		this.audioPlayer = new AudioPlayer(this.tracksCountAsNum);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
-			this.needUserInteraction = true;
+			this.checkComplete();
+			if(!this.complete) {
+				this.needUserInteraction = true;
+			}
 		};
 	}
 
@@ -336,7 +339,11 @@ export default class GameView extends Vue {
 		}else{
 			//Good answer, shine and clear the field
 			(<TrackAnswerForm>this.$refs["trackAnswerForm"]).shine();
+			StatsManager.instance.event("play","guess-success", "Guess track success");
 			this.checkComplete();
+			if(this.complete) {
+				StatsManager.instance.event("play","complete", "Game complete");
+			}
 		}
 	}
 
@@ -414,10 +421,6 @@ export default class GameView extends Vue {
 			}
 		}
 		this.complete = allGood;
-		StatsManager.instance.event("play","guess-success", "Guess track success");
-		if(allGood) {
-			StatsManager.instance.event("play","complete", "Game complete");
-		}
 	}
 
 	@Watch("rawTracksData")

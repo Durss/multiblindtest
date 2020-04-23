@@ -22,6 +22,10 @@
 				<div v-if="isHost">
 					<Button title="Next game" @click="pickRandomTracks()" />
 				</div>
+				<div v-if="!isHost" class="wait">
+					<img src="@/assets/loader/loader.svg" alt="loading">
+					<div>Wait for {{creatorName}} to start next game...</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -62,6 +66,15 @@ export default class GroupGame extends Vue {
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
+	public get creatorName():string {
+		for (let i = 0; i < this.room.users.length; i++) {
+			if(this.room.creator == this.room.users[i].id) {
+				return this.room.users[i].name;
+			}
+		}
+		return null;
+	}
+
 	public async mounted():Promise<void> {
 		this.tracksDataHandler = (e) => this.onTracksData(e);
 		this.guessedTrackHandler = (e) => this.onGuessedTrack(e);
@@ -77,6 +90,7 @@ export default class GroupGame extends Vue {
 			//don't wait for socket event and just start it
 			this.tracksToPlay = this.room.currentTracks;
 			this.loading = false;
+			this.checkComplete();
 		}else if(this.room.creator == this.me.id) {
 			this.pickRandomTracks();
 		}
@@ -204,8 +218,16 @@ export default class GroupGame extends Vue {
 			}
 		}
 		this.gameComplete = allGuessed;
-		this.gameComplete = true;//TODO REMOVE
+		// this.gameComplete = true;//TODO REMOVE
 		Vue.set(this.room, "users", room.users);
+	}
+
+	public checkComplete():void {
+		let complete = true;
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			if(!this.tracksToPlay[i].enabled) complete = false;
+		}
+		this.gameComplete = complete;
 	}
 
 }
@@ -288,6 +310,11 @@ export default class GroupGame extends Vue {
 			font-size: 25px;
 			margin-bottom: 10px;
 			white-space: nowrap;
+		}
+
+		.wait {
+			font-style: italic;
+			margin-top: 10px;
 		}
 	}
 }
