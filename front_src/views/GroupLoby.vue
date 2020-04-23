@@ -4,7 +4,7 @@
 			<img src="@/assets/loader/loader.svg" alt="loader">
 		</div>
 
-		<div v-if="!loading">
+		<div v-if="!loading" class="holder">
 			<div class="playlists header">
 				<h1>Selected Playlists</h1>
 				<div v-for="p in sortedPlaylists" :key="p.id" class="playlist">
@@ -22,7 +22,7 @@
 
 			<form @submit.prevent="onSubmit()" class="form" v-if="!me">
 				<div class="line">
-					<label for="username">Enter your name :</label>
+					<label for="username"><h2>Enter your name :</h2></label>
 					<input type="text" id="username" class="dark" v-model="userName" maxlength="50">
 				</div>
 				<div class="line">
@@ -30,16 +30,24 @@
 				</div>
 			</form>
 
+			<div class="gamesCount" v-if="isHost">
+				<IncrementForm title="Number of games" v-model="gamesCount" />
+			</div>
+
+			<div class="tracksCount" v-if="isHost">
+				<IncrementForm title="Number of tracks" v-model="tracksCount" maxValue="6" />
+			</div>
+
 			<Button title="Start game"
 				class="start"
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
 				big
 				:disabled="room.users.length < 2"
-				v-if="canStartGame"
+				v-if="isHost"
 				@click="startGame()" />
 
-			<div v-if="!canStartGame && room.users.length > 0" class="waitHost">
+			<div v-if="!isHost && room.users.length > 0" class="waitHost">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
 				<span>Wait for your host, <strong>{{creatorName}}</strong>, to start the game</span>
 			</div>
@@ -66,10 +74,12 @@ import UserData from '../vo/UserData';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
 import gsap from 'gsap';
+import IncrementForm from '../components/IncrementForm.vue';
 
 @Component({
 	components:{
 		Button,
+		IncrementForm,
 	}
 })
 export default class GroupLoby extends Vue {
@@ -77,6 +87,8 @@ export default class GroupLoby extends Vue {
 	@Prop()
 	public id:string;
 
+	public gamesCount:number = 3;
+	public tracksCount:number = 6;
 	public showCopied:boolean = false;
 	public loading:boolean = true;
 	public joining:boolean = false;
@@ -95,7 +107,7 @@ export default class GroupLoby extends Vue {
 		})
 	}
 
-	public get canStartGame():boolean {
+	public get isHost():boolean {
 		if(!this.me) return false;
 		return this.room.creator == this.me.id;
 	}
@@ -208,6 +220,9 @@ export default class GroupLoby extends Vue {
 	}
 
 	public startGame():void {
+		this.room.tracksCount = this.tracksCount;
+		this.room.gamesCount = this.gamesCount;
+		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
 	}
 
@@ -238,169 +253,168 @@ export default class GroupLoby extends Vue {
 		transform: translate(-50%, -50%) scale(2, 2);
 	}
 
-	.playlists {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		h1 {
-			margin-bottom: 20px;
-		}
-
-		.playlist {
-			background-color: @mainColor_normal;
-			border-radius: 100px;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			padding: 5px 20px;
-			box-sizing: border-box;
-			width: min-content;
-			white-space: nowrap;
-			max-width: 100%;
-			margin-bottom: 5px;
-			.label {
-				color: #fff;
-				margin-left: 20px;
-				overflow: hidden;
-				line-height: 30px;
-				text-overflow: ellipsis;
-			}
-			.cover {
-				width: 30px;
-				height: 30px;
-				border-radius: 10px;
-				object-fit: cover;
-			}
-		}
-	}
-
-	.form {
-		margin-top: 50px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		.line {
+	.holder {
+		.playlists {
 			display: flex;
 			flex-direction: column;
-			margin-bottom: 10px;
-			input{
-				max-width: 200px;
+			align-items: center;
+	
+			h1 {
+				margin-bottom: 20px;
 			}
-		}
-	}
-
-	.start {
-		display: flex;
-		margin: auto;
-		margin-top: 50px;
-	}
-
-	.users {
-		width: 200px;
-		margin: auto;
-		
-		h2 {
-			font-weight: bold;
-			font-size: 25px;
-			border-bottom: 1px solid;
-			padding-bottom: 5px;
-			margin-bottom: 5px;
-			text-align: center;
-		}
-
-		.user {
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			line-height: 30px;
-			background-color: @mainColor_normal_light;
-			border-radius: 50px;
-			padding: 0 10px;
-			color: @mainColor_dark;
-			margin-bottom: 2px;
-
-			&.me {
-				font-family: "Futura";
-			}
-			&::before {
-				content: " ";
-				background-color: @mainColor_dark;
-				border-radius: 50%;
-				display: inline-block;
-				width: 5px;
-				height: 5px;
-				margin-right: 13px;
-				margin-left: 7px;
-				vertical-align: middle;
-			}
-			&.host {
-				&::before {
-					background-color: transparent;
-					background-image: url("../assets/icons/king.svg");
-					@ratio: 16 / 72;
-					width: 100px * @ratio;
-					height: 72px * @ratio;
-					margin-right: 5px;
-					margin-left: 0;
-					border-radius: 0;
-					vertical-align: baseline;
+	
+			.playlist {
+				background-color: @mainColor_normal;
+				border-radius: 100px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				padding: 5px 20px;
+				box-sizing: border-box;
+				width: min-content;
+				white-space: nowrap;
+				max-width: 100%;
+				margin-bottom: 5px;
+				.label {
+					color: #fff;
+					margin-left: 20px;
+					overflow: hidden;
+					line-height: 30px;
+					text-overflow: ellipsis;
+				}
+				.cover {
+					width: 30px;
+					height: 30px;
+					border-radius: 10px;
+					object-fit: cover;
 				}
 			}
 		}
-	}
-
-	.waitHost {
-		margin-top: 50px;
-		background-color: @mainColor_warn;
-		border-radius: 50px;
-		padding: 10px;
-		font-style: italic;
-		color: #fff;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		span {
-			text-align: center;
-			flex-grow: 1;
+	
+		&>.form {
+			margin-top: 50px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			.line {
+				display: flex;
+				flex-direction: column;
+				margin-bottom: 10px;
+				input{
+					max-width: 200px;
+				}
+			}
 		}
-		.spinner {
-			width: 20px;
-			height: 20px;
+	
+		.gamesCount, .tracksCount {
+			margin: auto;
+			margin-top: 50px;
+			width: min-content;
 		}
-	}
-
-	.shareUrl {
-		margin:auto;
-		margin-top: 50px;
-		width:260px;
-		padding: 10px;
-		border-radius: 20px;
-		color: @mainColor_dark;
-		background-color: @mainColor_normal_light;
-
-		.title {
-			font-family:"Futura";
-			text-align: center;
-			font-size: 20px;
-			margin-bottom: 5px;
-			display: block;
+	
+		.start {
+			display: flex;
+			margin: auto;
+			margin-top: 50px;
 		}
-		.copied {
-			background-color: @mainColor_highlight;
-			color: #fff;
+	
+		.users {
+			width: 200px;
+			margin: auto;
+	
+			.user {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				line-height: 30px;
+				background-color: @mainColor_normal_light;
+				border-radius: 50px;
+				padding: 0 10px;
+				color: @mainColor_dark;
+				margin-bottom: 2px;
+	
+				&.me {
+					font-family: "Futura";
+				}
+				&::before {
+					content: " ";
+					background-color: @mainColor_dark;
+					border-radius: 50%;
+					display: inline-block;
+					width: 5px;
+					height: 5px;
+					margin-right: 13px;
+					margin-left: 7px;
+					vertical-align: middle;
+				}
+				&.host {
+					&::before {
+						background-color: transparent;
+						background-image: url("../assets/icons/king.svg");
+						@ratio: 16 / 72;
+						width: 100px * @ratio;
+						height: 72px * @ratio;
+						margin-right: 5px;
+						margin-left: 0;
+						border-radius: 0;
+						vertical-align: baseline;
+					}
+				}
+			}
+		}
+	
+		.waitHost {
+			margin-top: 50px;
+			background-color: @mainColor_warn;
 			border-radius: 50px;
-			padding: 5px 10px;
-			text-align: center;
-			margin-top: 5px;
-		}
-		.inputs {
+			padding: 10px;
+			font-style: italic;
+			color: #fff;
 			display: flex;
 			flex-direction: row;
-			.copy {
-				height: 38px;
-				width: 38px;
-				margin-left:2px;
+			align-items: center;
+			span {
+				text-align: center;
+				flex-grow: 1;
+			}
+			.spinner {
+				width: 20px;
+				height: 20px;
+			}
+		}
+	
+		.shareUrl {
+			margin:auto;
+			margin-top: 50px;
+			width:260px;
+			padding: 10px;
+			border-radius: 20px;
+			color: @mainColor_dark;
+			background-color: @mainColor_normal_light;
+	
+			.title {
+				font-family:"Futura";
+				text-align: center;
+				font-size: 20px;
+				margin-bottom: 5px;
+				display: block;
+			}
+			.copied {
+				background-color: @mainColor_highlight;
+				color: #fff;
+				border-radius: 50px;
+				padding: 5px 10px;
+				text-align: center;
+				margin-top: 5px;
+			}
+			.inputs {
+				display: flex;
+				flex-direction: row;
+				.copy {
+					height: 38px;
+					width: 38px;
+					margin-left:2px;
+				}
 			}
 		}
 	}

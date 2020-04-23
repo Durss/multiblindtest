@@ -145,8 +145,18 @@ export default class HTTPServer {
 				users: [],
 				playlists : req.body.playlists,
 				tracksCount : req.body.tracksCounts,
+				gamesCount : 3,
 			}
 			res.status(200).send(JSON.stringify({success:true, roomId}));
+		});
+
+		/**
+		 * Updates an existing
+		 */
+		this.app.post("/api/group/update", (req, res) => {
+			let room = req.body.room
+			this._rooms[room.id] = room;
+			res.status(200).send(JSON.stringify({success:true, room}));
 		});
 		
 		/**
@@ -199,7 +209,6 @@ export default class HTTPServer {
 				return;
 			}
 			room.currentTracks = req.body.tracks;
-			// room.guessesTrackIdToUserId = {};
 			res.status(200).send(JSON.stringify({success:true, roomId}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.TRACKS_DATA, data:room});
 		});
@@ -216,9 +225,6 @@ export default class HTTPServer {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
-			// if(!room.guessesTrackIdToUserId[trackId]) {
-			// 	room.guessesTrackIdToUserId[trackId] = user;
-			// }
 			let score = room.currentTracks.length;
 			let user:UserData;
 			for (let i = 0; i < room.currentTracks.length; i++) {

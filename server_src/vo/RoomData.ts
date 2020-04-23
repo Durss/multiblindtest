@@ -8,6 +8,6 @@ export default interface RoomData {
     users:UserData[];
     playlists:PlaylistData[];
     tracksCount:number;
+    gamesCount:number;
     currentTracks?:TrackData[];
-    // guessesTrackIdToUserId?:{[id:string]:string};
 }

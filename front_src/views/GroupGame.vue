@@ -11,9 +11,17 @@
 			/>
 
 			<div class="players">
-				<div v-for="u in room.users" :key="u.id" :class="userClasses(u)">
-					<div class="username">{{u.name}}</div>
-					<div class="score">{{u.score}}</div>
+				<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
+					<div class="position">{{index + 1}}</div>
+					<div class="content">
+						<div class="info">
+							<div class="username">{{u.name}}</div>
+							<div class="score">{{u.score}}</div>
+						</div>
+						<div class="progressBar">
+							<div class="fill" :style="userScorePercentStyles(u)"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -66,6 +74,16 @@ export default class GroupGame extends Vue {
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
+	public get users():UserData[] {
+		let list = this.room.users;
+		list.sort((a, b) => {
+			if(a.score > b.score) return -1;
+			if(a.score < b.score) return 1;
+			return 0
+		})
+		return list;
+	}
+
 	public get creatorName():string {
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.creator == this.room.users[i].id) {
@@ -106,6 +124,14 @@ export default class GroupGame extends Vue {
 		if(u.id == this.me.id) res.push("me");
 		if(u.id == this.room.creator) res.push("host");
 		return res;
+	}
+
+	public userScorePercentStyles(user:UserData):any {
+		let maxScore = this.room.tracksCount * this.room.gamesCount;
+		let w = (user.score/maxScore*100)+"%";
+		return {
+			width:w
+		}
 	}
 
 	/**
@@ -251,43 +277,85 @@ export default class GroupGame extends Vue {
 		.player {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
+
 			&:not(:last-child) {
 				margin-bottom: 10px;
 				padding-bottom: 10px;
 				border-bottom: 1px solid @mainColor_normal;
 			}
-			.username {
-				width: 150px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
 			&.me {
 				font-family: "Futura";
 			}
-			&::before {
-				content: " ";
-				background-color: @mainColor_dark;
-				border-radius: 50%;
-				display: inline-block;
-				width: 5px;
-				height: 5px;
-				margin-right: 13px;
-				margin-top: 7px;
-				margin-left: 7px;
-				vertical-align: middle;
-			}
+
 			&.host {
+				.content {
+					.info {
+						&::before {
+							background-color: transparent;
+							background-image: url("../assets/icons/king.svg");
+							@ratio: 16 / 72;
+							width: 100px * @ratio;
+							height: 72px * @ratio;
+							margin-right: 5px;
+							margin-left: 0;
+							margin-top: 0;
+							border-radius: 0;
+							vertical-align: baseline;
+						}
+					}
+				}
+			}
+
+			.position {
+				margin-right: 10px;
+				font-family: "FuturaExtraBold";
 				&::before {
-					background-color: transparent;
-					background-image: url("../assets/icons/king.svg");
-					@ratio: 16 / 72;
-					width: 100px * @ratio;
-					height: 72px * @ratio;
-					margin-right: 5px;
-					margin-left: 0;
-					margin-top: 0;
-					border-radius: 0;
-					vertical-align: baseline;
+					content: "#";
+					display: inline;
+					font-size: 15px;
+					font-family: "Futura";
+				}
+			}
+
+			.content {
+				display: flex;
+				flex-direction: column;
+				.info {
+					display: flex;
+					flex-direction: row;
+					.username {
+						width: 150px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
+					&::before {
+						content: " ";
+						background-color: @mainColor_dark;
+						border-radius: 50%;
+						display: inline-block;
+						width: 5px;
+						height: 5px;
+						margin-right: 13px;
+						margin-top: 7px;
+						margin-left: 7px;
+						vertical-align: middle;
+					}
+				}
+	
+				.progressBar {
+					display: block;
+					margin-top: 5px;
+					background-color: fade(#fff, 25%);
+					height: 5px;
+					border-radius: 10px;
+					overflow: hidden;
+					.fill {
+						transition: width .5s;
+						height: 100%;
+						width: 50%;
+						background-color: @mainColor_warn_light;
+					}
 				}
 			}
 
