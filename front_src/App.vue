@@ -33,7 +33,17 @@ import Button from './components/Button.vue';
 export default class App extends Vue {
 
 	public mounted():void {
-		
+		//This hacks plays an empty sound on first click to avoid "click to play"
+		//layer when starting a multiplyer blindtest and we're not the host
+		let handler = (e) => {
+			let elem = new Audio();
+			elem.loop = true;
+			elem.autoplay = false;
+			elem.volume = 0;
+			elem.setAttribute("src", "/mp3/silence.mp3");
+			document.removeEventListener("click", handler);
+		}
+		document.addEventListener("click", handler);
 	}
 
 	public beforeDestroy():void {

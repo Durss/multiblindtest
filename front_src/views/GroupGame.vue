@@ -8,7 +8,7 @@
 				v-if="tracksToPlay && tracksToPlay.length > 0"
 				:rawTracksData="tracksToPlay"
 				:trackscounts="tracksToPlay.length"
-				:hideForm="gameComplete"
+				:hideForm="gameComplete || fullMe.pass"
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
@@ -41,24 +41,24 @@
 			</div>
 		</div>
 
-			<div class="players">
-				<h2>{{$t('group.game.rank')}}</h2>
-				<div class="content">
-					<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
-						<div class="position">{{index + 1}}</div>
-						<div class="pass" v-if="u.pass">{{$t('group.game.gaveup')}}</div>
-						<div class="content">
-							<div class="info">
-								<div class="username">{{u.name}}</div>
-								<div class="score">{{u.score}}</div>
-							</div>
-							<div class="progressBar">
-								<div class="fill" :style="userScorePercentStyles(u)"></div>
-							</div>
+		<div class="players">
+			<h2>{{$t('group.game.rank')}}</h2>
+			<div class="content">
+				<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
+					<div class="position">{{index + 1}}</div>
+					<div class="pass" v-if="u.pass && !gameComplete">{{$t('group.game.gaveup')}}</div>
+					<div class="content">
+						<div class="info">
+							<div class="username">{{u.name}}</div>
+							<div class="score">{{u.score}}</div>
+						</div>
+						<div class="progressBar">
+							<div class="fill" :style="userScorePercentStyles(u)"></div>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 	</div>
 </template>
 
@@ -100,6 +100,7 @@ export default class GroupGame extends Vue {
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
 	public get users():UserData[] {
+		if(!this.room) return [];
 		let list = this.room.users;
 		list.sort((a, b) => {
 			if(a.score > b.score) return -1;
@@ -129,7 +130,6 @@ export default class GroupGame extends Vue {
 			if(u.id == ref.id) {
 				return u;
 			}
-			
 		}
 	}
 
@@ -166,7 +166,7 @@ export default class GroupGame extends Vue {
 		let res = ["player"];
 		if(u.id == this.me.id) res.push("me");
 		if(u.id == this.room.creator) res.push("host");
-		if(u.pass) res.push("passed");
+		if(u.pass && !this.gameComplete) res.push("passed");
 		return res;
 	}
 

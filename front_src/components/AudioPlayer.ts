@@ -125,7 +125,7 @@ export default class AudioPlayer {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = .1;//TODO RESET TO 1
+			elem.volume = .5;//TODO RESET TO 1
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
 			this.audioObjects.push(elem);
 		}

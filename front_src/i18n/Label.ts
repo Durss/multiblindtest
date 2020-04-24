@@ -4,7 +4,7 @@ export default class Labels {
 			global: {
 				yes:"Yes",
 				no:"No",
-				quit:"Quitter",
+				quit:"Retour",
 			},
 			oAuth: {
 				title:"You must grant access to your playlists to play Multi Blindtest",

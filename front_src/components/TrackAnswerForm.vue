@@ -1,8 +1,17 @@
 <template>
 	<div :class="classes">
-		<label v-if="canGuess" for="trackName" class="label">{{$t('game.guess')}}</label>
-
-		<input v-if="canGuess" ref="input" type="text" :placeholder="$t('game.guessPlaceholder')" v-model="guess" class="input dark" id="trackName" @keyup.enter="onSubmitGuess()" autocomplete="off">
+		<form @submit.prevent="onSubmitGuess()" class="form">
+			<label v-if="canGuess" for="trackName" class="label">{{$t('game.guess')}}</label>
+			<div class="line">
+				<input v-if="canGuess" ref="input" type="text" :placeholder="$t('game.guessPlaceholder')"
+					v-model="guess"
+					class="input dark"
+					id="trackName"
+					autocomplete="off"
+				>
+				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" />
+			</div>
+		</form>
 		
 		<div v-if="shareUrl" class="shareUrl" ref="share">
 			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeShare')" />
@@ -103,10 +112,26 @@ export default class TrackAnswerForm extends Vue {
 		}
 	}
 
-	.input {
-		margin-bottom: 10px;
-		position: relative;
-		transition: background-color .25s, color .25s;
+	.form {
+		.line {
+			display: flex;
+			flex-direction: row;
+			.input {
+				margin-bottom: 10px;
+				position: relative;
+				transition: background-color .25s, color .25s;
+				flex-grow: 1;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			.submit {
+				flex-grow: 0;
+				width: 40px;
+				height: 40px;
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		}
 	}
 
 	.showAnswers {
