@@ -152,7 +152,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Pour un mal de crâne garanti -",
-				head : "C'est comme jouer à <strong>{tracksCount}</strong> blindtests en simultané",
+				head : "C'est comme jouer à <strong>{tracksCount}</strong> blindtests en simultané.<br />Insupportable",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Partie solo",

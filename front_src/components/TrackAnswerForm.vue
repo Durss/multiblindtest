@@ -1,9 +1,9 @@
 <template>
 	<div :class="classes">
-		<form @submit.prevent="onSubmitGuess()" class="form">
-			<label v-if="canGuess" for="trackName" class="label">{{$t('game.guess')}}</label>
+		<form @submit.prevent="onSubmitGuess()" class="form" v-if="canGuess">
+			<label for="trackName" class="label">{{$t('game.guess')}}</label>
 			<div class="line">
-				<input v-if="canGuess" ref="input" type="text" :placeholder="$t('game.guessPlaceholder')"
+				<input ref="input" type="text" :placeholder="$t('game.guessPlaceholder')"
 					v-model="guess"
 					class="input dark"
 					id="trackName"
