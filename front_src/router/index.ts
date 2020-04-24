@@ -6,6 +6,7 @@ import GroupGame from '@/views/GroupGame.vue';
 import GroupLoby from '@/views/GroupLoby.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import GameView from '@/views/GameView.vue';
+import ChangeLog from '@/views/ChangeLog.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 
 Vue.use(VueRouter)
@@ -123,6 +124,17 @@ const routes = [
 			}
 		},
 		component: GroupGame
+	},
+	{
+		path: '/changelog',
+		name: 'changelog',
+		meta: {
+			tag:{
+				path:"/changelog",
+				title:"changelog"
+			}
+		},
+		component: ChangeLog
 	},
 	{
 		path: "*",

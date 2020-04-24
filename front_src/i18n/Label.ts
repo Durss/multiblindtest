@@ -19,6 +19,7 @@ export default class Labels {
 				solo : "Play solo",
 				multi : "Multiplayer",
 				create : "Create from tracks",
+				changelog : "See latest updates",
 				footer : `
 					Created by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get sources <a href="https://github.com/Durss/multiblindtest" target="_blank">on github</a><br />
 					Based on <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">an idea</a> from <a href="https://twitter.com/navo_" target="_blank">Navo</a> &amp; <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
@@ -98,7 +99,39 @@ export default class Labels {
 				newGame:"New Multi Blindtest",
 				createGame:"Create a Multi Blindtest",
 			},
+
+
+			changelog: {
+				title:"Latest updates",
+				logs: [
+					{
+						date:"04/24/2020",
+						updates: [
+							"New multiplayer mode",
+							"Making interface clearer",
+						]
+					},
+					{
+						date:"01/27/2020",
+						updates: [
+							"Possibility to change number of simultaneous tracks",
+							"New demo mode to try out with connecting to spotify",
+						]
+					},
+					{
+						date:"01/22/2020",
+						updates: [
+							"First version online !",
+						]
+					}
+				],
+			},
 		},
+
+
+
+
+
 		
 		fr : {
 			global: {
@@ -118,6 +151,7 @@ export default class Labels {
 				solo : "Jouer seul",
 				multi : "Multi joueur",
 				create : "Créer un mix",
+				changelog : "Voir les dernières mises à jour",
 				footer : `
 					Créé par <a href="https://www.durss.ninja" target="_blank">Durss</a>. Sources <a href="https://github.com/Durss/multiblindtest" target="_blank">sur github</a><br />
 					Basé sur <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">une idée</a> de <a href="https://twitter.com/navo_" target="_blank">Navo</a> &amp; <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
@@ -196,6 +230,32 @@ export default class Labels {
 				newDemo:"Nouvelle demo",
 				newGame:"Nouveau Multi Blindtest",
 				createGame:"Créer un Multi Blindtest",
+			},
+
+			changelog: {
+				title:"Mises à jour",
+				logs: [
+					{
+						date:"24/04/2020",
+						updates: [
+							"Nouveau mode multi joueur",
+							"Mises à jour de l'interface pour la rendre plus claire",
+						]
+					},
+					{
+						date:"27/01/2020",
+						updates: [
+							"Possibilité de changer le nombre de morceaux joués simultanément",
+							"Nouveau mode demo pour tester sans se connecter à spotify",
+						]
+					},
+					{
+						date:"22/01/2020",
+						updates: [
+							"Première version en ligne",
+						]
+					}
+				]
 			},
 		},
 	}

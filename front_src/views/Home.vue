@@ -15,7 +15,10 @@
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/song.svg')" class="button" big />
 		</div>
-		<div class="footer" v-html="$t('home.footer')"></div>
+		<div class="footer">
+			<router-link to="/changelog">{{$t('home.changelog')}}</router-link>
+			<div v-html="$t('home.footer')"></div>
+		</div>
 	</div>
 </template>
 
