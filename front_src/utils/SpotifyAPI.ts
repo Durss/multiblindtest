@@ -1,4 +1,5 @@
 import Config from './Config';
+import { Route } from 'vue-router';
 
 export default class SpotifyAPI {
 
@@ -97,9 +98,13 @@ export default class SpotifyAPI {
 	/**
 	 * Restart an OAuth process if the access token expired
 	 */
-	public refreshTokenIfNecessary():Promise<void> {
+	public refreshTokenIfNecessary(redirTo:Route):Promise<void> {
 		return new Promise((resolve, reject) => {
 			if(this.isTokenExpired()) {
+				if(redirTo) {
+					let redirUrl = window.location.protocol+"//"+window.location.host+redirTo.path;
+					localStorage.setItem("redirect", redirUrl);
+				}
 				this.authenticate();
 				reject();
 			}else{

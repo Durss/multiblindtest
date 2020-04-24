@@ -41,7 +41,7 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 		});
 	}else{
 		if(to.matched[0].meta.needAuth === true) {
-			await SpotifyAPI.instance.refreshTokenIfNecessary();
+			await SpotifyAPI.instance.refreshTokenIfNecessary(to);
 		}
 		nextStep(next, to);
 	}

@@ -148,8 +148,8 @@ export default class Labels {
 				head : "Perds l'audition en jouant à <strong>{tracksCount}</strong> blindtests en simultané",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
-				solo : "Jouer seul",
-				multi : "Multi joueur",
+				solo : "Partie solo",
+				multi : "Multijoueur",
 				create : "Créer un mix",
 				changelog : "Voir les dernières mises à jour",
 				footer : `
@@ -238,7 +238,7 @@ export default class Labels {
 					{
 						date:"24/04/2020",
 						updates: [
-							"Nouveau mode multi joueur",
+							"Nouveau mode multijoueur",
 							"Mises à jour de l'interface pour la rendre plus claire",
 						]
 					},
