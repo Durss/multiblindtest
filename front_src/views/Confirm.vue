@@ -122,12 +122,12 @@ export default class ConfirmView extends Vue {
 			font-size: 25px;
 			font-weight: bold;
 			text-align: center;
-			font-family: "Nestle-Text-Book";
+			font-family: "Futura";
 		}
 
 		.description {
 			margin-top: 20px;
-			font-family: "Nestle-Text-Light";
+			font-family: "FuturaLight";
 		}
 
 		.buttons {

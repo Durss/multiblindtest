@@ -1,8 +1,6 @@
 <template>
 	<div class="app">
 		<router-view class="content"/>
-		<Alert />
-		<Tooltip />
 		<transition name="slide" appear>
 			<Button class="backHome"
 				v-if="$route.meta.hideHomeBt!==true"
@@ -11,6 +9,9 @@
 				big
 			/>
 		</transition>
+		<Alert />
+		<Tooltip />
+		<Confirm />
 	</div>
 </template>
 

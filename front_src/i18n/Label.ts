@@ -83,7 +83,14 @@ export default class Labels {
 					new:"New game",
 					complete:"Game finished",
 					wait:"Wait for <strong>{hostName}</strong> to start next game",
-					index:"Manche {index}/{total}",
+					index:"Game {index}/{total}",
+					giveup:"I pass",
+					gaveup:"Passed",
+					rank:"Scores",
+					giveupConfirm: {
+						title: "Give up ?",
+						description: "If majority of the players give up, this game will be over and answers will be displayed.",
+					},
 				}
 			},
 			game: {
@@ -216,12 +223,19 @@ export default class Labels {
 					new:"Nouvelle partie",
 					complete:"Partie terminée",
 					wait:"Attendez que <strong>{hostName}</strong> lance la partie suivante",
+					giveup:"Je passe",
+					gaveup:"Abandon",
+					rank:"Classement",
+					giveupConfirm: {
+						title: "Passer ton tour ?",
+						description: "Si la majorité des joueurs passent, la manche sera terminée et les réponses affichées.",
+					},
 				}
 			},
 			game: {
 				hidden: "???",
 				guess: "Faire une proposition :",
-				guessPlaceholder: "title OU artiste...",
+				guessPlaceholder: "titre OU artiste...",
 				stopTrack: "Arrêter ce morceau",
 				answerForm: {
 					show: "Voir les réponses",

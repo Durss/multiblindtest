@@ -3,4 +3,5 @@ export default interface UserData {
     id:string;
     offline:boolean;
     score:number;
+    pass?:boolean;
 }

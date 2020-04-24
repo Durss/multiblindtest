@@ -1,7 +1,9 @@
 <template>
 	<div class="groupgame">
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
+
 		<div v-if="room">
+			<h1 class="header">{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
 			<GameView
 				v-if="tracksToPlay && tracksToPlay.length > 0"
 				:rawTracksData="tracksToPlay"
@@ -9,13 +11,25 @@
 				:hideForm="gameComplete"
 				@guessed="onTrackFound"
 				ref="game"
+				class="game"
+			/>
+
+			<Button
+				:title="$t('group.game.giveup')"
+				highlight
+				:icon="require('@/assets/icons/shrug.svg')"
+				class="giveUp"
+				@click="onGiveUp()"
+				:loading="loadingPass"
+				v-if="!fullMe.pass"
 			/>
 
 			<div class="players">
-				<h2>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h2>
+				<h2>{{$t('group.game.rank')}}</h2>
 				<div class="content">
 					<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
 						<div class="position">{{index + 1}}</div>
+						<div class="pass" v-if="u.pass">{{$t('group.game.gaveup')}}</div>
 						<div class="content">
 							<div class="info">
 								<div class="username">{{u.name}}</div>
@@ -32,7 +46,7 @@
 			<div v-if="gameStepComplete" class="complete">
 				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
 				<div v-if="isHost" class="content">
-					<Button class="button" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
+					<Button class="button next" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
 					<Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
 					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" v-if="gameComplete" highlight />
 				</div>
@@ -75,10 +89,12 @@ export default class GroupGame extends Vue {
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
 	public loading:boolean = false;
+	public loadingPass:boolean = false;
 	public gameStepComplete:boolean = false;
 	public me:UserData = null;
 
 	public tracksDataHandler:any;
+	public playerPassHandler:any;
 	public guessedTrackHandler:any;
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
@@ -106,11 +122,24 @@ export default class GroupGame extends Vue {
 		return this.gameStepComplete && this.room.gamesCount == this.room.gameStepIndex;
 	}
 
+	public get fullMe():UserData {
+		let ref = this.$store.state.userGroupData;
+		for (let i = 0; i < this.room.users.length; i++) {
+			const u = this.room.users[i];
+			if(u.id == ref.id) {
+				return u;
+			}
+			
+		}
+	}
+
 	public async mounted():Promise<void> {
 		this.tracksDataHandler = (e) => this.onTracksData(e);
 		this.guessedTrackHandler = (e) => this.onGuessedTrack(e);
+		this.playerPassHandler = (e) => this.onPlayerPass(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerPassHandler);
 		this.me = this.$store.state.userGroupData;
 		
 		await this.getRoomDetails();
@@ -130,12 +159,14 @@ export default class GroupGame extends Vue {
 	public beforeDestroy():void {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerPassHandler);
 	}
 
 	public userClasses(u:UserData):string[] {
 		let res = ["player"];
 		if(u.id == this.me.id) res.push("me");
 		if(u.id == this.room.creator) res.push("host");
+		if(u.pass) res.push("passed");
 		return res;
 	}
 
@@ -206,7 +237,7 @@ export default class GroupGame extends Vue {
 				this.$store.dispatch("alert", error.message);
 
 				if(this.$store.state.loggedin) {
-					this.$router.push({name:"playlists"});
+					this.$router.push({name:"playlists", params:{mode:"multi"}});
 				}else{
 					this.$router.push({name:"home"});
 				}
@@ -242,6 +273,10 @@ export default class GroupGame extends Vue {
 		this.room = event.data;
 		this.gameStepComplete = false;
 		this.tracksToPlay = this.room.currentTracks;
+		//Reset pass states
+		for (let i = 0; i < this.room.users.length; i++) {
+			this.room.users[i].pass = false;
+		}
 	}
 
 	/**
@@ -271,12 +306,49 @@ export default class GroupGame extends Vue {
 	/**
 	 * Check if game is complete
 	 */
-	public checkComplete():void {
+	private checkComplete():void {
 		let complete = true;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			if(!this.tracksToPlay[i].enabled) complete = false;
 		}
 		this.gameStepComplete = complete;
+	}
+
+	/**
+	 * Called when player clicks "give up" button
+	 */
+	private onGiveUp():void {
+		Utils.confirm(this.$t('group.game.giveupConfirm.title').toString(), null, this.$t('group.game.giveupConfirm.description').toString())
+		.then(async _=> {
+			this.loadingPass = true;
+			try {
+				await Api.post("group/pass", {userId:this.me.id, roomId:this.room.id});
+			}catch(error) {
+				this.$store.dispatch("alert", error.message);
+			}
+			this.loadingPass = false;
+		});
+	}
+
+	private onPlayerPass(e:SocketEvent):void {
+		let room:RoomData = e.data.room;
+		let majorityPassed:Boolean = e.data.pass;
+		//Update pass state of all users
+		for (let i = 0; i < this.room.users.length; i++) {
+			const player = this.room.users[i];
+			for (let j = 0; j < room.users.length; j++) {
+				if(room.users[j].id == player.id) {
+					player.pass = room.users[j].pass;
+				}
+			}
+		}
+		if(majorityPassed) {
+			this.gameStepComplete = true;
+			for (let i = 0; i < this.tracksToPlay.length; i++) {
+				const t = this.tracksToPlay[i];
+				t.enabled = true;
+			}
+		}
 	}
 
 }
@@ -285,6 +357,30 @@ export default class GroupGame extends Vue {
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
 .groupgame{
+	h1 {
+		display: block;
+		width: min-content;
+		white-space: nowrap;
+		margin: auto;
+		margin-bottom: 50px;
+	}
+	.giveUp {
+		margin: auto;
+		margin-bottom: 30px;
+		display: block;
+		
+		::v-deep .icon {
+			height: 100%;
+			width: 40px;
+		}
+	}
+
+	.game {
+		// Allows the dimmer to be above the other elements of the page
+		z-index: 1;
+		position: relative;
+	}
+
 	.players {
 		display: flex;
 		flex-direction: column;
@@ -327,6 +423,21 @@ export default class GroupGame extends Vue {
 								vertical-align: baseline;
 							}
 						}
+					}
+				}
+
+				&.passed {
+					.pass {
+						position: absolute;
+						left: 50%;
+						transform: translate(-40%) rotate(5deg);
+						font-family: "FuturaExtraBold";
+						text-transform: uppercase;
+						color: #c00;
+						text-shadow: rgba(0,0,0,.25) 2px 2px 2px;
+					}
+					.content {
+						opacity: .25;
 					}
 				}
 
@@ -381,10 +492,6 @@ export default class GroupGame extends Vue {
 						}
 					}
 				}
-
-				.score {
-					// color: @mainColor_highlight;
-				}
 			}
 		}
 	}
@@ -412,7 +519,7 @@ export default class GroupGame extends Vue {
 			width:220px;
 		}
 		.content {
-			.button {
+			.button:not(.next) {
 				margin-top: 10px;
 			}
 		}

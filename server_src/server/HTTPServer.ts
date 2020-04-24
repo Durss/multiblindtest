@@ -209,6 +209,10 @@ export default class HTTPServer {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
+			//Reset pass states
+			for (let i = 0; i < room.users.length; i++) {
+				room.users[i].pass = false;
+			}
 			room.currentTracks = req.body.tracks;
 			room.gameStepIndex ++;
 			res.status(200).send(JSON.stringify({success:true, roomId}));
@@ -245,6 +249,38 @@ export default class HTTPServer {
 
 			res.status(200).send(JSON.stringify({success:true, room}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.GUESSED_TRACK, data:{room, score}});
+		});
+
+		/**
+		 * Called if a user passes
+		 */
+		this.app.post("/api/group/pass", (req, res) => {
+			let roomId = req.body.roomId;
+			let userId = req.body.userId;
+			let room = this._rooms[roomId];
+			if(!room) {
+				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			let passCount = 0;
+			let usersOnline = 0;
+			for (let i = 0; i < room.users.length; i++) {
+				let u = room.users[i];
+				if(u.id == userId) u.pass = true;
+				if(u.pass) passCount ++;
+				if(!u.offline) usersOnline ++;
+			}
+
+			let pass = passCount > usersOnline/2;
+			if(pass) {
+				//Flag all tracks as discovered
+				for (let i = 0; i < room.currentTracks.length; i++) {
+					let t = room.currentTracks[i];
+					t.enabled = true;
+				}
+			}
+			res.status(200).send(JSON.stringify({success:true, room, pass}));
+			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.PLAYER_PASS, data:{room, pass}});
 		});
 	}
 
