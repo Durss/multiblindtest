@@ -31,13 +31,17 @@
 
 			<div v-if="gameStepComplete" class="complete">
 				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
-				<div v-if="isHost">
-					<Button :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
-					<Button :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
+				<div v-if="isHost" class="content">
+					<Button class="button" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
+					<Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
+					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" v-if="gameComplete" highlight />
 				</div>
-				<div v-if="!isHost" class="wait">
+				<div v-if="!isHost && !gameComplete" class="wait">
 					<img src="@/assets/loader/loader.svg" alt="loading">
 					<div v-html="$t('group.game.wait', {hostName:hostName})"></div>
+				</div>
+				<div v-if="!isHost && gameComplete" class="content">
+					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" highlight />
 				</div>
 			</div>
 		</div>
@@ -399,7 +403,6 @@ export default class GroupGame extends Vue {
 		.title {
 			font-family: "Futura";
 			font-size: 25px;
-			margin-bottom: 10px;
 			white-space: nowrap;
 		}
 
@@ -407,6 +410,11 @@ export default class GroupGame extends Vue {
 			font-style: italic;
 			margin-top: 10px;
 			width:220px;
+		}
+		.content {
+			.button {
+				margin-top: 10px;
+			}
 		}
 	}
 }

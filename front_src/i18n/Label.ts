@@ -4,6 +4,7 @@ export default class Labels {
 			global: {
 				yes:"Yes",
 				no:"No",
+				quit:"Quitter",
 			},
 			oAuth: {
 				title:"You must grant access to your playlists to play Multi Blindtest",
@@ -81,7 +82,7 @@ export default class Labels {
 					new:"New game",
 					complete:"Game finished",
 					wait:"Wait for <strong>{hostName}</strong> to start next game",
-					index:"Manche N°{index}/{total}",
+					index:"Manche {index}/{total}",
 				}
 			},
 			game: {
@@ -111,7 +112,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Essayez de ne pas gerber -",
-				head : "C'est comme jouer à <strong>{tracksCount}</strong> blindtests en simultané, affreux.",
+				head : "Perds l'audition en jouant à <strong>{tracksCount}</strong> blindtests en simultané",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Jouer seul",
@@ -176,7 +177,7 @@ export default class Labels {
 					},
 				},
 				game: {
-					index:"Manche N°{index}/{total}",
+					index:"Manche {index}/{total}",
 					next:"Partie suivante",
 					new:"Nouvelle partie",
 					complete:"Partie terminée",
