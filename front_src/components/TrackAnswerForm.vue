@@ -1,19 +1,18 @@
 <template>
 	<div :class="classes">
-		<label v-if="canGuess" for="trackName" class="label">Guess a track :</label>
+		<label v-if="canGuess" for="trackName" class="label">{{$t('game.guess')}}</label>
 
-		<input v-if="canGuess" ref="input" type="text" placeholder="title OR artist..." v-model="guess" class="input dark" id="trackName" @keyup.enter="onSubmitGuess()" autocomplete="off">
+		<input v-if="canGuess" ref="input" type="text" :placeholder="$t('game.guessPlaceholder')" v-model="guess" class="input dark" id="trackName" @keyup.enter="onSubmitGuess()" autocomplete="off">
 		
 		<div v-if="shareUrl" class="shareUrl" ref="share">
 			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeShare')" />
-			<p class="title">Link copied to clipboard</p>
+			<p class="title">{{$t('group.loby.share.copied')}}</p>
 			<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
 		</div>
 		
 		<div class="actions" v-if="showActions">
-			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" data-tooltip="Show answers" big v-if="canGuess" />
-			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" data-tooltip="Share current tracks" big v-if="showShare" />
-			<Button :to="{name:'home'}" class="showAnswers" :icon="require('@/assets/icons/home.svg')" data-tooltip="Back home" big />
+			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" :data-tooltip="$t('game.answerForm.show')" big v-if="canGuess" />
+			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" :data-tooltip="$t('game.answerForm.share')" big v-if="showShare" />
 		</div>
 	</div>
 </template>

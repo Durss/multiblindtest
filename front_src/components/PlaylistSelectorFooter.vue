@@ -2,20 +2,20 @@
 	<div class="playlistselectorfooter">
 		<div class="playlists">
 			<img src="@/assets/icons/playlist.svg" alt="check">
-			<span>{{playlists.length}} playlist(s)</span>
+			<span>{{$t('playlists.footer.playlistCount', {count:playlists.length})}}</span>
 		</div>
 
 		<div class="tracks">
 			<img src="@/assets/icons/song.svg" alt="check">
-			<span>{{totalTracks}} tracks</span>
+			<span>{{$t('playlists.footer.tracksCount', {count:totalTracks})}}</span>
 		</div>
 
-		<Slider v-if="mode == 'solo'" class="slider" label="Difficulty (number of simultaneous tracks) :" :min="2" :max="maxTracks" v-model="tracksCount" />
+		<Slider v-if="mode == 'solo'" class="slider" :label="$t('playlists.footer.difficulty')" :min="2" :max="maxTracks" v-model="tracksCount" />
 		
-		<div class="min" v-if="totalTracks < 20">Select at least 20 tracks</div>
+		<div class="min" v-if="totalTracks < 20">{{$t('playlists.footer.notEnough')}}</div>
 
 		<div class="buttons">
-			<Button title="Start" big class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
+			<Button :title="$t('playlists.footer.start')" big class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
 		</div>
 	</div>
 </template>
@@ -102,9 +102,13 @@ export default class PlaylistSelectorFooter extends Vue {
 
 	.min {
 		font-family: "Futura";
-		color: red;
-		opacity: .5;
-		margin: 17px;
+		background-color: rgba(255,0,0,.5);
+		color: @mainColor_warn;
+		padding: 10px;
+		display: inline-block;
+		border-radius: 20px;
+		// opacity: .5;
+		margin: 10px;
 	}
 
 	.buttons {
@@ -113,7 +117,7 @@ export default class PlaylistSelectorFooter extends Vue {
 			color: @mainColor_warn;
 		}
 		.submit {
-			margin-right: 10px;
+			padding: 20px 40px;
 		}
 	}
 }

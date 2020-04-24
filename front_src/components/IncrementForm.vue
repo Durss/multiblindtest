@@ -1,9 +1,9 @@
 <template>
 	<div class="incrementform">
-		<h2 class="title">{{title}}</h2>
-		<div class="form">
+		<label class="title" :for="inputId">{{title}}</label>
+		<div class="content">
 			<Button :icon="require('@/assets/icons/minus.svg')" @click="valueLocal--;" class="button" />
-			<input type="number" v-model="valueLocal" min="1" :max="maxValue" class="dark">
+			<input type="number" v-model="valueLocal" min="1" :max="maxValue" class="dark" :id="inputId">
 			<Button :icon="require('@/assets/icons/plus.svg')" @click="valueLocal++;" class="button" />
 		</div>
 	</div>
@@ -29,6 +29,7 @@ export default class IncrementForm extends Vue {
 	@Prop({default:30})
 	public maxValue:number;
 	
+	public inputId:string = "incrementInput_"+Math.round(Math.random() * 999999);
 	public valueLocal:number = 0;
 
 	public mounted():void {
@@ -54,13 +55,14 @@ export default class IncrementForm extends Vue {
 	.title {
 		white-space: nowrap;
 		font-size: 18px;
+		display: block;
 	}
-	&>.form {
+	.content {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		color: @mainColor_dark;
-		.blockContent();
+		// .blockContent();
 		.count {
 			border: 1px solid @mainColor_normal;
 			font-weight: bold;

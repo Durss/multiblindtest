@@ -16,6 +16,7 @@ const routes = [
 		name: 'home',
 		props:true,
 		meta: {
+			hideHomeBt:true,
 			tag:{
 				path:"/",
 				title:"Home"
@@ -68,6 +69,7 @@ const routes = [
 		component: OAuth,
 		props:true,
 		meta: {
+			hideHomeBt:true,
 			needAuth:false,
 		}
 	},

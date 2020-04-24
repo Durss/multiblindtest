@@ -4,23 +4,18 @@
 			<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
 
 			<div class="head">
-				<h1>Multi Blindtest</h1>
-				<p class="light">- try not to vomit -</p>
-				<p class="subtitle">It's like playing <strong>{{tracksCount}}</strong> blind tests simultaneously, awful.</p>
-				<!-- <p>Connect with spotify, select some playlists to pick song from and try to guess all the songs between the 5 playing at the same time.<br />Everytime you find an answer, the song is paused to help you find the others.</p> -->
+				<h1>{{$t('home.title')}}</h1>
+				<p class="light">{{$t('home.subtitle')}}</p>
+				<p class="subtitle" v-html="$t('home.head', {tracksCount:tracksCount})"></p>
 			</div>
 
-			<Button v-if="!loggedIn" title="Connect with Spotify" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="connect" big />
-			<p class="or" v-if="!loggedIn">- OR -</p>
-			<Button v-if="!loggedIn" title="Demo" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="play" big />
-			<Button v-if="loggedIn" title="Play solo" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="play" big />
-			<Button v-if="loggedIn" title="Multiplayer" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="play" big />
-			<Button v-if="loggedIn" title="Create from tracks" :to="{name:'create'}" :icon="require('@/assets/icons/song.svg')" class="play" big />
+			<Button v-if="!loggedIn" :title="$t('home.connectSpotify')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
+			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="button" big />
+			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="button" big />
+			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
+			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/song.svg')" class="button" big />
 		</div>
-		<div class="footer">
-			Coded by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get sources <a href="https://github.com/Durss/multiblindtest" target="_blank">on github</a><br />
-			Based on <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">an idea</a> from <a href="https://twitter.com/navo_" target="_blank">Navo</a> & <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
-		</div>
+		<div class="footer" v-html="$t('home.footer')"></div>
 	</div>
 </template>
 
@@ -98,12 +93,7 @@ export default class Home extends Vue {
 			margin-bottom: 30px;
 		}
 	
-		.connect {
-			margin: auto;
-			font-size: 20px;
-		}
-
-		.play {
+		.button {
 			margin-bottom: 10px;
 		}
 

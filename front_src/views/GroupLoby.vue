@@ -6,36 +6,39 @@
 
 		<div v-if="!loading" class="holder">
 			<div class="playlists header">
-				<h1>Selected Playlists</h1>
+				<h1>{{$t('group.loby.title')}}</h1>
 				<div v-for="p in sortedPlaylists" :key="p.id" class="playlist">
 					<img :src="p.cover" :alt="p.name" class="cover">
 					<span class="label">{{p.name}}</span>
 				</div>
 			</div>
 
-			<div class="users" v-if="room.users.length > 0">
-				<h2 class="highlight">Connected users</h2>
-				<ul>
-					<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
-				</ul>
-			</div>
-
-			<form @submit.prevent="onSubmit()" class="form" v-if="!me">
-				<h2 class="highlight" v-if="room.users.length == 0">Set your username :</h2>
-				<h2 class="highlight" v-if="room.users.length > 0">Join game :</h2>
+			<div class="users">
+				<h2 class="highlight">{{$t('group.loby.players')}}</h2>
 				<div class="content">
-					<label for="username">Username</label>
-					<input type="text" id="username" class="dark" v-model="userName" maxlength="50" placeholder="username...">
-					<Button title="Join game" type="submit" :disabled="userName.length < 3" :loading="joining" />
+					<ul v-if="room.users.length > 0">
+						<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
+					</ul>
+
+					<form @submit.prevent="onSubmit()" class="form" v-if="!me">
+						<label for="username">{{$t('group.loby.join')}}</label>
+						<div class="row">
+							<input type="text" id="username" class="dark" v-model="userName" maxlength="50" :placeholder="$t('group.loby.usernamePlaceholder')">
+							<Button :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
+						</div>
+					</form>
 				</div>
-			</form>
+			</div>
 
 			<div v-if="isHost" class="params">
-				<IncrementForm title="Number of games" v-model="gamesCount" />
-				<IncrementForm title="Number of tracks" v-model="tracksCount" maxValue="6" />
+				<h2>{{$t('group.loby.params')}}</h2>
+				<div class="content">
+					<IncrementForm class="increment" :title="$t('group.loby.gamesCount')" v-model="gamesCount" />
+					<IncrementForm class="increment" :title="$t('group.loby.tracksCount')" v-model="tracksCount" maxValue="6" />
+				</div>
 			</div>
 
-			<Button title="Start game"
+			<Button :title="$t('group.loby.start')"
 				class="start"
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
@@ -46,12 +49,10 @@
 
 			<div v-if="!isHost && room.users.length > 0" class="waitHost">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
-				<span>Wait for your host, <strong>{{hostName}}</strong>, to start the game</span>
+				<span v-html="$t('group.loby.wait', {hostName:hostName})"></span>
 			</div>
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
-
-			<Button class="backHome" :to="{name:'home'}" :icon="require('@/assets/icons/home.svg')" data-tooltip="Back home" big />
 		</div>
 	</div>
 </template>
@@ -289,29 +290,6 @@ export default class GroupLoby extends Vue {
 			}
 		}
 	
-		&>.form {
-			margin: auto;
-			margin-top: 25px;
-			// display: flex;
-			// flex-direction: column;
-			// align-items: center;
-			display: block;
-			width: min-content;
-			.content {
-				.blockContent();
-				display: flex;
-				flex-direction: column;
-				width: min-content;
-				input{
-					margin-bottom: 5px;
-				}
-				button {
-					width: min-content;
-					align-self: center;
-				}
-			}
-		}
-	
 		.start {
 			display: flex;
 			margin: auto;
@@ -319,48 +297,73 @@ export default class GroupLoby extends Vue {
 		}
 	
 		.users {
-			width: 200px;
+			// width: 200px;
+			width: min-content;
 			margin: auto;
-			ul {
+			min-width: 300px;
+			.content {
 				.blockContent();
-			}
-	
-			.user {
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				line-height: 30px;
-				background-color: @mainColor_normal_light;
-				border-radius: 50px;
-				padding: 0 10px;
-				color: @mainColor_dark;
-				margin-bottom: 2px;
-	
-				&.me {
-					font-family: "Futura";
+				padding-bottom: 0px;
+				ul {
+					padding-bottom: 10px;
+					.user {
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						line-height: 30px;
+						background-color: @mainColor_normal_light;
+						border-radius: 50px;
+						padding: 0 10px;
+						color: @mainColor_dark;
+						margin-bottom: 2px;
+			
+						&.me {
+							font-family: "Futura";
+						}
+						&::before {
+							content: " ";
+							background-color: @mainColor_normal;
+							border-radius: 50%;
+							display: inline-block;
+							width: 5px;
+							height: 5px;
+							margin-right: 13px;
+							margin-left: 7px;
+							vertical-align: middle;
+						}
+						&.host {
+							&::before {
+								background-color: transparent;
+								background-image: url("../assets/icons/king.svg");
+								@ratio: 16 / 72;
+								width: 100px * @ratio;
+								height: 72px * @ratio;
+								margin-right: 5px;
+								margin-left: 0;
+								border-radius: 0;
+								vertical-align: baseline;
+							}
+						}
+					}
 				}
-				&::before {
-					content: " ";
-					background-color: @mainColor_dark;
-					border-radius: 50%;
-					display: inline-block;
-					width: 5px;
-					height: 5px;
-					margin-right: 13px;
-					margin-left: 7px;
-					vertical-align: middle;
-				}
-				&.host {
-					&::before {
-						background-color: transparent;
-						background-image: url("../assets/icons/king.svg");
-						@ratio: 16 / 72;
-						width: 100px * @ratio;
-						height: 72px * @ratio;
-						margin-right: 5px;
-						margin-left: 0;
-						border-radius: 0;
-						vertical-align: baseline;
+				
+				.form {
+					display: flex;
+					flex-direction: column;
+					padding-bottom: 10px;
+					.row {
+						display: flex;
+						flex-direction: row;
+						input {
+							flex-grow: 1;
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
+						}
+						.submit {
+							width: 39px;
+							border-top-left-radius: 0;
+							border-bottom-left-radius: 0;
+						}
 					}
 				}
 			}
@@ -368,21 +371,25 @@ export default class GroupLoby extends Vue {
 	
 		.waitHost {
 			margin-top: 25px;
-			background-color: @mainColor_warn;
-			border-radius: 50px;
-			padding: 10px;
 			font-style: italic;
 			color: #fff;
 			display: flex;
-			flex-direction: row;
+			flex-direction: column;
 			align-items: center;
 			span {
 				text-align: center;
 				flex-grow: 1;
+				background-color: @mainColor_warn;
+				border-radius: 50px;
+				padding: 10px;
 			}
 			.spinner {
 				width: 20px;
 				height: 20px;
+				margin-bottom: -3px;
+				// background-color: @mainColor_warn;
+				padding: 10px 20px;
+				background-image: url("../assets/loader/loader_bg.svg");
 			}
 		}
 	
@@ -403,10 +410,13 @@ export default class GroupLoby extends Vue {
 		margin: auto;
 		margin-top: 25px;
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		width: min-content;
-		&>*:not(:last-child) {
-			margin-right: 5px;
+		.content {
+			.blockContent();
+			.increment:not(:last-child) {
+				margin-bottom: 20px;
+			}
 		}
 	}
 }

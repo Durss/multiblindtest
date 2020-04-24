@@ -27,7 +27,7 @@
 
 				<Button
 					class="complete"
-					title="New Multi Blindtest"
+					:title="$t('game.newGame')"
 					:icon="require('@/assets/icons/refresh.svg')"
 					v-if="complete && !tracksMode && !demoMode && !multiplayerMode"
 					highlight
@@ -37,7 +37,7 @@
 
 				<Button
 					class="complete"
-					title="New demo"
+					:title="$t('game.newDemo')"
 					:icon="require('@/assets/icons/refresh.svg')"
 					v-if="complete && demoMode && !hideForm"
 					highlight
@@ -47,7 +47,7 @@
 
 				<Button
 					class="complete"
-					title="Create a Multi Blindtest"
+					:title="$t('game.createGame')"
 					:icon="require('@/assets/icons/plus.svg')"
 					v-if="complete && tracksMode && !hideForm"
 					highlight
@@ -277,7 +277,7 @@ export default class GameView extends Vue {
 	public startBlindTestFromExamples():void {
 		this.resetState();
 		this.tracks = Utils.getDemoTracks();
-		this.tracksToPlay = Utils.getDemoTracks().splice(0, this.tracksCountAsNum);
+		this.tracksToPlay = Utils.shuffle(Utils.getDemoTracks()).splice(0, this.tracksCountAsNum);
 		this.audioPlayer.populate(this.tracksToPlay);
 	}
 

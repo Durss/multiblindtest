@@ -1,13 +1,13 @@
 <template>
 	<div class="mixcreator">
 		<div class="header">
-			<h1>Create a Multi Blindtest</h1>
-			<p class="infos">Select up to <strong>{{tracksCount}}</strong> tracks to create your own Multi Blindest</p>
+			<h1>{{$t('create.title')}}</h1>
+			<p class="infos" v-html="$t('create.subtitle', {tracksCount:tracksCount})"></p>
 		</div>
 
 		<div class="form" v-if="selectedTracks.length < tracksCount">
-			<label for="searchField">Search for a song</label>
-			<input type="text" id="searchField" placeholder="Song title..." class="input dark" v-model="search" @keyup.esc="search=''" autocomplete="off" @focus="showAutoComplete=search.length>0">
+			<label for="searchField">{{$t('create.search.label')}}</label>
+			<input type="text" id="searchField" :placeholder="$t('create.search.placeholder')" class="input dark" v-model="search" @keyup.esc="search=''" autocomplete="off" @focus="showAutoComplete=search.length>0">
 			<img src="@/assets/icons/cross_white.svg" alt="clear" class="clear" @click="search=''" v-if="search && !loading">
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" @click="search=''" v-if="loading">
 		</div>
@@ -17,7 +17,7 @@
 		</div>
 
 		<div class="selectedTracks" v-if="selectedTracks.length > 0">
-			<div class="title">Selected tracks</div>
+			<div class="title">{{$t('create.selected')}}</div>
 			<div class="trackItem" v-for="(t, index) in selectedTracks" :key="t.id+'_'+index">
 				<SearchResultItem :data="t" class="track" />
 				<Button :icon="require('@/assets/icons/stop_square.svg')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
@@ -26,9 +26,8 @@
 		</div>
 
 		<div class="actions">
-			<Button :icon="require('@/assets/icons/home.svg')" :to="{name:'playlists'}" />
-			<Button :icon="require('@/assets/icons/'+(testing? 'stop_square' : 'play')+'.svg')" title="Test" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
-			<Button :icon="require('@/assets/icons/checkmark_white.svg')" title="Create" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
+			<Button :icon="require('@/assets/icons/'+(testing? 'stop_square' : 'play')+'.svg')" :title="$t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
+			<Button :icon="require('@/assets/icons/checkmark_white.svg')" :title="$t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
 		</div>
 	</div>
 </template>
@@ -107,8 +106,7 @@ export default class MixCreator extends Vue {
 			if(!t.preview_url) continue;
 			let alreadySelected = false;
 			for (let j = 0; j < this.selectedTracks.length; j++) {
-				const element = this.selectedTracks[j];
-				if(element.id == t.id) alreadySelected = true;
+				if(this.selectedTracks[j].id == t.id) alreadySelected = true;
 			}
 			if(alreadySelected) continue;
 			let trackData:TrackData = {
@@ -124,7 +122,7 @@ export default class MixCreator extends Vue {
 
 		this.showAutoComplete = trackList.length > 0;
 		this.$nextTick().then(_=> {
-			//Wait for component to be displayed to get proper size compute of list
+			//Wait for component to be displayed to get proper size computation of the list
 			this.list.populate(trackList);
 			this.list.scrollToIndex(0);
 			this.list.refreshItems();
@@ -158,6 +156,13 @@ export default class MixCreator extends Vue {
 	private onItemClicked(data:TrackData, index:number, holder:HTMLDivElement) {
 		this.selectedTracks.push(data);
 		this.showAutoComplete = false;
+		let list = this.list.data;
+		for (let i = 0; i < list.length; i++) {
+			if(list[i].id == data.id) {
+				list.splice(i, 1);
+			}
+		}
+		this.list.populate(list);
 	}
 
 	/**
@@ -278,6 +283,7 @@ export default class MixCreator extends Vue {
 			border-bottom-left-radius: 20px;
 			border-bottom-right-radius: 20px;
 			overflow: hidden;
+			color: @mainColor_dark;
 		}
 	}
 

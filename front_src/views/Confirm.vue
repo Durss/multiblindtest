@@ -5,8 +5,8 @@
 			<div class="title" v-html="title"></div>
 			<div class="description" v-html="description"></div>
 			<div class="buttons">
-				<Button class="cancel" type="cancel" @click="answer()" title="Non" />
-				<Button class="confirm" @click="answer(true)" title="Oui" />
+				<Button class="cancel" type="cancel" @click="answer()" :title="$t('global.no')" />
+				<Button class="confirm" @click="answer(true)" :title="$t('global.yes')" />
 			</div>
 		</div>
 	</div>

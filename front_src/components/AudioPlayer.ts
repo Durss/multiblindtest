@@ -47,6 +47,7 @@ export default class AudioPlayer {
 	 * @param track 
 	 */
 	public stopTrack(track:TrackData):void {
+		if(!this.trackIdToIndex) return;
 		let index = this.trackIdToIndex[track.id];
 		if(index == null || index == undefined) return;
 		// if(this.trackToPauseState[track.id] === true) return;

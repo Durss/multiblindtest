@@ -1,6 +1,6 @@
 <template>
 	<div class="slider">
-		<div class="label">{{label}}</div>
+		<div class="label" v-html="label"></div>
 		<div class="gauge">
 			<div v-for="(i, index) in (max-min+1)" :key="i" :class="classes(index+min)" @click="clicItem(index+min)">{{index+min}}</div>
 		</div>
@@ -52,19 +52,29 @@ export default class Slider extends Vue {
 @import (reference) '../less/_includes.less';
 .slider{
 	.label {
-		text-align: left;
 		font-family: "Futura";
 		font-weight: bold;
+		text-align: center;
+		::v-deep {
+			i {
+				font-family: "FuturaLight";
+				font-weight: normal;
+				font-size: 16px;
+			}
+		}
 	}
 	.gauge {
 		display: flex;
 		flex-direction: row;
+		justify-content: center;
 		.item {
+			border-radius: 20px;
 			flex-grow: 1;
 			cursor: pointer;
 			border: 1px solid #fff;
 			padding: 5px;
 			margin: 10px 0px;
+			max-width: 40px;
 
 			&.selected {
 				background-color: #fff;

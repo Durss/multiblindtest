@@ -7,9 +7,9 @@
 			<div class="name">{{data.name}}</div>
 		</div>
 		
-		<p v-if="!data.enabled" class="placeholder">???</p>
+		<p v-if="!data.enabled" class="placeholder">{{$t('game.hidden')}}</p>
 
-		<div class="stop" v-if="data.enabled && canStop" data-tooltip="Stop this track">
+		<div class="stop" v-if="data.enabled && canStop" :data-tooltip="$t('game.stopTrack')">
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="$emit('stop', data)">
 			<img src="@/assets/loader/loader_border.svg" alt="song" class="icon loader" @click="onClickStop()">
 		</div>

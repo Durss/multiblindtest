@@ -12,7 +12,7 @@
 			/>
 
 			<div class="players">
-				<h2>Game N°{{room.gameStepIndex}}/{{room.gamesCount}}</h2>
+				<h2>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h2>
 				<div class="content">
 					<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
 						<div class="position">{{index + 1}}</div>
@@ -30,14 +30,14 @@
 			</div>
 
 			<div v-if="gameStepComplete" class="complete">
-				<div class="title" v-if="gameComplete">Game Finished</div>
+				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
 				<div v-if="isHost">
-					<Button title="Next game" @click="pickRandomTracks()" v-if="!gameComplete" />
-					<Button title="Start new game" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
+					<Button :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
+					<Button :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
 				</div>
 				<div v-if="!isHost" class="wait">
 					<img src="@/assets/loader/loader.svg" alt="loading">
-					<div>Wait for {{hostName}} to start next game...</div>
+					<div v-html="$t('group.game.wait', {hostName:hostName})"></div>
 				</div>
 			</div>
 		</div>
@@ -406,6 +406,7 @@ export default class GroupGame extends Vue {
 		.wait {
 			font-style: italic;
 			margin-top: 10px;
+			width:220px;
 		}
 	}
 }

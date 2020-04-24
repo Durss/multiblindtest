@@ -5,10 +5,10 @@
 		<img :src="data.cover" class="cover" v-if="data.cover">
 		
 		<div class="title">
-			<div v-if="reduced !== false" class="total" >{{data.tracks.length}}</div>
+			<!-- <div v-if="reduced !== false" class="total" >{{data.tracks.length}}</div> -->
 			<div class="label">{{data.name}}</div>
-			<div v-if="reduced === false" class="owner">By {{data.owner}}</div>
-			<div v-if="reduced === false" class="total" data-tooltip="Your playlist may contain more tracks than this, but Spotify only allows this number of tracks to be played from it.">{{data.tracks.length}} playable tracks</div>
+			<div v-if="reduced === false" class="owner">{{$t('playlists.owner', {owner:data.owner})}}</div>
+			<div v-if="reduced === false" class="total" :data-tooltip="$t('playlists.playableTracksInfos')">{{$t('playlists.playableTracks', {count:data.tracks.length})}}</div>
 		</div>
 
 	</div>

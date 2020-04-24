@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import SpotifyAPI from '@/utils/SpotifyAPI';
 import StatsManager from '@/utils/StatsManager';
 import SockController from '@/sock/SockController';
+import Labels from '@/i18n/Label';
 
 Vue.use(Vuex)
 
@@ -14,6 +15,8 @@ export default new Vuex.Store({
 		loggedin:false,
 		tooltip: null,
 		alert: null,
+		lang: null,
+		i18n: null,
 		accessToken:null,
 		playlistsCache:null,
 		userGroupData:null,
@@ -70,7 +73,16 @@ export default new Vuex.Store({
 			SockController.instance.user = payload;
 			localStorage.setItem("userGroupData", JSON.stringify(payload));
 		},
-		setGroupRoomData(state, payload) { state.groupRoomData = payload; }
+		
+		setGroupRoomData(state, payload) { state.groupRoomData = payload; },
+
+		setLanguageCode(state, payload) {
+			state.lang = payload;
+			// moment.locale(payload);
+			if(state.i18n){
+				state.i18n.locale = payload;
+			}
+		},
 		
 	},
 
@@ -100,6 +112,13 @@ export default new Vuex.Store({
 					}
 				}
 			}
+
+			if(payload.i18n) {
+				//Load labels and init i18n
+				// let labels = await Api.get("public/labels");
+				state.i18n = payload.i18n;
+				dispatch("setLabels", Labels.json)
+			}
 			
 			let user = localStorage.getItem("userGroupData");
 			if(user) {
@@ -113,6 +132,12 @@ export default new Vuex.Store({
 			});
 
 			return startPromise;
+		},
+
+		setLabels({state}, payload) {
+			for (const lang in payload) {
+				state.i18n.setLocaleMessage(lang, payload[lang]);
+			}
 		},
 
 		openTooltip({commit}, payload) { commit("openTooltip", payload); },
@@ -130,5 +155,7 @@ export default new Vuex.Store({
 		setUserGroupData({commit}, payload) { commit("setUserGroupData", payload); },
 
 		setGroupRoomData({commit}, payload) { commit("setGroupRoomData", payload); },
+
+		setLanguageCode({commit}, payload) { commit("setLanguageCode", payload); },
 	}
 })

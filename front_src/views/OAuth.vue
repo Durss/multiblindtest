@@ -1,8 +1,8 @@
 <template>
 	<div class="oauth">
 		<div v-if="isError" class="error">
-			<p class="title">You must grant access to your playlists to play Multi Blindtest</p>
-			<p class="infos">Don't worry, <strong>Multi Blindtest</strong> only requests for playlists <strong>read</strong> permission, it will never be able to change anything on your spotify account.</p>
+			<p class="title">{{$t('oAuth.title')}}</p>
+			<p class="infos" v-html="$t('oAuth.subtitle')"></p>
 		</div>
 		<Home v-if="isError" />
 	</div>

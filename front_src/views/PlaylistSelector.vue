@@ -1,16 +1,17 @@
 <template>
 	<div class="playlistselector">
-		<div class="loader" v-show="loading">
-			<img src="@/assets/loader/loader.svg" alt="loader" class="spinner">
-			<img src="@/assets/icons/home_logo.svg" alt="loader" class="logo" ref="logo">
-			<h1>Loading your playlists</h1>
-			<p class="infos">This operation may take a while depending on the number of playlists and songs you have as it's scanning for all the song that spotify actually allows to be played</p>
-		</div>
+		<PlaylistLoading v-show="loading" />
 
 		<div class="playlists" v-if="!loading">
 			<div class="header">
-				<h1>Select playlists</h1>
-				<p>Select playlists from which you want songs to be picked up randomly for your Multi Blindtest</p>
+				<h1>{{$t('playlists.title')}}</h1>
+				<p>{{$t('playlists.subtitle')}}</p>
+				<Button :title="$t('playlists.refresh')"
+					v-if="loadedFromCache"
+					class="reload"
+					:icon="require('@/assets/icons/refresh.svg')"
+					@click="load()"
+				/>
 			</div>
 
 			<PlayListEntry
@@ -21,31 +22,9 @@
 				@click.native="selectPlaylist(p)"
 			/>
 
-			<div v-if="filteredPlaylists.length == 0" class="noPlaylist">
-				You have no playlist available on your Spotify account. Create one or subscribe to some then click <strong>Reload</strong> button bellow.<br />
-				<br />
-				Here are some suggestions you can subscribe to :<br />
-				<ul class="list">
-					<li><a class="button" href="https://open.spotify.com/playlist/1kTNITnvHTzXc6iPjr9KYy?si=Mt49vXMwRii8gXtTcWR52g" target="_blank">BlindRest Disney</a></li>
-					<li><a class="button" href="https://open.spotify.com/playlist/1WA7caAqdAWUG3X9nc1yaC?si=RexC42-VRHuSUZVreMCEfQ" target="_blank">BlindRest : Movie</a></li>
-					<li><a class="button" href="https://open.spotify.com/playlist/4qBM20gJ3G758ygaB3mFMc?si=sh8xZ8-aQMahAmcocC3UIw" target="_blank">BlindTest : Movies, series, cartoons and video games</a></li>
-					<li><a class="button" href="https://open.spotify.com/playlist/4lcGPW6HrBRdFropnYJQiE?si=gEhEq_CDS1KbrIphQuje5A" target="_blank">BlindTest 90-2000</a></li>
-					<li><a class="button" href="https://open.spotify.com/playlist/7IYEknPtHEOnmzAz3arfoG?si=gGPCv4SVQvO32jHW3WmUuA" target="_blank">BlindRest/Karaoké pour torturer tes voisin-e-s</a></li>
-					<li><a class="button" href="https://open.spotify.com/playlist/09BfWHr6tID8xqOpDy0W4t?si=J98RJ-s9QUWApYRmKFWtAg" target="_blank">Mega Blindtest</a></li>
-				</ul>
-			</div>
-			
-			<Button title="Reload"
-				v-if="loadedFromCache"
-				class="reload"
-				:icon="require('@/assets/icons/refresh.svg')"
-				data-tooltip="Reload all your playlists"
-				@click="load()"
-			/>
+			<NoPlaylist v-if="filteredPlaylists.length == 0" />
 
-			<div class="header refused" v-if="refusedPlaylists.length > 0">
-				<p>Following playlist(s) don't have enough playable tracks</p>
-			</div>
+			<div class="header refused" v-if="refusedPlaylists.length > 0">{{$t('playlists.noTrack')}}</div>
 
 			<PlayListEntry
 				v-for="p in refusedPlaylists"
@@ -81,11 +60,15 @@ import TrackData from '@/vo/TrackData';
 import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import gsap from 'gsap';
 import { v4 as uuidv4 } from 'uuid';
+import PlaylistLoading from '../components/PlaylistLoading.vue';
+import NoPlaylist from '../components/NoPlaylist.vue';
 
 @Component({
 	components:{
 		Button,
+		NoPlaylist,
 		PlayListEntry,
+		PlaylistLoading,
 		PlaylistSelectorFooter,
 	}
 })
@@ -143,10 +126,6 @@ export default class PlaylistSelector extends Vue {
 		}else{
 			this.load();
 		}
-
-		this.$nextTick().then(()=>{
-			gsap.from(this.$refs.logo, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:100}).yoyo(true);
-		})
 	}
 
 	public beforeDestroy():void {
@@ -273,29 +252,13 @@ export default class PlaylistSelector extends Vue {
 		}
 	}
 
-	.noPlaylist {
-		background-color: @mainColor_warn;
-		padding: 20px;
-		color: #fff;
-		border-radius: 20px;
-		.list {
-			margin-top: 20px;
-			li {
-				margin: 5px;
-				a {
-					display: block;
-				}
-			}
-		}
-	}
-
 	.playlists {
 		display: flex;
 		flex-direction: column;
 		margin: auto;
 
 		.reload {
-			align-self: center;
+			margin: auto;
 			margin-top: 20px;
 			display: block;
 		}
@@ -314,32 +277,6 @@ export default class PlaylistSelector extends Vue {
 		flex-direction: row;
 		.pageIndex {
 			margin: 0 20px;
-		}
-	}
-
-	.loader {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		position: fixed;
-		.center();
-		transform: translate(-50%, -60%);
-
-		.spinner {
-			width: 100px;
-			height: 100px;
-		}
-
-		.logo {
-			position: absolute;
-			top: 12px;
-			width: 70px;
-			height: 70px;
-		}
-
-		.infos {
-			font-style: italic;
-			margin-top: 20px;
 		}
 	}
 
