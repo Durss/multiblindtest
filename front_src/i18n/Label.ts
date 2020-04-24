@@ -167,7 +167,7 @@ export default class Labels {
 					suggestion : "Voici quelques suggestions de playlists auxquelles vous abonner",
 				},
 				noTrack :"Les playlists suivantes ne possèdent pas assez de mirceaux jouables",
-				title: "Playlists sélectionnées",
+				title: "Sélectionne des playlists",
 				subtitle: "Sélectionnez les playlists dans lesquelles piocher des morceaux aléatoirement pour votre Multi Blindtest",
 				refresh: "Rafraîchir la liste",
 				playableTracksInfos: "Votre playlist contient peut-être plus de morceaux que cela mais Spotify ne permet d'en jouer que ce nombre là.",

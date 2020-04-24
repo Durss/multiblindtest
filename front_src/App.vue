@@ -50,7 +50,7 @@ export default class App extends Vue {
 		padding: 20px 0;
 	}
 
-	.backHome {
+	.button.backHome {
 		position: absolute;
 		top: 0;
 		left: 0;
