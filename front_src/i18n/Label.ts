@@ -224,7 +224,7 @@ export default class Labels {
 					complete:"Partie terminée",
 					wait:"Attendez que <strong>{hostName}</strong> lance la partie suivante",
 					giveup:"Je passe",
-					gaveup:"Abandon",
+					gaveup:"A passé",
 					rank:"Classement",
 					giveupConfirm: {
 						title: "Passer ton tour ?",

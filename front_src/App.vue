@@ -52,7 +52,7 @@ export default class App extends Vue {
 	}
 
 	.button.backHome {
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		border-radius: 0;

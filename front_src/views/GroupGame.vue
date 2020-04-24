@@ -21,8 +21,25 @@
 				class="giveUp"
 				@click="onGiveUp()"
 				:loading="loadingPass"
-				v-if="!fullMe.pass"
+				v-if="!fullMe.pass && !gameStepComplete && !gameComplete"
 			/>
+
+			<div v-if="gameStepComplete" class="complete">
+				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
+				<div v-if="isHost" class="content">
+					<Button class="button next" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
+					<Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
+					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" v-if="gameComplete" highlight />
+				</div>
+				<div v-if="!isHost && !gameComplete" class="wait">
+					<img src="@/assets/loader/loader.svg" alt="loading">
+					<div v-html="$t('group.game.wait', {hostName:hostName})"></div>
+				</div>
+				<div v-if="!isHost && gameComplete" class="content">
+					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" highlight />
+				</div>
+			</div>
+		</div>
 
 			<div class="players">
 				<h2>{{$t('group.game.rank')}}</h2>
@@ -42,23 +59,6 @@
 					</div>
 				</div>
 			</div>
-
-			<div v-if="gameStepComplete" class="complete">
-				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
-				<div v-if="isHost" class="content">
-					<Button class="button next" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
-					<Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
-					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" v-if="gameComplete" highlight />
-				</div>
-				<div v-if="!isHost && !gameComplete" class="wait">
-					<img src="@/assets/loader/loader.svg" alt="loading">
-					<div v-html="$t('group.game.wait', {hostName:hostName})"></div>
-				</div>
-				<div v-if="!isHost && gameComplete" class="content">
-					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" highlight />
-				</div>
-			</div>
-		</div>
 	</div>
 </template>
 
@@ -433,7 +433,7 @@ export default class GroupGame extends Vue {
 						transform: translate(-40%) rotate(5deg);
 						font-family: "FuturaExtraBold";
 						text-transform: uppercase;
-						color: #c00;
+						color: #888;
 						text-shadow: rgba(0,0,0,.25) 2px 2px 2px;
 					}
 					.content {
@@ -498,7 +498,7 @@ export default class GroupGame extends Vue {
 
 	.complete {
 		margin: auto;
-		margin-top: 50px;
+		margin-bottom: 50px;
 		width: min-content;
 		display: block;
 		text-align: center;
