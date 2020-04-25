@@ -328,8 +328,6 @@ export default class GameView extends Vue {
 	public guessTrack(value:string):any {
 		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
-console.log(acceptTitle, acceptArtist);
-console.log(this.expertMode);
 		value = value.toLowerCase();
 		let goodAnswer = false;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {

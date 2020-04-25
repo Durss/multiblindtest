@@ -39,7 +39,12 @@ export default class AnswerTester {
 		this.checkTest("franky vinc", "Francky Vincent", true);
 		this.checkTest("freedom", "Freedom! '90", true);
 		this.checkTest("wassup", "What's Up?", true);
+		this.checkTest("lambé", "Lambé An Dro", true);
+		this.checkTest("redhot hcilli pappers", "Red Hot Chili Peppers", true);
+		this.checkTest("walk on the", "Walk On the Wild Side", true);
 		this.checkTest("stach stach", "Stach Stach — Karaoké Avec Chant Témoin — Rendu Célèbre Par Bratisla Boys", true);
+		// Walk On the Wild Side
+		//Red Hot Chili Peppers
 	}
 
 	public test(userAnswer:string, answer:string, reducedTolerence:boolean = false):boolean {
@@ -62,19 +67,19 @@ export default class AnswerTester {
 		}
 
 		//check for one specific word longer than 5 chars
-		let res3 = (userAnswer.length > 5) && chunks.indexOf(cleanUserAnswer) > -1;
+		let res3 = (userAnswer.length > 5 || cleanUserAnswer.length >= cleanAnswer.length * .5) && chunks.indexOf(cleanUserAnswer) > -1;
 		if(this.logsEnabled) {
 			console.log("%cExact word :", "font-size:16px;color:blue;font-weight:bold"+(res3? ";color:green" : ";color:red"), res3);
-			console.log("")
 		}
 
 		//If answer is longer than 9 chars, check its exact match (workaround stupidly long titles with useless informations on it)
 		let res4 = (userAnswer.length > 9) && cleanAnswer.indexOf(cleanUserAnswer) > -1;
 		if(this.logsEnabled) {
 			console.log("%cExact word long :", "font-size:16px;color:blue;font-weight:bold"+(res4? ";color:green" : ";color:red"), res4);
-			console.log("")
 		}
-
+		
+		if(this.logsEnabled) console.log("");
+		
 		return res1 || res2 || res3 || res4;
 	}
 	
@@ -97,6 +102,6 @@ export default class AnswerTester {
 	}
 
 	private cleanup(str:string):string {
-		return str.toLowerCase().replace(/[^A-z0-9]/gi, "");
+		return Utils.removeDiacritics(str).toLowerCase().replace(/[^A-z0-9]/gi, "");
 	}
 }

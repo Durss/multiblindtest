@@ -20,7 +20,7 @@ export default new Vuex.Store({
 		accessToken:null,
 		playlistsCache:null,
 		userGroupData:null,
-		groupRoomData:null,
+		groupRoomData:null,//This is only used to transmit data from lobby to game view
 		confirm:{
 		  title:null,
 		  description:null,

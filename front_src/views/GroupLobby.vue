@@ -144,7 +144,7 @@ export default class GroupLobby extends Vue {
 		let res = [];
 		if(this.me && u.id == this.me.id) res.push("me");
 		if(u.id == this.room.creator) res.push("host")
-		if(u.offline && u.id != this.me.id) res.push("offline")
+		if(u.offline && (!this.me || u.id != this.me.id)) res.push("offline")
 		return res;
 	}
 
@@ -194,12 +194,16 @@ export default class GroupLobby extends Vue {
 		}
 		this.$store.dispatch("setUserGroupData", res.me);
 		this.joining = false;
+		if(this.room.currentTracks) {
+			this.onStartGame();
+		}
 	}
 
 	/**
 	 * Called when someone joins the room
 	 */
 	public onJoin(e:SocketEvent):void {
+		console.log(e.data);
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.users[i].id == e.data.id) {
@@ -227,8 +231,9 @@ export default class GroupLobby extends Vue {
 	/**
 	 * Called when socket tells to start the game
 	 */
-	public onStartGame(e:SocketEvent):void {
-		this.$store.dispatch("setGroupRoomData", e.data);
+	public onStartGame(e?:SocketEvent):void {
+		let data = e? e.data : this.room;
+		this.$store.dispatch("setGroupRoomData", data);//This is only used to transmit data to game view
 		this.$router.push({name:"group/play"});
 	}
 

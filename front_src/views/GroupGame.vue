@@ -291,9 +291,16 @@ export default class GroupGame extends Vue {
 	 * Called when a player joins/leaves the room
 	 */
 	public onPlayerJoinLeft(e:SocketEvent):void {
+		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
 			const u = this.room.users[i];
-			if(u.id == e.data.id) u.offline = e.getType() == SOCK_ACTIONS.LEAVE_ROOM;
+			if(u.id == e.data.id) {
+				found = true;
+				u.offline = e.getType() == SOCK_ACTIONS.LEAVE_ROOM;
+			}
+		}
+		if(!found && e.getType() == SOCK_ACTIONS.JOIN_ROOM) {
+			this.room.users.push(e.data);
 		}
 	}
 

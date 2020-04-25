@@ -34,10 +34,10 @@ export default class OAuth extends Vue {
 				this.$store.dispatch("authenticate", {access_token:vars.access_token, expires_in:vars.expires_in});
 	
 				if(redirect) {
-					window.location.href = redirect;
 					localStorage.removeItem("redirect");
+					window.location.href = redirect;
 				}else{
-					//Redirect to playlist selector
+					//Redirect to home
 					this.$router.push({name:"home"});
 				}
 			}
