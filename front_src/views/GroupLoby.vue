@@ -44,7 +44,7 @@
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
 				big
-				:disabled="room.users.length < 2 || (expertMode && expertMode.length == 0)"
+				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
 				v-if="isHost"
 				@click="startGame()" />
 

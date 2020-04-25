@@ -4,6 +4,7 @@ import Config from "../utils/Config";
 import SocketEvent from "../vo/SocketEvent";
 import store from '@/store';
 import UserData from '@/vo/UserData';
+import router from '@/router';
 
 /**
  * Created by FDursus on 28/03/2019
@@ -93,7 +94,9 @@ export default class SockController extends EventDispatcher {
 
 	private registerCurrentUser():void {
 		this.sendMessage({action:SOCK_ACTIONS.DEFINE_UID, data:this._user});
-		this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:this._user});
+		if(router.currentRoute.meta.needGroupAuth) {
+			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:this._user});
+		}
 	}
 
 	private onConnect():void {
