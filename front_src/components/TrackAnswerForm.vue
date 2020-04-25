@@ -8,6 +8,7 @@
 					class="input dark"
 					id="trackName"
 					autocomplete="off"
+					v-focus
 				>
 				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" />
 			</div>

@@ -66,6 +66,12 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	}
 });
 
+Vue.directive('focus', {
+    inserted: function (el) {
+        el.focus()
+    }
+})
+
 function nextStep(next:Function, to:Route):void {
 	let meta = to.matched? to.matched[0].meta : null;
 	if(meta && meta.tag) {
