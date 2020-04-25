@@ -7,9 +7,9 @@ It's ike a classic blind test but instead of hearing one track you hear up to 6 
 When you find a track it's stopped so you can hear the other better.
 
 Check it out live at :\
-https://multiblindtest.com\
+https://multiblindtest.com
 
-Challenge your friends with the multiplayer mode !\
+Challenge your friends with the multiplayer mode !
 
 
 
