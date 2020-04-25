@@ -1,11 +1,16 @@
+![Icon](https://github.com/Durss/multiblindtest/blob/master/public/img/share_small.png)
 # Multi Blindtest
 
-Web app to play a multi blindtest.
-Like a classic blind test but instead of hearing one track you hear 6 at the same time and you have to recognize songs.
-When you find one it's stopped so you can hear the other better.
+Web app to play a multi blindtest.\
+It's ike a classic blind test but instead of hearing one track you hear up to 6 at the same time.
 
-Check it out live at :
-https://multiblindtest.com
+When you find a track it's stopped so you can hear the other better.
+
+Check it out live at :\
+https://multiblindtest.com\
+
+Challenge your friends with the multiplayer mode !\
+
 
 
 ## Project setup
@@ -37,6 +42,13 @@ npm run server/watch
 ```
 npm run server/build
 ```
+
+### Shortcut for developpement
+```
+npm run dev
+``` 
+Starts front and server with hot reload.\
+Node process has to be started manually. See [Starting services section](#starting-services).
 
 ### Compile server+front for production
 ```
