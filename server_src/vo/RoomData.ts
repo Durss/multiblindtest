@@ -11,4 +11,5 @@ export default interface RoomData {
     gamesCount:number;
     gameStepIndex:number;
     currentTracks?:TrackData[];
+    expertMode:string[];
 }

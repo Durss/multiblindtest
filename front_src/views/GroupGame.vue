@@ -3,12 +3,17 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 
 		<div v-if="room">
-			<h1 class="header">{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
+			<div class="header">
+				<h1>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
+				<ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" />
+			</div>
+
 			<GameView
 				v-if="tracksToPlay && tracksToPlay.length > 0"
 				:rawTracksData="tracksToPlay"
 				:trackscounts="tracksToPlay.length"
 				:hideForm="gameComplete || fullMe.pass"
+				:expertMode="room.expertMode"
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
@@ -73,11 +78,13 @@ import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
 import UserData from '../vo/UserData';
 import Button from '../components/Button.vue';
+import ExpertModeState from '../components/ExpertModeState.vue';
 
 @Component({
 	components:{
 		Button,
 		GameView,
+		ExpertModeState,
 	}
 })
 export default class GroupGame extends Vue {
@@ -357,13 +364,19 @@ export default class GroupGame extends Vue {
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
 .groupgame{
-	h1 {
-		display: block;
-		width: min-content;
-		white-space: nowrap;
-		margin: auto;
+	.header {
 		margin-bottom: 50px;
+		h1 {
+			display: block;
+			width: min-content;
+			white-space: nowrap;
+			margin: auto;
+		}
+		.expertMode {
+			margin-top: 10px;
+		}
 	}
+
 	.giveUp {
 		margin: auto;
 		margin-bottom: 30px;

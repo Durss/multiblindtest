@@ -90,6 +90,7 @@ import TrackAnswerForm from '@/components/TrackAnswerForm.vue';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 import StatsManager from '../utils/StatsManager';
+import AnswerTester from '../utils/AnswerTester';
 
 @Component({
 	components:{
@@ -114,6 +115,9 @@ export default class GameView extends Vue {
 
 	@Prop({default:""})
 	public rawTracksData:TrackData[];
+
+	@Prop({default:""})
+	public expertMode:string[];
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;
@@ -322,19 +326,18 @@ export default class GameView extends Vue {
 	 * Called when user submits a guess via the form
 	 */
 	public guessTrack(value:string):any {
+		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
+		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
+console.log(acceptTitle, acceptArtist);
+console.log(this.expertMode);
 		value = value.toLowerCase();
 		let goodAnswer = false;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			let t = this.tracksToPlay[i];
 			if(!t.enabled
 			&& (
-				//Check for answer in title and artist with elastic error tolerence
-				Utils.levenshtein(t.name, value) < t.name.length * .25
-				|| Utils.levenshtein(t.artist, value) < t.artist.length * .25
-				//check for exact occurence in title and artist to be able to write a shortened
-				//version of an artist's name for example.
-				|| ((value.length >= 5 || value.length >= t.name.length * .25) && t.name.toLowerCase().indexOf(value) > -1)
-				|| ((value.length >= 5 || value.length >= t.artist.length * .25) && t.artist.toLowerCase().indexOf(value) > -1)
+				(acceptTitle && AnswerTester.instance.test(value, t.name, this.expertMode != null)) ||
+				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null))
 			)
 			) {
 				t.enabled = true;

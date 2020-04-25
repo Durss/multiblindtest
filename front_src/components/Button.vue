@@ -15,8 +15,8 @@
 		-->
 		<img v-if="loading" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
-		<input type="file" v-if="type=='file'" class="browse" accept=".zip" ref="browse" @change="$emit('change', $event)" />
-		<input type="checkbox" :name="name" :id="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
+		<input :id="id" type="file" v-if="type=='file'" class="browse" accept=".zip" ref="browse" @change="$emit('change', $event)" />
+		<input :id="id" type="checkbox" :name="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 	</component>
 </template>
 
@@ -27,6 +27,8 @@ import gsap from 'gsap';
 @Component
 export default class Button extends Vue {
 
+	@Prop()
+	public id!:string;
 	@Prop()
 	public icon!:string;
 	@Prop()

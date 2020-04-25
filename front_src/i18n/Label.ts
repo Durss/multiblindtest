@@ -51,7 +51,7 @@ export default class Labels {
 			},
 			create: {
 				title:"Create a Multi Blindtest",
-				subtitle:"Select up to <strong>{tracksCount}</strong> tracks to create your own Multi Blindest",
+				subtitle:"Select up to <strong>{tracksCount}</strong> tracks to create your own Multi Blindest and share it with your friends",
 				search:{
 					label:"Search for a song",
 					placeholder:"Song title...",
@@ -71,6 +71,15 @@ export default class Labels {
 					params:"Parameters",
 					gamesCount:"Number of games",
 					tracksCount:"Number of tracks",
+					expertMode: {
+						title:"Expert mode",
+						details:"When enabled, orthographic tolerence will be slightly lowered and you can accept only track's title or artist's name",
+						acceptTitle:"Title accepted",
+						acceptArtist:"Artist name accepted",
+						refuseTitle:"Title refused",
+						refuseArtist:"Artist name refused",
+						selectSomething: "Please select at least one option",
+					},
 					share: {
 						title: "Invite friends :",
 						copied: "Link copied to clipboard",
@@ -111,6 +120,12 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"04/25/2020",
+						updates: [
+							"Adding an \"Expert Mode\" to the multiplayer mode",
+						]
+					},
 					{
 						date:"04/24/2020",
 						updates: [
@@ -190,7 +205,7 @@ export default class Labels {
 			},
 			create: {
 				title:"Créer un Multi Blindtest",
-				subtitle:"Sélectionne jusqu'à <strong>{tracksCount}</strong> morceaux pour créer ton Multi Blindest",
+				subtitle:"Sélectionne jusqu'à <strong>{tracksCount}</strong> morceaux pour créer ton Multi Blindest et le partager à tes amis",
 				search:{
 					label:"Chercher un morceau",
 					placeholder:"Titre...",
@@ -210,6 +225,12 @@ export default class Labels {
 					params:"Paramètres",
 					gamesCount:"Nombre de manches",
 					tracksCount:"Nombre de morceaux",
+					expertMode: {
+						title:"Mode expert",
+						details:"Le mode expert réduit légèrement la tolérence orthographique des réponses et vous pouvez choisir de n'accepter que le titre ou l'artiste du morceau",
+						acceptTitle:"Accepter le titre",
+						acceptArtist:"Accepter l'artiste",
+					},
 					share: {
 						title: "Inviter des ami·e·s :",
 						copied: "Lien copié",
@@ -230,6 +251,13 @@ export default class Labels {
 						title: "Passer ton tour ?",
 						description: "Si la majorité des joueurs passent, la manche sera terminée et les réponses affichées.",
 					},
+					expertMode: {
+						title:"Mode expert activé",
+						acceptTitle:"Titre accepté",
+						acceptArtist:"Artiste accepté",
+						refuseTitle:"Titre refusé",
+						refuseArtist:"Artiste refusé",
+					},
 				}
 			},
 			game: {
@@ -249,6 +277,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"25/04/2020",
+						updates: [
+							"Ajout d'un \"Mode Expert\" au mode multijoueur",
+						]
+					},
 					{
 						date:"24/04/2020",
 						updates: [

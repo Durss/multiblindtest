@@ -8,6 +8,7 @@ import { Route } from 'vue-router';
 import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
 import VueI18n from 'vue-i18n';
+import AnswerTester from './utils/AnswerTester';
 
 Vue.config.productionTip = false;
 Config.init();
@@ -15,6 +16,10 @@ Vue.use(VueI18n);
 let userLang: string = navigator.language || (<any>navigator)['userLanguage'];
 userLang = userLang.substr(0, 2).toLowerCase();
 store.dispatch("setLanguageCode", userLang);
+
+if(!Config.IS_PROD) {
+	AnswerTester.instance.run();
+}
 
 // console.log(userLang);
 const i18n = new VueI18n({

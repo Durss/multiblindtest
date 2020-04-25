@@ -35,6 +35,7 @@
 				<div class="content">
 					<IncrementForm class="increment" :title="$t('group.loby.gamesCount')" v-model="gamesCount" />
 					<IncrementForm class="increment" :title="$t('group.loby.tracksCount')" v-model="tracksCount" maxValue="6" />
+					<ExpertModeForm v-model="expertMode" />
 				</div>
 			</div>
 
@@ -43,7 +44,7 @@
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
 				big
-				:disabled="room.users.length < 2"
+				:disabled="room.users.length < 2 || (expertMode && expertMode.length == 0)"
 				v-if="isHost"
 				@click="startGame()" />
 
@@ -68,11 +69,13 @@ import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
 import IncrementForm from '../components/IncrementForm.vue';
 import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
+import ExpertModeForm from '../components/ExpertModeForm.vue';
 
 @Component({
 	components:{
 		Button,
 		IncrementForm,
+		ExpertModeForm,
 		ShareMultiplayerLink,
 	}
 })
@@ -81,8 +84,9 @@ export default class GroupLoby extends Vue {
 	@Prop()
 	public id:string;
 
-	public gamesCount:number = 3;
-	public tracksCount:number = 6;
+	public gamesCount:number = 5;
+	public tracksCount:number = 4;
+	public expertMode:string[] = null;
 	public showCopied:boolean = false;
 	public loading:boolean = true;
 	public joining:boolean = false;
@@ -233,6 +237,7 @@ export default class GroupLoby extends Vue {
 	public startGame():void {
 		this.room.tracksCount = this.tracksCount;
 		this.room.gamesCount = this.gamesCount;
+		this.room.expertMode = this.expertMode;
 		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
 	}
