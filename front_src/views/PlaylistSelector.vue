@@ -81,6 +81,7 @@ export default class PlaylistSelector extends Vue {
 
 	public playlists:PlaylistData[] = [];
 	public loading = false;
+	public disposed = false;
 	public loadedFromCache = false;
 	public selectedPlaylists:any[] = [];
 	public numberOfTracks:number = 0;
@@ -129,7 +130,7 @@ export default class PlaylistSelector extends Vue {
 	}
 
 	public beforeDestroy():void {
-
+		this.disposed = true;
 	}
 
 	/**
@@ -145,6 +146,7 @@ export default class PlaylistSelector extends Vue {
 		//Load a batch of playlists
 		let json = await SpotifyAPI.instance.call("v1/me/playlists", {offset:(offset*playlistsPerBatch), limit:playlistsPerBatch});
 		for (let i = 0; i < json.items.length; i++) {
+			if(this.disposed) return;
 			//Load tracks from the playlists 
 			const p = json.items[i];
 			let tracksResult, offset=0;
@@ -155,7 +157,9 @@ export default class PlaylistSelector extends Vue {
 				tracksResult = await SpotifyAPI.instance.call("v1/playlists/"+p.id+"/tracks", {offset, limit:100});
 				
 				for (let j = 0; j < tracksResult.items.length; j++) {
+					if(this.disposed) return;
 					let track = tracksResult.items[j].track;
+					if(!track) continue;
 					if(track.preview_url) {
 						let trackInfos:TrackData = {
 							id:track.id,

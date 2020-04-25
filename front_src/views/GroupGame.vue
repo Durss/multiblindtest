@@ -141,6 +141,10 @@ export default class GroupGame extends Vue {
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		this.me = this.$store.state.userGroupData;
 		
+		if(!this.me) {
+			this.$router.push({name:"group", params:{id:this.id}});
+			return;
+		}
 		await this.getRoomDetails();
 		if(!this.room) return;
 
