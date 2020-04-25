@@ -107,7 +107,7 @@ export default class SocketServer {
 	 * Updates a users' group
 	 */
 	public addToGroup(groupId:string, user:UserData):void {
-		console.log("Add user "+user.name+" to group "+groupId);
+		Logger.log("Add user "+LogStyle.BgWhite+LogStyle.FgBlue+user.name+LogStyle.Reset+" to group "+groupId);
 		if(!this._groupIdToUsers[groupId]) {
 			this._groupIdToUsers[groupId] = [];
 		}
@@ -116,14 +116,14 @@ export default class SocketServer {
 		for (let i = 0; i < users.length; i++) {
 			this._userIdToGroupId[users[i].id] = groupId;
 		}
-		console.log(this._groupIdToUsers[groupId])
+		// console.log(this._groupIdToUsers[groupId])
 	}
 
 	/**
 	 * Sends a message to a specific users group
 	 */
 	public sendToGroup(groupId:string, msg:{action:string, data?:any}, exceptUserID?:string):void {
-		Logger.info("Send to group ", groupId, msg.action);
+		// Logger.info("Send to group ", groupId, msg.action);
 		let users = this._groupIdToUsers[groupId];
 		if(!users) return;
 		for (let i = 0; i < users.length; i++) {
@@ -168,7 +168,7 @@ export default class SocketServer {
 				if(uid && group) {
 					//Message is sent by a valid user on a valid room.
 					Logger.info("Socket message : "+LogStyle.Reset+json.action);
-					Logger.simpleLog("uid:"+uid+"    group:"+group);
+					// Logger.simpleLog("uid:"+uid+"    group:"+group);
 					let exclude = uid;
 					if(json.includeSelf === true) exclude = null;
 					json.from = uid;
@@ -177,7 +177,7 @@ export default class SocketServer {
 
 				//User left room, cleanup its references
 				if(json.action == SOCK_ACTIONS.LEAVE_ROOM) {
-					Logger.simpleLog("Force socket close");
+					// Logger.simpleLog("Force socket close");
 					this.onClose(conn);
 					this.removeUserFromGroup(uid);
 				}

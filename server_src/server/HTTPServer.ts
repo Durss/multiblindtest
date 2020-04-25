@@ -23,9 +23,9 @@ export default class HTTPServer {
 
 
 		SocketServer.instance.onDeleteUser = (roomId:string, user:UserData) => {
-			Logger.log("Remove user", user.name, "from room", roomId)
+			// Logger.log("Remove user", user.name, "from room", roomId)
 			if(!this._rooms[roomId]) {
-				Logger.error("Room not found")
+				Logger.error("onDeleteUser : Room not found")
 				return;
 			}
 			let allOffline = true;
@@ -39,7 +39,7 @@ export default class HTTPServer {
 				}
 			}
 			if(this._rooms[roomId].users.length == 0 || allOffline) {
-				Logger.log("Room empty, delete it ", roomId);
+				Logger.warn("Room empty, delete it ", roomId);
 				delete this._rooms[roomId];
 			}
 		}
@@ -90,7 +90,6 @@ export default class HTTPServer {
 		});
 		
 		this.app.get("/api", (req, res) => {
-			Logger.info("GET test");
 			res.status(200).send(JSON.stringify({success:true}));
 		});
 		
