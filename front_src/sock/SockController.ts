@@ -123,8 +123,8 @@ export default class SockController extends EventDispatcher {
 
 	private onMessage(message:any):void {
 		let json:any = JSON.parse(message.data);
-		// console.log("Sock message");
-		// console.log(json);
+		console.log("Sock message");
+		console.log(json);
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }

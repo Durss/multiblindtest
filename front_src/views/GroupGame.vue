@@ -48,21 +48,7 @@
 
 		<div class="players">
 			<h2>{{$t('group.game.rank')}}</h2>
-			<div class="content">
-				<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
-					<div class="position">{{index + 1}}</div>
-					<div class="pass" v-if="u.pass && !gameComplete">{{$t('group.game.gaveup')}}</div>
-					<div class="content">
-						<div class="info">
-							<div class="username">{{u.name}}</div>
-							<div class="score">{{u.score}}</div>
-						</div>
-						<div class="progressBar">
-							<div class="fill" :style="userScorePercentStyles(u)"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<GroupUserList class="content" :room="room" :users="users" :me="me" :gameComplete="gameComplete" />
 		</div>
 	</div>
 </template>
@@ -79,11 +65,13 @@ import SocketEvent from '../vo/SocketEvent';
 import UserData from '../vo/UserData';
 import Button from '../components/Button.vue';
 import ExpertModeState from '../components/ExpertModeState.vue';
+import GroupUserList from '../components/GroupUserList.vue';
 
 @Component({
 	components:{
 		Button,
 		GameView,
+		GroupUserList,
 		ExpertModeState,
 	}
 })
@@ -103,6 +91,7 @@ export default class GroupGame extends Vue {
 	public tracksDataHandler:any;
 	public playerPassHandler:any;
 	public guessedTrackHandler:any;
+	public playerJoinLeftHandler:any;
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
@@ -144,9 +133,12 @@ export default class GroupGame extends Vue {
 		this.tracksDataHandler = (e) => this.onTracksData(e);
 		this.guessedTrackHandler = (e) => this.onGuessedTrack(e);
 		this.playerPassHandler = (e) => this.onPlayerPass(e);
+		this.playerJoinLeftHandler = (e) => this.onPlayerJoinLeft(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerPassHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		this.me = this.$store.state.userGroupData;
 		
 		await this.getRoomDetails();
@@ -167,27 +159,8 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerPassHandler);
-	}
-
-	public userClasses(u:UserData):string[] {
-		let res = ["player"];
-		if(u.id == this.me.id) res.push("me");
-		if(u.id == this.room.creator) res.push("host");
-		if(u.pass && !this.gameComplete) res.push("passed");
-		return res;
-	}
-
-	/**
-	 * Compute the size of a user's bar
-	 */
-	public userScorePercentStyles(user:UserData):any {
-		let maxScore = 0;
-		for (let i = 0; i < this.room.tracksCount; i++) maxScore += i+1;
-		maxScore *= this.room.gamesCount;
-		let w = (user.score/maxScore*100)+"%";
-		return {
-			width:w,
-		}
+		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 	}
 
 	/**
@@ -311,6 +284,16 @@ export default class GroupGame extends Vue {
 	}
 
 	/**
+	 * Called when a player joins/leaves the room
+	 */
+	public onPlayerJoinLeft(e:SocketEvent):void {
+		for (let i = 0; i < this.room.users.length; i++) {
+			const u = this.room.users[i];
+			if(u.id == e.data.id) u.offline = e.getType() == SOCK_ACTIONS.LEAVE_ROOM;
+		}
+	}
+
+	/**
 	 * Check if game is complete
 	 */
 	private checkComplete():void {
@@ -334,7 +317,7 @@ export default class GroupGame extends Vue {
 				this.$store.dispatch("alert", error.message);
 			}
 			this.loadingPass = false;
-		});
+		}).catch(_=>{/*don't care*/});
 	}
 
 	private onPlayerPass(e:SocketEvent):void {
@@ -406,106 +389,6 @@ export default class GroupGame extends Vue {
 
 		&>.content {
 			.blockContent();
-			.player {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-
-				&:not(:last-child) {
-					margin-bottom: 10px;
-					padding-bottom: 10px;
-					border-bottom: 1px solid @mainColor_normal;
-				}
-				&.me {
-					font-family: "Futura";
-				}
-
-				&.host {
-					.content {
-						.info {
-							&::before {
-								background-color: transparent;
-								background-image: url("../assets/icons/king.svg");
-								@ratio: 16 / 72;
-								width: 100px * @ratio;
-								height: 72px * @ratio;
-								margin-right: 5px;
-								margin-left: 0;
-								margin-top: 0;
-								border-radius: 0;
-								vertical-align: baseline;
-							}
-						}
-					}
-				}
-
-				&.passed {
-					.pass {
-						position: absolute;
-						left: 50%;
-						transform: translate(-40%) rotate(5deg);
-						font-family: "FuturaExtraBold";
-						text-transform: uppercase;
-						color: #888;
-						text-shadow: rgba(0,0,0,.25) 2px 2px 2px;
-					}
-					.content {
-						opacity: .25;
-					}
-				}
-
-				.position {
-					margin-right: 10px;
-					font-family: "FuturaExtraBold";
-					&::before {
-						content: "#";
-						display: inline;
-						font-size: 15px;
-						font-family: "Futura";
-					}
-				}
-
-				.content {
-					display: flex;
-					flex-direction: column;
-					.info {
-						display: flex;
-						flex-direction: row;
-						.username {
-							width: 150px;
-							overflow: hidden;
-							text-overflow: ellipsis;
-						}
-						&::before {
-							content: " ";
-							background-color: @mainColor_dark;
-							border-radius: 50%;
-							display: inline-block;
-							width: 5px;
-							height: 5px;
-							margin-right: 13px;
-							margin-top: 7px;
-							margin-left: 7px;
-							vertical-align: middle;
-						}
-					}
-		
-					.progressBar {
-						display: block;
-						margin-top: 5px;
-						background-color: fade(@mainColor_dark, 25%);
-						height: 5px;
-						border-radius: 10px;
-						overflow: hidden;
-						.fill {
-							transition: width .5s;
-							height: 100%;
-							width: 50%;
-							background-color: @mainColor_warn_light;
-						}
-					}
-				}
-			}
 		}
 	}
 

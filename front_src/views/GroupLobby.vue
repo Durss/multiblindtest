@@ -144,6 +144,7 @@ export default class GroupLobby extends Vue {
 		let res = [];
 		if(this.me && u.id == this.me.id) res.push("me");
 		if(u.id == this.room.creator) res.push("host")
+		if(u.offline && u.id != this.me.id) res.push("offline")
 		return res;
 	}
 
@@ -201,7 +202,10 @@ export default class GroupLobby extends Vue {
 	public onJoin(e:SocketEvent):void {
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
-			if(this.room.users[i].id == e.data.id) found = true;
+			if(this.room.users[i].id == e.data.id) {
+				found = true;
+				this.room.users[i].offline = false;
+			}
 		}
 		if(!found) {
 			this.room.users.push(e.data);
@@ -215,7 +219,7 @@ export default class GroupLobby extends Vue {
 		for (let i = 0; i < this.room.users.length; i++) {
 			const u = this.room.users[i];
 			if(u.id == e.data.id) {
-				this.room.users.splice(i, 1);
+				this.room.users[i].offline = true;
 			}
 		}
 	}
@@ -334,6 +338,24 @@ export default class GroupLobby extends Vue {
 							margin-right: 13px;
 							margin-left: 7px;
 							vertical-align: middle;
+						}
+
+						&.offline {
+							filter: saturate(0%);
+							opacity: .5;
+							&::before {
+								background-color: transparent;
+								background-image: url("../assets/icons/offline.svg");
+								@ratio: 18 / 68;
+								width: 68px * @ratio;
+								height: 59px * @ratio;
+								margin-right: 10px;
+								margin-left: 0;
+								margin-top: 0;
+								border-radius: 0;
+								margin-top: -2px;
+								opacity: .5;
+							}
 						}
 						&.host {
 							&::before {
