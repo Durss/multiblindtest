@@ -9,6 +9,7 @@ import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
 import VueI18n from 'vue-i18n';
 import AnswerTester from './utils/AnswerTester';
+import SockController, { SOCK_ACTIONS } from './sock/SockController';
 
 Vue.config.productionTip = false;
 Config.init();
@@ -38,15 +39,28 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded
 	if (!store.state.initComplete) {
 		store.dispatch("startApp", { route: to, i18n:i18n }).then(_ => {
+			//If user tries to access a page that needs to be authenticated via Spotify,
+			//redirect her/him to the homepage
 			if(!store.state.loggedin && to.matched[0].meta.needAuth === true) {
 				router.push({name:"home", params:{from:document.location.href}});
 			}else{
+				//otherwise...keep going !
 				nextStep(next, to);
 			}
 		});
 	}else{
+		//If needs spotify auth to access this page, check if a valid token is
+		//loaded. If not, the user will be redirected to oAuth process.
 		if(to.matched[0].meta.needAuth === true) {
 			await SpotifyAPI.instance.refreshTokenIfNecessary(to);
+		}
+
+		//If user leaves multiplayer game, tell the server s·he left the room
+		if(to.matched[0].meta.needGroupAuth !== true && store.state.userGroupData && !store.state.userGroupData.offline) {
+			let u = store.state.userGroupData;
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, data:u});
+			u.offline = true;
+			store.dispatch("setUserGroupData", u);
 		}
 		nextStep(next, to);
 	}

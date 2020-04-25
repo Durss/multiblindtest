@@ -191,7 +191,6 @@ export default class GroupLobby extends Vue {
 			this.$store.dispatch("alert", error.message);
 			return;
 		}
-		
 		this.$store.dispatch("setUserGroupData", res.me);
 		this.joining = false;
 	}

@@ -73,7 +73,7 @@ export default new Vuex.Store({
 			SockController.instance.user = payload;
 			localStorage.setItem("userGroupData", JSON.stringify(payload));
 		},
-		
+
 		setGroupRoomData(state, payload) { state.groupRoomData = payload; },
 
 		setLanguageCode(state, payload) {
@@ -153,7 +153,7 @@ export default new Vuex.Store({
 		alert({commit}, payload) { commit("alert", payload); },
 
 		setUserGroupData({commit}, payload) { commit("setUserGroupData", payload); },
-
+		
 		setGroupRoomData({commit}, payload) { commit("setGroupRoomData", payload); },
 
 		setLanguageCode({commit}, payload) { commit("setLanguageCode", payload); },
