@@ -146,6 +146,7 @@ export default class HTTPServer {
 				tracksCount : req.body.tracksCounts,
 				gamesCount : 3,
 				gameStepIndex : 0,
+				expertMode: null,
 			}
 			res.status(200).send(JSON.stringify({success:true, roomId}));
 		});
