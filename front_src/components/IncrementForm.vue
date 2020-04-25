@@ -1,7 +1,7 @@
 <template>
 	<div class="incrementform">
 		<label class="title" :for="inputId">{{title}}</label>
-		<div class="content">
+		<div class="content" @mousewheel="onMouseWheel">
 			<Button :icon="require('@/assets/icons/minus.svg')" @click="valueLocal--;" class="button" />
 			<input type="number" v-model="valueLocal" min="1" :max="maxValue" class="dark" :id="inputId">
 			<Button :icon="require('@/assets/icons/plus.svg')" @click="valueLocal++;" class="button" />
@@ -44,6 +44,12 @@ export default class IncrementForm extends Vue {
 	private changeCount():void {
 		this.valueLocal = Math.max(1, Math.min(this.maxValue, this.valueLocal));
 		this.$emit("input", this.valueLocal);
+	}
+
+	private onMouseWheel(e:WheelEvent):void {
+		let delta = e.deltaY? e.deltaY : e.deltaX;
+		if(delta > 0) this.valueLocal--;
+		if(delta < 0) this.valueLocal++;
 	}
 
 }
