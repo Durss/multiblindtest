@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import OAuth from '@/views/OAuth.vue'
 import GroupGame from '@/views/GroupGame.vue';
-import GroupLoby from '@/views/GroupLoby.vue';
+import GroupLobby from '@/views/GroupLobby.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import GameView from '@/views/GameView.vue';
 import ChangeLog from '@/views/ChangeLog.vue';
@@ -107,10 +107,10 @@ const routes = [
 			needGroupAuth:true,
 			tag:{
 				path:"/group",
-				title:"multiplayer loby"
+				title:"multiplayer lobby"
 			}
 		},
-		component: GroupLoby
+		component: GroupLobby
 	},
 	{
 		path: '/group/:id/play',

@@ -1,12 +1,12 @@
 <template>
-	<div class="grouploby">
+	<div class="grouplobby">
 		<div v-if="loading" class="loader">
 			<img src="@/assets/loader/loader.svg" alt="loader">
 		</div>
 
 		<div v-if="!loading" class="holder">
 			<div class="playlists header">
-				<h1>{{$t('group.loby.title')}}</h1>
+				<h1>{{$t('group.lobby.title')}}</h1>
 				<div v-for="p in sortedPlaylists" :key="p.id" class="playlist">
 					<img :src="p.cover" :alt="p.name" class="cover">
 					<span class="label">{{p.name}}</span>
@@ -14,16 +14,16 @@
 			</div>
 
 			<div class="users">
-				<h2 class="highlight">{{$t('group.loby.players')}}</h2>
+				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
 				<div class="content">
 					<ul v-if="room.users.length > 0">
 						<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
 					</ul>
 
 					<form @submit.prevent="onSubmit()" class="form" v-if="!me">
-						<label for="username">{{$t('group.loby.join')}}</label>
+						<label for="username">{{$t('group.lobby.join')}}</label>
 						<div class="row">
-							<input type="text" id="username" class="dark" v-model="userName" maxlength="50" :placeholder="$t('group.loby.usernamePlaceholder')">
+							<input type="text" id="username" class="dark" v-model="userName" maxlength="50" :placeholder="$t('group.lobby.usernamePlaceholder')">
 							<Button :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
 						</div>
 					</form>
@@ -31,15 +31,15 @@
 			</div>
 
 			<div v-if="isHost" class="params">
-				<h2>{{$t('group.loby.params')}}</h2>
+				<h2>{{$t('group.lobby.params')}}</h2>
 				<div class="content">
-					<IncrementForm class="increment" :title="$t('group.loby.gamesCount')" v-model="gamesCount" />
-					<IncrementForm class="increment" :title="$t('group.loby.tracksCount')" v-model="tracksCount" maxValue="6" />
+					<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount" />
+					<IncrementForm class="increment" :title="$t('group.lobby.tracksCount')" v-model="tracksCount" maxValue="6" />
 					<ExpertModeForm v-model="expertMode" />
 				</div>
 			</div>
 
-			<Button :title="$t('group.loby.start')"
+			<Button :title="$t('group.lobby.start')"
 				class="start"
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
@@ -50,7 +50,7 @@
 
 			<div v-if="!isHost && room.users.length > 0" class="waitHost">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
-				<span v-html="$t('group.loby.wait', {hostName:hostName})"></span>
+				<span v-html="$t('group.lobby.wait', {hostName:hostName})"></span>
 			</div>
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
@@ -79,7 +79,7 @@ import ExpertModeForm from '../components/ExpertModeForm.vue';
 		ShareMultiplayerLink,
 	}
 })
-export default class GroupLoby extends Vue {
+export default class GroupLobby extends Vue {
 
 	@Prop()
 	public id:string;
@@ -247,7 +247,7 @@ export default class GroupLoby extends Vue {
 
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
-.grouploby{
+.grouplobby{
 	.loader {
 		.center();
 		position: absolute;

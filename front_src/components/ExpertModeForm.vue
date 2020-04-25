@@ -2,21 +2,21 @@
 	<div class="expertmodeform">
 		<div class="toggle">
 			<Button type="checkbox" id="expertmode" v-model="enabled" />
-			<label for="expertmode">{{$t('group.loby.expertMode.title')}}</label>
+			<label for="expertmode">{{$t('group.lobby.expertMode.title')}}</label>
 		</div>
 		<div v-if="enabled" class="form">
-			<p class="infos">{{$t("group.loby.expertMode.details")}}</p>
+			<p class="infos">{{$t("group.lobby.expertMode.details")}}</p>
 			<div class="checkboxes">
 				<div class="row">
 					<Button type="checkbox" id="expertmode_title" v-model="acceptTitle" />
-					<label for="expertmode_title">{{$t('group.loby.expertMode.acceptTitle')}}</label>
+					<label for="expertmode_title">{{$t('group.lobby.expertMode.acceptTitle')}}</label>
 				</div>
 				<div class="row">
 					<Button type="checkbox" id="expertmode_artist" v-model="acceptArtist" />
-					<label for="expertmode_artist">{{$t('group.loby.expertMode.acceptArtist')}}</label>
+					<label for="expertmode_artist">{{$t('group.lobby.expertMode.acceptArtist')}}</label>
 				</div>
 			</div>
-			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{$t('group.loby.expertMode.selectSomething')}}</div>
+			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{$t('group.lobby.expertMode.selectSomething')}}</div>
 		</div>
 	</div>
 </template>

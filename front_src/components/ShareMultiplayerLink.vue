@@ -1,12 +1,12 @@
 <template>
 	<div class="sharemultiplayerlink">
-		<h2 class="title">{{$t('group.loby.share.title')}}</h2>
+		<h2 class="title">{{$t('group.lobby.share.title')}}</h2>
 		<div class="content" ref="content">
-			<p class="copied" v-if="showCopied" @click="showCopied = false">{{$t('group.loby.share.copied')}}</p>
-			<p>{{$t('group.loby.share.send')}}</p>
+			<p class="copied" v-if="showCopied" @click="showCopied = false">{{$t('group.lobby.share.copied')}}</p>
+			<p>{{$t('group.lobby.share.send')}}</p>
 			<div class="inputs">
 				<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
-				<Button :icon="require('@/assets/icons/copy.svg')" :data-tooltip="$t('group.loby.share.copy')" class="copy" @click="shareCurrentRoom()" />
+				<Button :icon="require('@/assets/icons/copy.svg')" :data-tooltip="$t('group.lobby.share.copy')" class="copy" @click="shareCurrentRoom()" />
 			</div>
 		</div>
 	</div>

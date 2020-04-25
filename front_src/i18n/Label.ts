@@ -61,7 +61,7 @@ export default class Labels {
 				createBt:"Create",
 			},
 			group: {
-				loby: {
+				lobby: {
 					title: "Selected Playlists",
 					players: "Players",
 					join: "Join game",
@@ -215,7 +215,7 @@ export default class Labels {
 				createBt:"Créer",
 			},
 			group: {
-				loby: {
+				lobby: {
 					title: "Playlists sélectionnées",
 					players: "Joueurs",
 					join: "Rejoindre la partie",

@@ -15,7 +15,7 @@
 		
 		<div v-if="shareUrl" class="shareUrl" ref="share">
 			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeShare')" />
-			<p class="title">{{$t('group.loby.share.copied')}}</p>
+			<p class="title">{{$t('group.lobby.share.copied')}}</p>
 			<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
 		</div>
 		
