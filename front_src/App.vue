@@ -12,6 +12,7 @@
 		<Alert />
 		<Tooltip />
 		<Confirm />
+		<div :class="socketStatusClasses" v-if="$route.meta.needGroupAuth || socketConnected">{{$t('global.'+(socketConnected?'online':'offline'))}}</div>
 	</div>
 </template>
 
@@ -21,6 +22,8 @@ import Tooltip from "./components/Tooltip.vue";
 import Confirm from "./views/Confirm.vue";
 import Alert from "./views/AlertView.vue";
 import Button from './components/Button.vue';
+import SockController, { SOCK_ACTIONS } from './sock/SockController';
+import SocketEvent from './vo/SocketEvent';
 
 @Component({
 	components:{
@@ -32,6 +35,8 @@ import Button from './components/Button.vue';
 })
 export default class App extends Vue {
 
+	private socketConnected:boolean = false;
+
 	public mounted():void {
 		//This hacks plays an empty sound on first click to avoid "click to play"
 		//layer when starting a multiplyer blindtest and we're not the host
@@ -39,15 +44,29 @@ export default class App extends Vue {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = 0;
+			elem.volume = 1;
 			elem.setAttribute("src", "/mp3/silence.mp3");
+			elem.play();
 			document.removeEventListener("click", handler);
 		}
 		document.addEventListener("click", handler);
+		this.socketConnected = SockController.instance.connected;
+		SockController.instance.addEventListener(SOCK_ACTIONS.ONLINE, (e)=>this.onSockStateChange(e))
+		SockController.instance.addEventListener(SOCK_ACTIONS.OFFLINE, (e)=>this.onSockStateChange(e))
 	}
 
 	public beforeDestroy():void {
 		
+	}
+
+	public get socketStatusClasses():string[] {
+		let res = ["sockStatus"];
+		if(this.socketConnected) res.push("online");
+		return res;
+	}
+
+	private onSockStateChange(e:SocketEvent):void {
+		this.socketConnected = e.getType() == SOCK_ACTIONS.ONLINE;
 	}
 
 }
@@ -74,6 +93,31 @@ export default class App extends Vue {
 		}
 		&.slide-enter, &.slide-leave-to {
 			transform: translate(-100%, -100%);
+		}
+	}
+
+	.sockStatus {
+		position: fixed;
+		bottom: 2px;
+		right: 2px;
+		opacity: .25;
+		font-size: 12px;
+		color: black;
+		// text-shadow: rgba(0,0,0,.25) 0px 0px 1px;
+		&::after {
+			content: "";
+			background: red;
+			border-radius: 50%;
+			width: 5px;
+			height: 5px;
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: 5px;
+		}
+		&.online {
+			&::after {
+				background: green;
+			}
 		}
 	}
 }

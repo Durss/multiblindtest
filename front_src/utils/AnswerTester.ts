@@ -42,9 +42,11 @@ export default class AnswerTester {
 		this.checkTest("lambé", "Lambé An Dro", true);
 		this.checkTest("redhot hcilli pappers", "Red Hot Chili Peppers", true);
 		this.checkTest("walk on the", "Walk On the Wild Side", true);
+		this.checkTest("shame on you", "Shame on U", true);
 		this.checkTest("stach stach", "Stach Stach — Karaoké Avec Chant Témoin — Rendu Célèbre Par Bratisla Boys", true);
 		// Walk On the Wild Side
 		//Red Hot Chili Peppers
+		//Shame on U
 	}
 
 	public test(userAnswer:string, answer:string, reducedTolerence:boolean = false):boolean {

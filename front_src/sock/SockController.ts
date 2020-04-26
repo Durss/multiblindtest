@@ -20,6 +20,8 @@ export default class SockController extends EventDispatcher {
 	private _pingInterval: number;
 	private _attempts: number;
 	private _connected : boolean = false;
+	private _enabled : boolean = false;
+	private _verbose : boolean = false;
 
 	constructor() {
 		super();
@@ -32,6 +34,10 @@ export default class SockController extends EventDispatcher {
 	static get instance(): SockController {
 		if (!SockController._instance) SockController._instance = new SockController();
 		return SockController._instance;
+	}
+
+	public get connected():boolean {
+		return this._connected;
 	}
 
 	public set user(value:UserData) {
@@ -47,18 +53,22 @@ export default class SockController extends EventDispatcher {
 	 ******************/
 
 	public connect() {
+		if(this._verbose) console.log("SC :: connect...");
+		this._enabled = true;
+		if(this.connected) return;
 		// if(this._sockjs) return;
+		clearTimeout(this._timeout);
 
 		//@ts-ignore
 		this._sockjs = new SockJS(Config.SOCKET_PATH);
-		this._sockjs.onclose = ()=> this.onClose();
+		this._sockjs.onclose = (e)=> this.onClose(e);
 		this._sockjs.onmessage = (message:string)=> this.onMessage(message);
 		this._sockjs.onopen = ()=> this.onConnect();
-
-		window.addEventListener('beforeunload', _=> this.disconnect());
 	}
 
 	public disconnect() {
+		if(this._verbose) console.log("SC :: disconnect");
+		this._enabled = false;
 		if(this._connected) {
 			try {
 				if(this._user) {
@@ -70,14 +80,24 @@ export default class SockController extends EventDispatcher {
 		}
 		this._connected = false;
 		clearTimeout(this._timeout);
-		this._timeout = <any>setTimeout(_=> this._sockjs.close(), 500);
+		this._timeout = <any>setTimeout(_=> {
+			try {
+				this._sockjs.close();
+			}catch(e) {/*ignore*/}
+		}, 500);
 	}
 
+	/**
+	 * Send a message to the group
+	 */
 	public sendMessage(data:{action:string, data:any, includeSelf?:boolean}):void {
+		if(this._verbose) console.log("SC :: sendMessage", data);
 		if(!this._connected) {
 			//Postpone send if connexion not yet establised
+			if(this._verbose) console.log("SC :: postpone...", data)
 			setTimeout(_=> this.sendMessage(data), 250);
 		}else{
+			if(this._verbose) console.log("SC :: sendMessage : do()")
 			this._sockjs.send(JSON.stringify(data));
 		}
 	}
@@ -90,9 +110,11 @@ export default class SockController extends EventDispatcher {
 	 * Initializes the class
 	 */
 	private initialize(): void {
+		window.addEventListener('beforeunload', _=> this.disconnect());
 	}
 
 	private registerCurrentUser():void {
+		if(this._verbose) console.log("SC :: REGISTER USER");
 		this.sendMessage({action:SOCK_ACTIONS.DEFINE_UID, data:this._user});
 		if(router.currentRoute.meta.needGroupAuth) {
 			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:this._user});
@@ -100,6 +122,7 @@ export default class SockController extends EventDispatcher {
 	}
 
 	private onConnect():void {
+		if(this._verbose) console.log("SC :: onConnect");
 		this._connected = true;
 		this._attempts = 0;
 		
@@ -108,28 +131,37 @@ export default class SockController extends EventDispatcher {
 		if(this._user) {
 			this.registerCurrentUser();
 		}
+		this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.ONLINE, null));
 	}
 
 	private ping():void {
 		this._sockjs.send(JSON.stringify({action:SOCK_ACTIONS.PING}));
 	}
 
-	private onClose():void {
+	private onClose(e):void {
+		if(this._verbose) console.log("SC :: onClose", e);
+		this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.OFFLINE, null));
 		this._connected = false;
 		clearInterval(<any>this._pingInterval);
-		if(++this._attempts == 10) return;
-		this._timeout = <any>setTimeout(_=> this.connect(), 10000);
+
+		if(this._enabled) {
+			if(++this._attempts == 20) return;
+			this.connect();
+			this._timeout = <any>setTimeout(_=> this.connect(), 500 * Math.pow(this._attempts,2));
+		}
 	}
 
 	private onMessage(message:any):void {
 		let json:any = JSON.parse(message.data);
-		console.log("Sock message");
-		console.log(json);
+		// console.log("Sock message");
+		// console.log(json);
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }
 
 export enum SOCK_ACTIONS {
+	ONLINE="ONLINE",
+	OFFLINE="OFFLINE",
 	PING="PING",
 	DEFINE_UID="DEFINE_UID",
 	JOIN_ROOM="JOIN_ROOM",

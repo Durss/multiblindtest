@@ -54,31 +54,44 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 		if(to.matched[0].meta.needAuth === true) {
 			await SpotifyAPI.instance.refreshTokenIfNecessary(to);
 		}
-
-		//If user leaves multiplayer game, tell the server s·he left the room
-		if(to.matched[0].meta.needGroupAuth !== true && store.state.userGroupData && !store.state.userGroupData.offline) {
-			let u = store.state.userGroupData;
-			SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, data:u});
-			u.offline = true;
-			store.dispatch("setUserGroupData", u);
-		}
 		nextStep(next, to);
 	}
 });
+
+let disconnectTimeout = null;
+function nextStep(next:Function, to:Route):void {
+	let meta = to.matched? to.matched[0].meta : null;
+	if(meta && meta.tag) {
+		StatsManager.instance.pageView(meta.tag.path, meta.tag.title);
+	}
+
+	if(to.matched[0].meta.needGroupAuth == true){
+		if(disconnectTimeout) {
+			disconnectTimeout = null;
+			clearTimeout(disconnectTimeout);
+		}
+		if(!SockController.instance.connected) {
+			SockController.instance.connect();
+		}
+	}else{
+		if(SockController.instance.connected) {
+			//If user leaves multiplayer game, tell the server s·he left the room
+			let u = store.state.userGroupData;
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, data:u});
+			disconnectTimeout = setTimeout(_=> {
+				//Cut socket connexion
+				SockController.instance.disconnect();
+			}, 250);
+		}
+	}
+	next();
+}
 
 Vue.directive('focus', {
     inserted: function (el) {
         el.focus()
     }
 })
-
-function nextStep(next:Function, to:Route):void {
-	let meta = to.matched? to.matched[0].meta : null;
-	if(meta && meta.tag) {
-		StatsManager.instance.pageView(meta.tag.path, meta.tag.title);
-	}
-	next();
-}
 
 
 new Vue({

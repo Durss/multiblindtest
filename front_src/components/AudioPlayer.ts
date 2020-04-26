@@ -62,7 +62,12 @@ export default class AudioPlayer {
 		let index = this.trackIdToIndex[track.id];
 		if(index == null || index == undefined) return;
 		// if(this.trackToPauseState[track.id] !== true) return;
-		this.audioObjects[ index ].play();
+		this.audioObjects[ index ].play().catch(error=> {
+			//Autoplay failed, show play button
+			if(this.onNeedUserInteraction) {
+				this.onNeedUserInteraction();
+			}
+		});
 	}
 
 	/**
@@ -96,7 +101,12 @@ export default class AudioPlayer {
 	public play():void {
 		for (let i = 0; i < this.audioObjects.length; i++) {
 			const audio = this.audioObjects[i];
-			audio.play();
+			audio.play().catch(error=> {
+				//Autoplay failed, show play button
+				if(this.onNeedUserInteraction) {
+					this.onNeedUserInteraction();
+				}
+			});
 		}
 	}
 

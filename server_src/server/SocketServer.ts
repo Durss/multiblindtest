@@ -78,8 +78,11 @@ export default class SocketServer {
 	 */
 	public sendTo(user:UserData, msg:{action:string, data?:any}):void {
 		let conn = this._uidToConnection[user.id.toString()];
-		// console.log("send to ", user.name);
-		if(!conn) return;
+		// console.log("send to ", user.name, msg);
+		if(!conn) {
+			Logger.error("Actually nope... connexion not found for ", user.name, ":(");
+			return;
+		}
 		conn.write(JSON.stringify(msg));
 	}
 
@@ -157,6 +160,8 @@ export default class SocketServer {
 				//Don't care, just sent to check if connection's style alive
 				return;
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
+				Logger.warn("Registering ", json.data.name);
+
 				//Associate socket connection to user
 				this._uidToConnection[json.data.id] = conn;
 				this._connectionToUid[conn.id] = json.data.id;
@@ -167,18 +172,19 @@ export default class SocketServer {
 				let group = this._userIdToGroupId[ uid ];
 				if(uid && group) {
 					//Message is sent by a valid user on a valid room.
-					Logger.info("Socket message : "+LogStyle.Reset+json.action);
-					// Logger.simpleLog("uid:"+uid+"    group:"+group);
 					let exclude = uid;
 					if(json.includeSelf === true) exclude = null;
 					json.from = uid;
+					// Logger.info("Socket message : "+LogStyle.Reset+json.action, "for group", group, "excluding", exclude);
+					// console.log(json);
+					// Logger.simpleLog("uid:"+uid+"    group:"+group);
 					this.sendToGroup(group, json, exclude);
 				}
 
 				//User left room, cleanup its references
 				if(json.action == SOCK_ACTIONS.LEAVE_ROOM) {
 					// Logger.simpleLog("Force socket close");
-					this.onClose(conn);
+					// this.onClose(conn);
 					this.removeUserFromGroup(uid);
 				}
 
@@ -214,6 +220,7 @@ export default class SocketServer {
 			for (let i = 0; i < users.length; i++) {
 				if(users[i].id == uid) {
 					user = users[i]
+					Logger.warn("Unregister ", user.name);
 					users.splice(i, 1);
 					this.onDeleteUser(groupId, user);
 				}

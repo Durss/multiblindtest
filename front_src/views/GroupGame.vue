@@ -3,6 +3,7 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 
 		<div v-if="room">
+			<CountDown v-if="pause" @complete="pause = false" />
 			<div class="header">
 				<h1>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
 				<ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" />
@@ -14,6 +15,7 @@
 				:trackscounts="tracksToPlay.length"
 				:hideForm="gameComplete || fullMe.pass"
 				:expertMode="room.expertMode"
+				:pause="pause"
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
@@ -26,6 +28,7 @@
 				class="giveUp"
 				@click="onGiveUp()"
 				:loading="loadingPass"
+				:disabled="pause"
 				v-if="!fullMe.pass && !gameStepComplete && !gameComplete"
 			/>
 
@@ -50,6 +53,7 @@
 			<h2>{{$t('group.game.rank')}}</h2>
 			<GroupUserList class="content" :room="room" :users="users" :me="me" :gameComplete="gameComplete" />
 		</div>
+		<!-- <Button title="toggle" @click="pause = !pause" /> -->
 	</div>
 </template>
 
@@ -66,11 +70,13 @@ import UserData from '../vo/UserData';
 import Button from '../components/Button.vue';
 import ExpertModeState from '../components/ExpertModeState.vue';
 import GroupUserList from '../components/GroupUserList.vue';
+import CountDown from '../components/CountDown.vue';
 
 @Component({
 	components:{
 		Button,
 		GameView,
+		CountDown,
 		GroupUserList,
 		ExpertModeState,
 	}
@@ -83,6 +89,7 @@ export default class GroupGame extends Vue {
 	public tracksIds:string = null;
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
+	public pause:boolean = true;
 	public loading:boolean = false;
 	public loadingPass:boolean = false;
 	public gameStepComplete:boolean = false;
@@ -261,6 +268,7 @@ export default class GroupGame extends Vue {
 		for (let i = 0; i < this.room.users.length; i++) {
 			this.room.users[i].pass = false;
 		}
+		this.pause = true;
 	}
 
 	/**

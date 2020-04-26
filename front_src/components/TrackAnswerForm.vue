@@ -53,6 +53,7 @@ export default class TrackAnswerForm extends Vue {
 
 	public guess:string = "";
 	public error:boolean = false;
+	public focusHandler:any;
 
 	public get classes():string[] {
 		let res = ["trackanswerform"]
@@ -61,11 +62,19 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public mounted():void {
-		
+		this.focusHandler = (e)=>this.onFocus();
+		document.addEventListener("keydown", this.focusHandler);
+		document.addEventListener("mouseup", this.focusHandler);
 	}
 
 	public beforeDestroy():void {
-		
+		document.removeEventListener("keydown", this.focusHandler);
+		document.removeEventListener("mouseup", this.focusHandler);
+	}
+
+	private onFocus():void {
+		if(!this.$refs.input) return;
+		(<HTMLInputElement>this.$refs.input).focus();
 	}
 
 	public shake():void {

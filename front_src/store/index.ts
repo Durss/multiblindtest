@@ -96,8 +96,6 @@ export default new Vuex.Store({
 			//Security to make sure startApp isn't executed twice if changing URL while loading
 			if (startPromise && payload.force !== true) return startPromise;
 			
-			SockController.instance.connect();
-			
 			state.initComplete = false;
 			let token = localStorage.getItem("accessToken");
 			if(token) {

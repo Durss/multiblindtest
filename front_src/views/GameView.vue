@@ -19,7 +19,7 @@
 
 				<Button
 					class="playpause"
-					:icon="require('@/assets/icons/'+(isPlaying? 'unmute' : 'mute')+'.svg')"
+					:icon="require('@/assets/icons/'+(mute? 'mute' : 'unmute')+'.svg')"
 					v-if="!complete"
 					big
 					@click="togglePlayPause()"
@@ -118,10 +118,13 @@ export default class GameView extends Vue {
 
 	@Prop({default:""})
 	public expertMode:string[];
+
+	@Prop({default:false})
+	public pause:boolean;
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;
-	public isPlaying:boolean = false;
+	public mute:boolean = true;
 	public complete:boolean = false;
 	public tracksMode:boolean = false;
 	public multiplayerMode:boolean = false;
@@ -291,14 +294,14 @@ export default class GameView extends Vue {
 	 */
 	public onLoadComplete():void {
 		this.loading = false;
-		this.isPlaying = true;
+		this.mute = false;
 		
 		//Stops the tracks that have been guessed.
 		//This is usefull for multiplayer mode if a player
 		//refreshes the page.
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const t = this.tracksToPlay[i];
-			if(t.enabled) {
+			if(t.enabled || this.pause) {
 				this.stopTrack(t);
 			}
 		}
@@ -307,20 +310,25 @@ export default class GameView extends Vue {
 	/**
 	 * Start playing songs
 	 */
+	@Watch("pause")
 	public startPlay():void {
 		this.needUserInteraction = false;
-		this.audioPlayer.play();
+
+		if(!this.pause && !this.mute) {
+			this.audioPlayer.play();
+		}
 		
 		//Stops the tracks that have been guessed.
 		//This is usefull for multiplayer mode if a player
 		//refreshes the page and is asked to click to start playing.
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const t = this.tracksToPlay[i];
-			if(t.enabled) {
+			if(t.enabled || this.pause) {
 				this.stopTrack(t);
 			}
 		}
 	}
+	
 
 	/**
 	 * Called when user submits a guess via the form
@@ -407,14 +415,14 @@ export default class GameView extends Vue {
 	 */
 	public togglePlayPause():void {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
-			if(this.isPlaying) {
+			if(!this.mute || this.pause) {
 				this.audioPlayer.stopTrack(this.tracksToPlay[i]);
 			}else
 			if(!this.tracksToPlay[i].enabled) {
 				this.audioPlayer.unpauseTrack(this.tracksToPlay[i]);
 			}
 		}
-		this.isPlaying = !this.isPlaying;
+		this.mute = !this.mute;
 	}
 
 	/**
@@ -505,6 +513,7 @@ export default class GameView extends Vue {
 		position: fixed;
 		top: 0;
 		left: 0;
+		z-index: 2;
 	}
 
 	.playBt {
@@ -516,6 +525,7 @@ export default class GameView extends Vue {
 		padding-left: @size * .3;
 		border-radius: 50%;
 		position: fixed;
+		z-index: 3;
 		.center();
 
 		.icon {

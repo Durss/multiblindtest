@@ -5,6 +5,8 @@ export default class Labels {
 				yes:"Yes",
 				no:"No",
 				quit:"Retour",
+				online:"connected",
+				offline:"not connected",
 			},
 			oAuth: {
 				title:"You must grant access to your playlists to play Multi Blindtest",
@@ -159,6 +161,8 @@ export default class Labels {
 			global: {
 				yes:"Oui",
 				no:"Non",
+				online:"connecté",
+				offline:"déconnecté",
 			},
 			oAuth: {
 				title:"Pour jouer au Multi Blindtest vous devez autoriser l'accès à vos playlists",
