@@ -17,13 +17,7 @@
 					/>
 				</div>
 
-				<Button
-					class="playpause"
-					:icon="require('@/assets/icons/'+(mute? 'mute' : 'unmute')+'.svg')"
-					v-if="!complete"
-					big
-					@click="togglePlayPause()"
-				/>
+				<VolumeButton v-if="!complete" />
 
 				<Button
 					class="complete"
@@ -91,11 +85,13 @@ import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 import StatsManager from '../utils/StatsManager';
 import AnswerTester from '../utils/AnswerTester';
+import VolumeButton from '../components/VolumeButton.vue';
 
 @Component({
 	components:{
 		Button,
 		TrackEntry,
+		VolumeButton,
 		TrackAnswerForm,
 	}
 })
@@ -453,6 +449,12 @@ export default class GameView extends Vue {
 		}
 	}
 
+	@Watch("$store.state.volume", {immediate: true, deep:true})
+	public onVolumeChange(a, b):void {
+		if(!this.audioPlayer) return;
+		this.audioPlayer.volume = this.$store.state.volume;
+	}
+
 }
 </script>
 
@@ -497,13 +499,6 @@ export default class GameView extends Vue {
 			align-self: center;
 		}
 
-		.playpause {
-			position: fixed;
-			top: 0;
-			right: 0;
-			border-radius: 0;
-			border-bottom-left-radius: 50%;
-		}
 	}
 
 	.dimmer {

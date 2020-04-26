@@ -17,6 +17,7 @@ export default new Vuex.Store({
 		alert: null,
 		lang: null,
 		i18n: null,
+		volume: .5,
 		accessToken:null,
 		playlistsCache:null,
 		userGroupData:null,
@@ -83,6 +84,11 @@ export default new Vuex.Store({
 				state.i18n.locale = payload;
 			}
 		},
+
+		setVolume(state, payload) {
+			state.volume = payload;
+			localStorage.setItem("volume", payload.toString())
+		},
 		
 	},
 
@@ -116,6 +122,11 @@ export default new Vuex.Store({
 				// let labels = await Api.get("public/labels");
 				state.i18n = payload.i18n;
 				dispatch("setLabels", Labels.json)
+			}
+			
+			let volume = localStorage.getItem("volume");
+			if(volume != null) {
+				state.volume = parseInt(volume);
 			}
 			
 			let user = localStorage.getItem("userGroupData");
@@ -155,5 +166,7 @@ export default new Vuex.Store({
 		setGroupRoomData({commit}, payload) { commit("setGroupRoomData", payload); },
 
 		setLanguageCode({commit}, payload) { commit("setLanguageCode", payload); },
+
+		setVolume({commit}, payload) { commit("setVolume", payload); },
 	}
 })

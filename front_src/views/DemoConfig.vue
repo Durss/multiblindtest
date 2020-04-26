@@ -38,6 +38,7 @@ export default class DemoConfig extends Vue {
 </script>
 
 <style scoped lang="less">
+@import (reference) '../less/_includes.less';
 .democonfig{
 	
 	.header {

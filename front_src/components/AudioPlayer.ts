@@ -1,4 +1,5 @@
 import TrackData from '@/vo/TrackData';
+import store from '@/store';
 
 export default class AudioPlayer {
 
@@ -8,9 +9,9 @@ export default class AudioPlayer {
 	private loadedCount:number = 0;
 	private toLoadCount:number = 0;
 	private audioObjects:HTMLAudioElement[] = [];
-	private trackToPauseState:{[id:string]:boolean} = {};
 	private loadCompleteHandler:any = null;
 	private trackIdToIndex:any = null;
+	private volumeFactor:number = .5;
 	
 	constructor(private audioCount:number) {
 		this.initialize();
@@ -21,6 +22,11 @@ export default class AudioPlayer {
 	/********************
 	 * GETTER / SETTERS *
 	 ********************/
+	public set volume(value:number) {
+		for (let i = 0; i < this.audioObjects.length; i++) {
+			this.audioObjects[i].volume = Math.max(0, Math.min(1, value * this.volumeFactor));
+		}
+	}
 	
 	
 	
@@ -33,7 +39,6 @@ export default class AudioPlayer {
 	 */
 	public populate(tracks:TrackData[]):void {
 		this.trackIdToIndex = {}
-		this.trackToPauseState = {};
 		this.loadedCount = 0;
 		this.toLoadCount = tracks.length;
 		for (let i = 0; i < tracks.length; i++) {
@@ -50,7 +55,6 @@ export default class AudioPlayer {
 		if(!this.trackIdToIndex) return;
 		let index = this.trackIdToIndex[track.id];
 		if(index == null || index == undefined) return;
-		// if(this.trackToPauseState[track.id] === true) return;
 		this.audioObjects[ index ].pause();
 	}
 
@@ -135,7 +139,7 @@ export default class AudioPlayer {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = .5;//TODO RESET TO 1
+			elem.volume = Math.max(0, Math.min(1, store.state.volume * this.volumeFactor));
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
 			this.audioObjects.push(elem);
 		}

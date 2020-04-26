@@ -73,6 +73,7 @@ export default class App extends Vue {
 </script>
 
 <style scoped lang="less">
+@import (reference) 'less/_includes.less';
 .app{
 	.content {
 		max-width: 500px;
