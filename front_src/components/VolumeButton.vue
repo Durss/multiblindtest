@@ -78,7 +78,6 @@ export default class VolumeButton extends Vue {
 
 	public onTouchStartHolder(e:TouchEvent):void {
 		if(!this.isMouseOver) {
-			console.log("STOP IT");
 			e.preventDefault();
 		}
 		this.isMouseOver = true;
@@ -117,7 +116,6 @@ export default class VolumeButton extends Vue {
 
 	@Watch("volume")
 	private onVolumeChange():void {
-		console.log(this.volume);
 		this.$store.dispatch("setVolume", this.volume);
 	}
 
