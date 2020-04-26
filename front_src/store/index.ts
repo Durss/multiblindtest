@@ -126,7 +126,7 @@ export default new Vuex.Store({
 			
 			let volume = localStorage.getItem("volume");
 			if(volume != null) {
-				state.volume = parseInt(volume);
+				state.volume = parseFloat(volume);
 			}
 			
 			let user = localStorage.getItem("userGroupData");

@@ -1,7 +1,7 @@
 <template>
-	<div :class="classes" @mouseover="isMouseOver = true;" @mouseout="isMouseOver = false;" @touchstart="isMouseOver = true;">
-		<img class="icon" v-if="mute" src="@/assets/icons/mute.svg" alt="mute">
-		<img class="icon" v-if="!mute" src="@/assets/icons/unmute.svg" alt="unmute">
+	<div :class="classes" @mouseover="isMouseOver = true;" @mouseout="isMouseOver = false;" @touchstart="onTouchStartHolder">
+		<img class="icon" v-if="mute" src="@/assets/icons/mute.svg" alt="mute" @click="onClick">
+		<img class="icon" v-if="!mute" src="@/assets/icons/unmute.svg" alt="unmute" @click="onClick">
 		<div class="percent">{{Math.round(volume*100)}}%</div>
 		<div class="content" @mousedown="onPress" @touchstart="onPress">
 			<svg viewBox="0 0 20 150" class="bar" ref="arrow">
@@ -31,6 +31,7 @@ export default class VolumeButton extends Vue {
 	public expand:boolean = false;
 	public dragging:boolean = false;
 	public isMouseOver:boolean = false;
+	public prevVolume:number = .5;
 	public volume:number = .5;
 
 	private mouseUpHandler:any;
@@ -54,7 +55,7 @@ export default class VolumeButton extends Vue {
 	}
 
 	public mounted():void {
-		this.volume = this.$store.state.volume;
+		this.volume = this.prevVolume = this.$store.state.volume;
 
 		this.mouseUpHandler = (e) => this.onRelease(e);
 		this.mouseMoveHandler = (e) => this.onMove(e);
@@ -75,20 +76,32 @@ export default class VolumeButton extends Vue {
 		
 	}
 
+	public onTouchStartHolder(e:TouchEvent):void {
+		if(!this.isMouseOver) {
+			console.log("STOP IT");
+			e.preventDefault();
+		}
+		this.isMouseOver = true;
+	}
+
+	public onClick():void {
+		if(this.volume > 0) this.prevVolume = this.volume;
+		if(this.expand) {
+			this.volume = this.volume > 0? 0 : this.prevVolume == 0? .5 : this.prevVolume;
+		}
+	}
+
 	public onPress(e:MouseEvent):void {
 		this.dragging = true;
-		console.log("PRESS", this.isMouseOver);
 		this.onMove(e);
 	}
 
 	public onRelease(e:MouseEvent):void {
-		console.log("RELEASE", this.isMouseOver);
 		this.dragging = false;
 		if(!this.isMouseOver) this.expand = false;
 	}
 
 	public onMove(e:MouseEvent|TouchEvent):void {
-		console.log("MOVE", this.dragging)
 		if(!this.dragging) return;
 		let arrow = <SVGElement>this.$refs.arrow;
 		let bounds = arrow.getBoundingClientRect();
@@ -104,6 +117,7 @@ export default class VolumeButton extends Vue {
 
 	@Watch("volume")
 	private onVolumeChange():void {
+		console.log(this.volume);
 		this.$store.dispatch("setVolume", this.volume);
 	}
 
