@@ -5,6 +5,7 @@ import OAuth from '@/views/OAuth.vue'
 import GroupGame from '@/views/GroupGame.vue';
 import GroupLobby from '@/views/GroupLobby.vue';
 import MixCreator from '@/views/MixCreator.vue';
+import DemoConfig from '@/views/DemoConfig.vue';
 import GameView from '@/views/GameView.vue';
 import ChangeLog from '@/views/ChangeLog.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
@@ -30,10 +31,25 @@ const routes = [
 		name: 'demo',
 		props:true,
 		meta: {
+			demo:true,
 			needAuth:false,
 			tag:{
 				path:"/demo",
-				title:"Demo"
+				title:"Demo config"
+			}
+		},
+		component: DemoConfig
+	},
+	{
+		path: '/demo/:trackscounts',
+		name: 'demo/play',
+		props:true,
+		meta: {
+			demo:true,
+			needAuth:false,
+			tag:{
+				path:"/demo/play",
+				title:"Demo play"
 			}
 		},
 		component: GameView

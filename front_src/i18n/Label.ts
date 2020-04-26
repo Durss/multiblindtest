@@ -15,7 +15,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- try not to vomit -",
-				head : "It's like playing <strong>{tracksCount}</strong> blind tests simultaneously, awful.",
+				head : "It's like playing multiple blind tests simultaneously, awful.",
 				connectSpotify : "Connect with Spotify",
 				demo : "Demo",
 				solo : "Play solo",
@@ -26,6 +26,10 @@ export default class Labels {
 					Created by <a href="https://www.durss.ninja" target="_blank">Durss</a>. Get sources <a href="https://github.com/Durss/multiblindtest" target="_blank">on github</a><br />
 					Based on <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">an idea</a> from <a href="https://twitter.com/navo_" target="_blank">Navo</a> &amp; <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
 				`,
+			},
+			demo: {
+				title:"Demo",
+				description:"Select the number of simultaneous tracks you want to be played",
 			},
 			playlists : {
 				loading: {
@@ -171,7 +175,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Pour un mal de crâne garanti -",
-				head : "C'est comme jouer à <strong>{tracksCount}</strong> blindtests en simultané.<br />Insupportable",
+				head : "C'est comme jouer à plusieur blindtests en simultané.<br />Insupportable",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Partie solo",
@@ -182,6 +186,10 @@ export default class Labels {
 					Créé par <a href="https://www.durss.ninja" target="_blank">Durss</a>. Sources <a href="https://github.com/Durss/multiblindtest" target="_blank">sur github</a><br />
 					Basé sur <a href="https://www.youtube.com/watch?v=_dN0DpE0q3E" target="_blank">une idée</a> de <a href="https://twitter.com/navo_" target="_blank">Navo</a> &amp; <a href="https://twitter.com/kyank" target="_blank">Kyan Khojandi</a>.
 				`,
+			},
+			demo: {
+				title:"Demo",
+				description:"Sélectionne le niveau de difficulté que tu souhaites. Ceci correspond au nombre de morceaux joués en simultané",
 			},
 			playlists : {
 				loading: {

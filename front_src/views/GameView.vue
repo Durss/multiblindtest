@@ -142,7 +142,7 @@ export default class GameView extends Vue {
 	}
 	
 	public mounted():void {
-		this.demoMode = this.$route.name == "demo";
+		this.demoMode = this.$route.meta.demo === true;
 
 		//if no data is found on URL or if no cache exists on storage, redirect to playlists loading
 		if(!this.demoMode && (this.playlistids.length == 0 || !this.$store.state.playlistsCache) && this.tracksids.length == 0 && !this.rawTracksData) {

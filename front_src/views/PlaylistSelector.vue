@@ -246,11 +246,6 @@ export default class PlaylistSelector extends Vue {
 			margin-bottom: 10px;
 		}
 		
-		.or {
-			margin-top: 10px;
-			margin-bottom: 10px;
-		}
-
 		&.refused {
 			margin-top: 70px;
 		}
