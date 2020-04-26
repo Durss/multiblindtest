@@ -192,7 +192,6 @@ export default class GroupLobby extends Vue {
 			this.$store.dispatch("alert", error.message);
 			return;
 		}
-		console.log("REGISTER SELF TO SERVER");
 		this.$store.dispatch("setUserGroupData", res.me);
 		this.joining = false;
 		if(this.room.currentTracks) {
@@ -204,7 +203,6 @@ export default class GroupLobby extends Vue {
 	 * Called when someone joins the room
 	 */
 	public onJoin(e:SocketEvent):void {
-		console.log(e.data);
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.users[i].id == e.data.id) {

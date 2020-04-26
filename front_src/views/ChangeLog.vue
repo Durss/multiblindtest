@@ -20,7 +20,6 @@ export default class ChangeLog extends Vue {
 
 	public mounted():void {
 		let logs = this.$t("changelog");
-		console.log(logs);
 	}
 
 	public beforeDestroy():void {
