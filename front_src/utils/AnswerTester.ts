@@ -44,12 +44,20 @@ export default class AnswerTester {
 		this.checkTest("walk on the", "Walk On the Wild Side", true);
 		this.checkTest("shame on you", "Shame on U", true);
 		this.checkTest("stach stach", "Stach Stach — Karaoké Avec Chant Témoin — Rendu Célèbre Par Bratisla Boys", true);
-		// Walk On the Wild Side
-		//Red Hot Chili Peppers
-		//Shame on U
+		this.checkTest("que calor", "Que Calor (feat. J Balvin & El Alfa)", true);
+		this.checkTest("test of a title", "test of a title longer than (the parenthesis)", true);
+		this.checkTest("test with a (complete answer !)", "test with a (complete answer !)", true);
 	}
 
 	public test(userAnswer:string, answer:string, reducedTolerence:boolean = false):boolean {
+		//If string ends with something between parenthesis/brackets and if that parenthesis
+		//makes more than half of the string's length. Test the answer without the parenthesis
+		//and, if it fail, proceed to normal testing
+		let tmpAnswer = answer.replace(/(.*)(\[|\().*?(\)|\])$/gi, "$1");
+		if(tmpAnswer.length / answer.length < .5) {
+			if(this.test(userAnswer, tmpAnswer, reducedTolerence)) return true;
+		}
+
 		//Remove punctuation to make it easier
 		let cleanAnswer = this.cleanup(answer);
 		let cleanUserAnswer = this.cleanup(userAnswer);
