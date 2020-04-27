@@ -113,6 +113,18 @@ export default class Home extends Vue {
 		width: 100%;
 		font-style: italic;
 
+		::v-deep a > {
+			background-color: fade(@mainColor_highlight, 10%);
+			padding: 0 5px;
+			border-radius: 5px;
+			line-height: 22px;
+			transition: all .25s;
+			&:hover {
+				color: @mainColor_warn;
+				background-color: fade(#fff, 10%);
+			}
+		}
+
 		.changelog {
 			background-color: @mainColor_warn;
 			border-radius: 10px;

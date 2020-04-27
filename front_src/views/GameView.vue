@@ -11,6 +11,7 @@
 						v-for="track in tracksToPlay"
 						:key="track.id"
 						:data="track"
+						:forceReveal="forceReveal"
 						class="track"
 						ref="track"
 						@stop="stopTrack"
@@ -62,13 +63,6 @@
 					v-if="!hideForm"
 				/>
 			</div>
-
-			<div class="dimmer" v-if="needUserInteraction" @click="startPlay()"></div>
-
-			<button v-if="needUserInteraction" @click="startPlay()" class="playBt">
-				<img :src="require('@/assets/icons/play.svg')" alt="play" class="icon">
-				<!-- <img :src="require('@/assets/loader/loader_border.svg')" alt="play" class="load"> -->
-			</button>
 		</div>
 	</div>
 </template>
@@ -86,6 +80,7 @@ import Config from '@/utils/Config';
 import StatsManager from '../utils/StatsManager';
 import AnswerTester from '../utils/AnswerTester';
 import VolumeButton from '../components/VolumeButton.vue';
+import NeedInteractionLayer from '../components/NeedInteractionLayer.vue';
 
 @Component({
 	components:{
@@ -93,6 +88,7 @@ import VolumeButton from '../components/VolumeButton.vue';
 		TrackEntry,
 		VolumeButton,
 		TrackAnswerForm,
+		NeedInteractionLayer,
 	}
 })
 export default class GameView extends Vue {
@@ -106,13 +102,16 @@ export default class GameView extends Vue {
 	@Prop({default:""})
 	public trackscounts:string;
 
-	@Prop({default:""})
+	@Prop({default:false})
 	public hideForm:boolean;
 
-	@Prop({default:""})
+	@Prop({default:false})
+	public forceReveal:boolean;
+
+	@Prop({default:[]})
 	public rawTracksData:TrackData[];
 
-	@Prop({default:""})
+	@Prop({default:[]})
 	public expertMode:string[];
 
 	@Prop({default:false})
@@ -127,9 +126,9 @@ export default class GameView extends Vue {
 	public demoMode:boolean = false;
 	public tracks:TrackData[] = [];
 	public tracksToPlay:TrackData[] = [];
-	public needUserInteraction:boolean = false;
 
 	private audioPlayer:AudioPlayer;
+	private clickHandler:any;
 
 	public get tracksCountAsNum():number {
 		let v = parseInt(this.trackscounts);
@@ -160,6 +159,13 @@ export default class GameView extends Vue {
 		}else{
 			this.startBlindTestFromTracks();
 		}
+
+		this.clickHandler = (e) => {
+			if(this.$store.state.needUserInteraction) {
+				this.startPlay();
+			}
+		};
+		document.addEventListener("click", this.clickHandler);
 	}
 
 	/**
@@ -180,7 +186,7 @@ export default class GameView extends Vue {
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			this.checkComplete();
 			if(!this.complete) {
-				this.needUserInteraction = true;
+				this.$store.dispatch("setNeedUserInteraction", true);
 			}
 		};
 	}
@@ -193,7 +199,7 @@ export default class GameView extends Vue {
 		this.multiplayerMode = false;
 		this.loading = true;
 		this.complete = false;
-		this.needUserInteraction = false;
+		this.$store.dispatch("setNeedUserInteraction", false);
 	}
 
 	/**
@@ -308,7 +314,7 @@ export default class GameView extends Vue {
 	 */
 	@Watch("pause")
 	public startPlay():void {
-		this.needUserInteraction = false;
+		this.$store.dispatch("setNeedUserInteraction", false);
 
 		if(!this.pause && !this.mute) {
 			this.audioPlayer.play();
@@ -524,41 +530,6 @@ export default class GameView extends Vue {
 			align-self: center;
 		}
 
-	}
-
-	.dimmer {
-		background-color: rgba(255, 255, 255, .75);
-		width: 100vw;
-		height: 100vh;
-		position: fixed;
-		top: 0;
-		left: 0;
-		z-index: 2;
-	}
-
-	.playBt {
-		width: @size;
-		height: @size;
-		max-width: 80vw;
-		max-height: 80vw;
-		padding: @size * .2;
-		padding-left: @size * .3;
-		border-radius: 50%;
-		position: fixed;
-		z-index: 3;
-		.center();
-
-		.icon {
-			width: 100%;
-			height: 100%;
-		}
-		.load {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			left: 0;
-			top: 0;
-		}
 	}
 }
 </style>

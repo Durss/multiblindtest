@@ -7,6 +7,7 @@ export default class Labels {
 				quit:"Retour",
 				online:"connected",
 				offline:"not connected",
+				playback:"Click anywhere to enable audio playback",
 			},
 			oAuth: {
 				title:"You must grant access to your playlists to play Multi Blindtest",
@@ -172,6 +173,7 @@ export default class Labels {
 				no:"Non",
 				online:"connecté",
 				offline:"déconnecté",
+				playback:"Clique n'importe où pour autoriser la lecture",
 			},
 			oAuth: {
 				title:"Pour jouer au Multi Blindtest vous devez autoriser l'accès à vos playlists",

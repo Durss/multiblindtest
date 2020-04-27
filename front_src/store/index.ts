@@ -18,6 +18,7 @@ export default new Vuex.Store({
 		lang: null,
 		i18n: null,
 		volume: .5,
+		needUserInteraction:false,
 		accessToken:null,
 		playlistsCache:null,
 		userGroupData:null,
@@ -89,6 +90,8 @@ export default new Vuex.Store({
 			state.volume = payload;
 			localStorage.setItem("volume", payload.toString())
 		},
+
+		setNeedUserInteraction(state, payload) { state.needUserInteraction = payload; },
 		
 	},
 
@@ -170,5 +173,7 @@ export default new Vuex.Store({
 		setLanguageCode({commit}, payload) { commit("setLanguageCode", payload); },
 
 		setVolume({commit}, payload) { commit("setVolume", payload); },
+
+		setNeedUserInteraction({commit}, payload) { commit("setNeedUserInteraction", payload); },
 	}
 })

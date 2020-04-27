@@ -12,6 +12,7 @@
 		<Alert />
 		<Tooltip />
 		<Confirm />
+		<NeedInteractionLayer v-if="$store.state.needUserInteraction" />
 		<div :class="socketStatusClasses" v-if="$route.meta.needGroupAuth || socketConnected">{{$t('global.'+(socketConnected?'online':'offline'))}}</div>
 	</div>
 </template>
@@ -24,6 +25,7 @@ import Alert from "./views/AlertView.vue";
 import Button from './components/Button.vue';
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
 import SocketEvent from './vo/SocketEvent';
+import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
 
 @Component({
 	components:{
@@ -31,6 +33,7 @@ import SocketEvent from './vo/SocketEvent';
 		Tooltip,
 		Confirm,
 		Button,
+		NeedInteractionLayer,
 	}
 })
 export default class App extends Vue {
