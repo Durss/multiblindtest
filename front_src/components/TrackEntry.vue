@@ -2,14 +2,14 @@
 	<div :class="classes">
 		<img src="@/assets/icons/song.svg" alt="song" class="icon">
 		
-		<div v-if="data.enabled" class="trackInfos">
+		<div v-if="reveal" class="trackInfos">
 			<div class="artist">{{data.artist}}</div>
 			<div class="name">{{data.name}}</div>
 		</div>
 		
-		<p v-if="!data.enabled" class="placeholder">{{$t('game.hidden')}}</p>
+		<p v-if="!reveal" class="placeholder">{{$t('game.hidden')}}</p>
 
-		<div class="stop" v-if="data.enabled && canStop" :data-tooltip="$t('game.stopTrack')">
+		<div class="stop" v-if="reveal && canStop" :data-tooltip="$t('game.stopTrack')">
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="$emit('stop', data)">
 			<img src="@/assets/loader/loader_border.svg" alt="song" class="icon loader" @click="onClickStop()">
 		</div>
@@ -29,13 +29,21 @@ export default class TrackEntry extends Vue {
 
 	@Prop()
 	public data:TrackData;
+
+	@Prop({default:false})
+	public forceReveal:boolean;
 	
 	public canStop:boolean = false;
 
 	public get classes():string[] {
 		let res = ["trackentry"];
-		if(this.data.enabled) res.push("enabled");
+		if(this.reveal) res.push("enabled");
+		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
 		return res;
+	}
+
+	public get reveal():boolean {
+		return this.data.enabled || this.forceReveal;
 	}
 
 	public mounted():void {
@@ -102,6 +110,16 @@ export default class TrackEntry extends Vue {
 	&.enabled {
 		opacity: 1;
 		// background-color: @mainColor_warn;
+	}
+
+	&.forcedReveal {
+		// filter: saturate(25%);
+		opacity: .5;
+		font-style: italic;
+		color: fade(#fff, 60%);
+		.icon{
+			opacity: .6;
+		}
 	}
 
 	.trackInfos {

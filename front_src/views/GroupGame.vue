@@ -15,6 +15,7 @@
 				:trackscounts="tracksToPlay.length"
 				:hideForm="gameComplete || fullMe.pass"
 				:expertMode="room.expertMode"
+				:forceReveal="fullMe.pass"
 				:pause="pause"
 				@guessed="onTrackFound"
 				ref="game"
