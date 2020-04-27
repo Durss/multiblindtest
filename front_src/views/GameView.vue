@@ -441,11 +441,23 @@ export default class GameView extends Vue {
 	}
 
 	@Watch("rawTracksData", {immediate: true, deep:true})
-	public onRawTracksDataChanged(a, b):void {
+	public onRawTracksDataChanged(a:TrackData[], b:TrackData[]):void {
 		this.checkComplete();
-		if(b && a[0].name != b[0].name) {
-			//New tracks, restart everything
-			this.startBlindTestFromTracksData();
+		if(b) {
+			//Check if it's a new track list or not
+			//TODO : find a safer/cleaner way to achieve that
+			let isNewList = false;
+			for (let i = 0; i < b.length; i++) {
+				if(a[i].id != b[i].id
+				|| a[i].enabled != b[i].enabled
+				|| a[i].audioPath != b[i].audioPath) {
+					isNewList = true;
+				}
+			}
+			if(isNewList) {
+				//New tracks, restart everything
+				this.startBlindTestFromTracksData();
+			}
 		}
 	}
 
