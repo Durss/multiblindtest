@@ -334,6 +334,17 @@ export default class GameView extends Vue {
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
 		value = value.toLowerCase();
 		let goodAnswer = false;
+		
+		// let res = AnswerTester.instance.testFuse(this.tracksToPlay, value);
+		// if(res) {
+		// 	res.enabled = true;
+		// 	goodAnswer = true;
+		// 	this.audioPlayer.stopTrack(res);
+		// 	this.$emit("guessed", res);
+		// }
+		// console.log(res.name, res.artist);
+
+		//*
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			let t = this.tracksToPlay[i];
 			if(!t.enabled
@@ -349,6 +360,8 @@ export default class GameView extends Vue {
 				break;
 			}
 		}
+		//*/
+
 		if(!goodAnswer) {
 			//Wrong answer, shake the field
 			(<TrackAnswerForm>this.$refs["trackAnswerForm"]).shake();
