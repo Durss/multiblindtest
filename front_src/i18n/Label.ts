@@ -65,6 +65,11 @@ export default class Labels {
 				selected:"Selected tracks",
 				testBt:"Test",
 				createBt:"Create",
+				help: {
+					title:"Not finding a track ?",
+					description:`If you're not finding a track it's most probably because rightholders of the artist refuse their tracks from being played outside of Spotify.<br />
+					Spotify API probably returns the track but doesn't provide the 30 seconds abstract MP3 necessary for the blindtest to work, in which case it won't be displayed on the search results.`,
+				},
 			},
 			group: {
 				lobby: {
@@ -175,7 +180,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Pour un mal de crâne garanti -",
-				head : "C'est comme jouer à plusieur blindtests en simultané.<br />Insupportable",
+				head : "C'est comme jouer à plusieurs blindtests en simultané.<br />Insupportable",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Partie solo",
@@ -225,6 +230,11 @@ export default class Labels {
 				selected:"Morceaux sélectionnés",
 				testBt:"Tester",
 				createBt:"Créer",
+				help: {
+					title:"Vous ne trouvez pas un morceau ?",
+					description:`Si vous ne trouvez pas un morceau, c'est probablement parce que ses ayant-droits refusent qu'ils soit joué en dehors de Spotify.<br />
+					L'API Spotify renvoie probablement le morceau mais sans fournir un MP3 de 30s d'extrait nécessaire au fonctionnement du blindtest, auquel cas il ne sera pas affiché dans les résultats de recherche.`,
+				},
 			},
 			group: {
 				lobby: {

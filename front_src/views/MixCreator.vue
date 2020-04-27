@@ -5,11 +5,11 @@
 			<p class="infos" v-html="$t('create.subtitle', {tracksCount:tracksCount})"></p>
 		</div>
 
-		<div class="form" v-if="selectedTracks.length < tracksCount">
+		<div :class="formClasses" v-if="selectedTracks.length < tracksCount">
 			<label for="searchField">{{$t('create.search.label')}}</label>
 			<input type="text" id="searchField" :placeholder="$t('create.search.placeholder')" class="input dark" v-model="search" @keyup.esc="search=''" autocomplete="off" @focus="showAutoComplete=search.length>0">
 			<img src="@/assets/icons/cross_white.svg" alt="clear" class="clear" @click="search=''" v-if="search && !loading">
-			<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" @click="search=''" v-if="loading">
+			<img src="@/assets/loader/loader.svg" alt="loader" class="spinner" @click="search=''" v-if="loading">
 		</div>
 
 		<div class="tracksList" v-show="showAutoComplete">
@@ -29,6 +29,13 @@
 			<Button :icon="require('@/assets/icons/'+(testing? 'stop_square' : 'play')+'.svg')" :title="$t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
 			<Button :icon="require('@/assets/icons/checkmark_white.svg')" :title="$t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
 		</div>
+
+		<div class="help">
+			<button class="title" @click="expandHelp=!expandHelp">{{$t('create.help.title')}}</button>
+			<div class="expand" v-if="expandHelp" v-html="$t('create.help.description')"></div>
+		</div>
+
+		<VolumeButton />
 	</div>
 </template>
 
@@ -41,10 +48,13 @@ import SearchResultItem from '@/components/SearchResultItem.vue';
 import Button from '@/components/Button.vue';
 import Config from '@/utils/Config';
 import AudioPlayer from '../components/AudioPlayer';
+import VolumeButton from '../components/VolumeButton.vue';
+import Utils from '../utils/Utils';
 
 @Component({
 	components:{
 		Button,
+		VolumeButton,
 		SearchResultItem,
 	}
 })
@@ -53,6 +63,7 @@ export default class MixCreator extends Vue {
 	public search:string = "";
 	public testing:boolean = false;
 	public loading:boolean = false;
+	public expandHelp:boolean = false;
 	public loadingAudio:boolean = false;
 	public showAutoComplete:boolean = false;
 	public selectedTracks:TrackData[] = [];
@@ -63,6 +74,11 @@ export default class MixCreator extends Vue {
 	private listInstances:Vue[] = [];
 
 	public get tracksCount():number { return Config.MAX_TRACK_COUNT; }
+	public get formClasses():string[] { 
+		let res = ["form"];
+		if(this.loading) res.push("loading");
+		return res;
+	}
 
 	public mounted():void {
 		this.list = new InfiniteList(<HTMLDivElement>this.$refs.autocomplete, 40, 1);
@@ -98,36 +114,42 @@ export default class MixCreator extends Vue {
 	 */
 	public async doSearch():Promise<void> {
 		if(this.search.length == 0) return;//Field cleared during debounce
-
-		let res = await SpotifyAPI.instance.call("v1/search", {q:this.search, type:"track", limit:50});
-		let trackList = [];
-		for (let i = 0; i < res.tracks.items.length; i++) {
-			const t = res.tracks.items[i];
-			if(!t.preview_url) continue;
-			let alreadySelected = false;
-			for (let j = 0; j < this.selectedTracks.length; j++) {
-				if(this.selectedTracks[j].id == t.id) alreadySelected = true;
+		
+		let res, offset:number = 0;
+		let trackList:TrackData[] = [];
+		do {
+			res = await SpotifyAPI.instance.call("v1/search", {q:this.search, type:"track", limit:50, include_external:true, offset});
+			for (let i = 0; i < res.tracks.items.length; i++) {
+				const t = res.tracks.items[i];
+				if(!t.preview_url) continue;
+				let alreadySelected = false;
+				for (let j = 0; j < this.selectedTracks.length; j++) {
+					if(this.selectedTracks[j].id == t.id) alreadySelected = true;
+				}
+				if(alreadySelected) continue;
+				let trackData:TrackData = {
+					id: t.id,
+					name: t.name,
+					artist: t.artists[0].name,
+					audioPath: t.preview_url,
+					picture:t.album.images? t.album.images[0].url : null,
+					isPlaying:false,
+				};
+				trackList.push(trackData);
 			}
-			if(alreadySelected) continue;
-			let trackData:TrackData = {
-				id: t.id,
-				name: t.name,
-				artist: t.artists[0].name,
-				audioPath: t.preview_url,
-				picture:t.album.images? t.album.images[0].url : null,
-				isPlaying:false,
-			};
-			trackList.push(trackData);
-		}
 
-		this.showAutoComplete = trackList.length > 0;
-		this.$nextTick().then(_=> {
-			//Wait for component to be displayed to get proper size computation of the list
-			this.list.populate(trackList);
-			this.list.scrollToIndex(0);
-			this.list.refreshItems();
-			this.loading = false;
-		})
+			this.showAutoComplete = trackList.length > 0;
+			this.$nextTick().then(_=> {
+				//Wait for component to be displayed to get proper size computation of the list
+				this.list.populate(trackList);
+				if(offset == 0) {
+					this.list.scrollToIndex(0);
+				}
+				this.list.refreshItems();
+			});
+			offset += 50;
+		}while(res.tracks.next && trackList.length < 500);
+		this.loading = false;
 	}
 
 	/**
@@ -227,6 +249,12 @@ export default class MixCreator extends Vue {
 		this.$router.push({name:"player/tracks", params:{tracksids:ids.join(",")}});
 	}
 
+	@Watch("$store.state.volume", {immediate: true, deep:true})
+	public onVolumeChange(a, b):void {
+		if(!this.audioPlayer) return;
+		this.audioPlayer.volume = this.$store.state.volume;
+	}
+
 }
 </script>
 
@@ -248,12 +276,23 @@ export default class MixCreator extends Vue {
 		flex-direction: column;
 		position: relative;
 		z-index: 2;
+		.input {
+			transition: all .25s;
+		}
+		&.loading {
+			.input {
+				padding-left: 40px;
+			}
+		}
 		.clear, .spinner {
 			position: absolute;
 			bottom: 10px;
 			right: 10px;
 			width: 20px;
 			height: 20px;
+			&.spinner {
+				left: 10px;
+			}
 		}
 		.clear {
 			cursor: pointer;
@@ -261,6 +300,35 @@ export default class MixCreator extends Vue {
 			&:hover {
 				transform: scale(1.15);
 			}
+		}
+	}
+
+	.help {
+		margin: auto;
+		display: block;
+		width: min-content;
+		margin-top: 30px;
+		.title {
+			margin: auto;
+			display: block;
+			background-color: @mainColor_warn;
+			padding: 3px 8px;
+			white-space: nowrap;
+			cursor: pointer;
+			font-weight: normal;
+			font-family: "FuturaLight";
+			opacity: 1;
+			&:hover {
+				color: @mainColor_warn;
+				background-color: #fff;
+			}
+		}
+		.expand {
+			margin-top: 10px;
+			width: 400px;
+			padding: 10px;
+			border-radius: 10px;
+			background-color: fade(#fff, 50%);
 		}
 	}
 
