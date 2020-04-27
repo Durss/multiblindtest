@@ -33,7 +33,7 @@
 			<div v-if="isHost" class="params">
 				<h2>{{$t('group.lobby.params')}}</h2>
 				<div class="content">
-					<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount" />
+					<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount" maxValue="99" />
 					<IncrementForm class="increment" :title="$t('group.lobby.tracksCount')" v-model="tracksCount" maxValue="6" />
 					<ExpertModeForm v-model="expertMode" />
 				</div>

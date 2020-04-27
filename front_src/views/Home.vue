@@ -16,7 +16,7 @@
 			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/playlist.svg')" class="button" big />
 		</div>
 		<div class="footer">
-			<router-link to="/changelog">{{$t('home.changelog')}}</router-link>
+			<router-link to="/changelog" class="changelog">{{$t('home.changelog')}}</router-link>
 			<div v-html="$t('home.footer')"></div>
 		</div>
 	</div>
@@ -112,6 +112,18 @@ export default class Home extends Vue {
 		text-align: center;
 		width: 100%;
 		font-style: italic;
+
+		.changelog {
+			background-color: @mainColor_warn;
+			border-radius: 10px;
+			padding: 3px 8px;
+			color: #fff;
+			display: inline-block;
+			&:hover {
+				color: @mainColor_warn;
+				background-color: #fff;
+			}
+		}
 	}
 }
 

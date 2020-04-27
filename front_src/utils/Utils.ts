@@ -633,4 +633,10 @@ export default class Utils {
 		});
 		return tracks;
 	}
+
+	public static promisedTimeout(delay:number):Promise<void> {
+		return new Promise(function(resolve) {
+			setTimeout(_=>resolve(), delay);
+		})
+	}
 }

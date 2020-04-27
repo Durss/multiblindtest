@@ -3,7 +3,7 @@
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 
 		<div v-if="room">
-			<CountDown v-if="pause" @complete="pause = false" />
+			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" />
 			<div class="header">
 				<h1>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
 				<ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" />
