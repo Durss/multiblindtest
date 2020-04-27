@@ -78,6 +78,7 @@ export default class AudioPlayer {
 	 * Stop all tracks
 	 */
 	public stopAll():void {
+		if(!this.audioObjects) return;
 		for (let i = 0; i < this.audioObjects.length; i++) {
 			this.audioObjects[i].pause();
 		}
@@ -87,6 +88,7 @@ export default class AudioPlayer {
 	 * Cleansup memory
 	 */
 	public dispose():void {
+		if(!this.audioObjects) return;
 		for (let i = 0; i < this.audioObjects.length; i++) {
 			const element:HTMLAudioElement = this.audioObjects[i];
 			element.pause();

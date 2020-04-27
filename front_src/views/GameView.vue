@@ -11,6 +11,7 @@
 						v-for="track in tracksToPlay"
 						:key="track.id"
 						:data="track"
+						:scoreHistory="scoreHistory"
 						:forceReveal="forceReveal"
 						class="track"
 						ref="track"
@@ -81,6 +82,7 @@ import StatsManager from '../utils/StatsManager';
 import AnswerTester from '../utils/AnswerTester';
 import VolumeButton from '../components/VolumeButton.vue';
 import NeedInteractionLayer from '../components/NeedInteractionLayer.vue';
+import ScoreHistory from '../vo/ScoreHistory';
 
 @Component({
 	components:{
@@ -113,6 +115,9 @@ export default class GameView extends Vue {
 
 	@Prop({default:[]})
 	public expertMode:string[];
+
+	@Prop({default:[]})
+	public scoreHistory:ScoreHistory[];
 
 	@Prop({default:false})
 	public pause:boolean;
@@ -184,6 +189,7 @@ export default class GameView extends Vue {
 		this.audioPlayer = new AudioPlayer(this.tracksCountAsNum);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
+			console.warn("Need user interaction...");
 			this.checkComplete();
 			if(!this.complete) {
 				this.$store.dispatch("setNeedUserInteraction", true);

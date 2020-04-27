@@ -1,6 +1,7 @@
 import UserData from "./UserData";
 import PlaylistData from './PlaylistData';
 import TrackData from './TrackData';
+import ScoreHistory from './ScoreHistory';
 
 export default interface RoomData {
     id:string;
@@ -12,4 +13,5 @@ export default interface RoomData {
     gameStepIndex:number;
     currentTracks?:TrackData[];
     expertMode:string[];
+    scoreHistory:ScoreHistory[];
 }

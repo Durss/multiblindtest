@@ -65,7 +65,13 @@ export default class Beeper {
 		if(v != undefined && v < this.version) return Promise.resolve();//when stopAll() is called, version is incremented so we can ignore beep() called from setTimeouts
 
 		return new Promise((resolve, reject) => {
-			let oscillator = this.audioCtx.createOscillator();
+			let oscillator;
+			try {
+				oscillator = this.audioCtx.createOscillator();
+			}catch(error) {
+				console.log("BEEP FAILED",error)
+				return;
+			}
 			let gainNode = this.audioCtx.createGain();
 	
 			oscillator.connect(gainNode);
@@ -104,9 +110,12 @@ export default class Beeper {
 	 * Initializes the class
 	 */
 	private initialize():void {
-		document.addEventListener("mousedown", _=> {
-			//@ts-ignore
-			this.audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
-		})
+		//@ts-ignore
+		this.audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		// document.addEventListener("mousedown", _=> {
+		// 	if(!this.audioCtx) return;
+		// 	//@ts-ignore
+		// 	this.audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		// })
 	}
 }

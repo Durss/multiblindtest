@@ -15,6 +15,7 @@
 				:trackscounts="tracksToPlay.length"
 				:hideForm="gameComplete || fullMe.pass"
 				:expertMode="room.expertMode"
+				:scoreHistory="room.scoreHistory"
 				:forceReveal="fullMe.pass"
 				:pause="pause"
 				@guessed="onTrackFound"
@@ -54,7 +55,6 @@
 			<h2>{{$t('group.game.rank')}}</h2>
 			<GroupUserList class="content" :room="room" :users="users" :me="me" :gameComplete="gameComplete" />
 		</div>
-		<!-- <Button title="toggle" @click="pause = !pause" /> -->
 	</div>
 </template>
 
@@ -294,6 +294,7 @@ export default class GroupGame extends Vue {
 		}
 		this.gameStepComplete = allGuessed;
 		Vue.set(this.room, "users", room.users);
+		Vue.set(this.room, "scoreHistory", room.scoreHistory);
 	}
 
 	/**

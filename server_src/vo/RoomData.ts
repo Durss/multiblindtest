@@ -12,4 +12,5 @@ export default interface RoomData {
     gameStepIndex:number;
     currentTracks?:TrackData[];
     expertMode:string[];
+    scoreHistory:{trackId:string, guesserId:string, score:number}[];
 }

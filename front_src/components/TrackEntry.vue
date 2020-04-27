@@ -1,6 +1,9 @@
 <template>
 	<div :class="classes">
-		<img src="@/assets/icons/song.svg" alt="song" class="icon">
+		<div class="icon">
+			<img v-if="!reveal" src="@/assets/icons/song.svg" alt="song" class="icon">
+			<div v-if="reveal" class="score">{{score}}</div>
+		</div>
 		
 		<div v-if="reveal" class="trackInfos">
 			<div class="artist">{{data.artist}}</div>
@@ -14,13 +17,18 @@
 			<img src="@/assets/loader/loader_border.svg" alt="song" class="icon loader" @click="onClickStop()">
 		</div>
 
-		<div class="guesser" v-if="data.guessedBy">{{data.guessedBy.name}}</div>
+		<div class="guesser" v-if="data.guessedBy">
+			<p class="pseudo">{{data.guessedBy.name}}</p>
+			<!-- <p class="plus">+</p>
+			<p class="score">{{score}}</p> -->
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import TrackData from '@/vo/TrackData';
+import ScoreHistory from '../vo/ScoreHistory';
 
 @Component({
 	components:{}
@@ -29,6 +37,9 @@ export default class TrackEntry extends Vue {
 
 	@Prop()
 	public data:TrackData;
+
+	@Prop()
+	public scoreHistory:ScoreHistory[];
 
 	@Prop({default:false})
 	public forceReveal:boolean;
@@ -44,6 +55,13 @@ export default class TrackEntry extends Vue {
 
 	public get reveal():boolean {
 		return this.data.enabled || this.forceReveal;
+	}
+
+	public get score():number {
+		for (let i = 0; i < this.scoreHistory.length; i++) {
+			const s = this.scoreHistory[i];
+			if(s.trackId == this.data.id) return s.score;
+		}
 	}
 
 	public mounted():void {
@@ -84,7 +102,33 @@ export default class TrackEntry extends Vue {
 	position: relative;
 
 	&>.icon {
-		max-height: 35px;
+		width: 40px;
+			height: 50px;
+		.icon {
+			max-height: 100%;
+		}
+
+		.score {
+			font-family: "Futura";
+			font-weight: bold;
+			border-radius: 50px;
+			font-size: 25px;
+			color: @mainColor_warn;
+			background-image: url("../assets/icons/star.svg");
+			background-repeat: no-repeat;
+			display: block;
+			width: 60px;
+			height: 60px;
+			margin-left: -5px;
+			margin-top: -8px;
+			padding: 21px 0;
+
+			&::before {
+				content: "+";
+				font-size: 18px;
+				vertical-align: top;
+			}
+		}
 	}
 
 	.stop {
@@ -142,11 +186,32 @@ export default class TrackEntry extends Vue {
 		position: absolute;
 		right: 0;
 		bottom: 0;
-		background-color: @mainColor_warn;
-		padding: 5px 10px;
-		border-radius: 100px;
-		font-family: "Futura";
 		transform: translate(10px, 25%);
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-family: "Futura";
+
+		.pseudo {
+			padding: 5px 10px;
+			border-radius: 20px;
+			background-color: @mainColor_warn;
+		}
+
+		.plus {
+			position: relative;
+			margin-left: -5px;
+			// margin-top: -10px;
+		}
+
+		.score {
+			padding: 5px 0;
+			border-radius: 50px;
+			font-size: 30px;
+			margin-left: -10px;
+			width: 40px;
+			background-color: @mainColor_warn;
+		}
 	}
 }
 

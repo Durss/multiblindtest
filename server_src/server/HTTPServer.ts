@@ -147,6 +147,7 @@ export default class HTTPServer {
 				gamesCount : 3,
 				gameStepIndex : 0,
 				expertMode: null,
+				scoreHistory: [],
 			}
 			res.status(200).send(JSON.stringify({success:true, roomId}));
 		});
@@ -246,6 +247,12 @@ export default class HTTPServer {
 			if(user) {
 				user.score += score;
 			}
+
+			room.scoreHistory.push({
+				score,
+				trackId,
+				guesserId:uid,
+			})
 
 			res.status(200).send(JSON.stringify({success:true, room}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.GUESSED_TRACK, data:{room, score}});

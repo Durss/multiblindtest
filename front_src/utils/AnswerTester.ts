@@ -52,9 +52,9 @@ export default class AnswerTester {
 		this.checkTest("death bed", "death bed (coffee for your head) (feat. beabadoobee)", true);
 		this.checkTest("bed", "death bed (coffee for your head) (feat. beabadoobee)", false);
 		this.checkTest("coffee for your", "death bed (coffee for your head) (feat. beabadoobee)", true);
-		this.checkTest("coffee for your hands", "death bed (coffee for your head)", true);
 		this.checkTest("céliendion", "Céline Dion", true);
-		this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
+
+		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
 
 	/**
