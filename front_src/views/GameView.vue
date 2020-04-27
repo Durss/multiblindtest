@@ -110,13 +110,13 @@ export default class GameView extends Vue {
 	@Prop({default:false})
 	public forceReveal:boolean;
 
-	@Prop({default:[]})
+	@Prop({default:null})
 	public rawTracksData:TrackData[];
 
-	@Prop({default:[]})
+	@Prop({default:null})
 	public expertMode:string[];
 
-	@Prop({default:[]})
+	@Prop({default:null})
 	public scoreHistory:ScoreHistory[];
 
 	@Prop({default:false})
@@ -155,7 +155,7 @@ export default class GameView extends Vue {
 		}
 
 		this.initAudioElements();
-		if(this.rawTracksData.length > 0) {
+		if(this.rawTracksData && this.rawTracksData.length > 0) {
 			this.startBlindTestFromTracksData();
 		}else if(this.playlistids.length > 0) {
 			this.startBlindTestFromPlaylists();

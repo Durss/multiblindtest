@@ -1,8 +1,8 @@
 <template>
 	<div :class="classes">
 		<div class="icon">
-			<img v-if="!reveal" src="@/assets/icons/song.svg" alt="song" class="icon">
-			<div v-if="reveal" class="score">{{score}}</div>
+			<img v-if="!reveal || !data.guessedBy" src="@/assets/icons/song.svg" alt="song" class="icon">
+			<div v-if="reveal && data.guessedBy" class="score">{{score}}</div>
 		</div>
 		
 		<div v-if="reveal" class="trackInfos">
@@ -58,6 +58,7 @@ export default class TrackEntry extends Vue {
 	}
 
 	public get score():number {
+		if(!this.scoreHistory) return null;
 		for (let i = 0; i < this.scoreHistory.length; i++) {
 			const s = this.scoreHistory[i];
 			if(s.trackId == this.data.id) return s.score;
@@ -102,10 +103,11 @@ export default class TrackEntry extends Vue {
 	position: relative;
 
 	&>.icon {
-		width: 40px;
-			height: 50px;
+		width: 50px;
+		height: 50px;
 		.icon {
-			max-height: 100%;
+			height: 100%;
+			width: 100%;
 		}
 
 		.score {

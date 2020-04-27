@@ -6,7 +6,7 @@ export default class AnswerTester {
 	
 	private static _instance:AnswerTester;
 
-	private logsEnabled:boolean = false;
+	private logsEnabled:boolean = true;
 	
 	constructor() {
 		this.initialize();
