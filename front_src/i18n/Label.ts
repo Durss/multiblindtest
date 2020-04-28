@@ -144,6 +144,12 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"04/29/2020",
+						updates: [
+							"Adding an \"handicap\" option to the multiplayer mode. This will make the countdown last X seconds more for a user.",
+						]
+					},
+					{
 						date:"04/25/2020",
 						updates: [
 							"Adding an \"Expert Mode\" to the multiplayer mode",
@@ -317,6 +323,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"29/04/2020",
+						updates: [
+							"Ajout d'une option \"handicap\" au mode multijoueur, permettant de faire durer le décompte X secondes de plus pour un·e joueur·se.",
+						]
+					},
 					{
 						date:"25/04/2020",
 						updates: [
