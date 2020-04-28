@@ -3,7 +3,7 @@
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
 		<div v-if="room && fullMe && !loading && tracksToPlay">
-			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" />
+			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" :seconds="4 + me.handicap" />
 
 			<div class="header">
 				<h1>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
@@ -153,6 +153,7 @@ export default class GroupGame extends Vue {
 		this.me = this.$store.state.userGroupData;
 		
 		if(!this.me) {
+			//Redirect to group auth page
 			this.$router.push({name:"group", params:{id:this.id}});
 			return;
 		}
@@ -242,6 +243,11 @@ export default class GroupGame extends Vue {
 		}
 		if(this.room) {
 			SockController.instance.groupId = this.room.id;
+			for (let i = 0; i < this.room.users.length; i++) {
+				const u = this.room.users[i];
+				if(u.id == this.me.id) this.me = u;
+				
+			}
 		}
 	}
 

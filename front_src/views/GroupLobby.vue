@@ -17,9 +17,16 @@
 			<div class="users">
 				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
 				<div class="content">
-					<ul v-if="room.users.length > 0">
-						<li v-for="u in room.users" :key="u.id" class="user" :class="userClasses(u)">{{u.name}}</li>
-					</ul>
+					<div class="list" v-if="room.users.length > 0">
+						<GroupLobbyUser
+							v-for="u in room.users"
+							:key="u.id"
+							:data="u"
+							:me="me"
+							:isHost="u.id == room.creator"
+							@update="onUpdateUserHandicap"
+						/>
+					</div>
 
 					<form @submit.prevent="onSubmit()" class="form" v-if="!me">
 						<label for="username">{{$t('group.lobby.join')}}</label>
@@ -72,6 +79,7 @@ import IncrementForm from '../components/IncrementForm.vue';
 import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import ExpertModeForm from '../components/ExpertModeForm.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
+import GroupLobbyUser from '../components/GroupLobbyUser.vue';
 
 @Component({
 	components:{
@@ -79,6 +87,7 @@ import SimpleLoader from '../components/SimpleLoader.vue';
 		SimpleLoader,
 		IncrementForm,
 		ExpertModeForm,
+		GroupLobbyUser,
 		ShareMultiplayerLink,
 	}
 })
@@ -95,9 +104,11 @@ export default class GroupLobby extends Vue {
 	public joining:boolean = false;
 	public room:RoomData = null;
 	public userName:string = "";
+
 	public joinHandler:any;
 	public leaveHandler:any;
 	public startGameHandler:any;
+	public handicapHandler:any;
 
 	//Sort playlists by name size for a better looking list rendering
 	public get sortedPlaylists():any[] {
@@ -130,9 +141,11 @@ export default class GroupLobby extends Vue {
 		this.joinHandler = (e) => this.onJoin(e);
 		this.leaveHandler = (e) => this.onLeave(e);
 		this.startGameHandler = (e) => this.onStartGame(e);
+		this.handicapHandler = (e) => this.onHandicap(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
 		this.loadDetails();
 	}
 
@@ -141,14 +154,7 @@ export default class GroupLobby extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
-	}
-
-	public userClasses(u:UserData):string[] {
-		let res = [];
-		if(this.me && u.id == this.me.id) res.push("me");
-		if(u.id == this.room.creator) res.push("host")
-		if(u.offline && (!this.me || u.id != this.me.id)) res.push("offline")
-		return res;
+		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
 	}
 
 	/**
@@ -170,6 +176,9 @@ export default class GroupLobby extends Vue {
 		this.loading = false;
 		if(this.me) {
 			this.onSubmit();//Auto join room
+		}
+		if(this.room) {
+			SockController.instance.groupId = this.room.id;
 		}
 	}
 
@@ -195,10 +204,14 @@ export default class GroupLobby extends Vue {
 			this.$store.dispatch("alert", error.message);
 			return;
 		}
+		res.me.offline = false;
 		this.$store.dispatch("setUserGroupData", res.me);
 		this.joining = false;
 		if(this.room.currentTracks) {
 			this.onStartGame();
+		}
+		if(this.room) {
+			SockController.instance.groupId = this.room.id;
 		}
 	}
 
@@ -206,6 +219,7 @@ export default class GroupLobby extends Vue {
 	 * Called when someone joins the room
 	 */
 	public onJoin(e:SocketEvent):void {
+		if(!this.room) return;
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
 			if(this.room.users[i].id == e.data.user.id) {
@@ -222,6 +236,7 @@ export default class GroupLobby extends Vue {
 	 * Called when someone leaves the room
 	 */
 	public onLeave(e:SocketEvent):void {
+		if(!this.room) return;
 		for (let i = 0; i < this.room.users.length; i++) {
 			const u = this.room.users[i];
 			if(u.id == e.data.user.id) {
@@ -240,6 +255,18 @@ export default class GroupLobby extends Vue {
 	}
 
 	/**
+	 * Called when a user's handicap is updated
+	 */
+	public onHandicap(e:SocketEvent):void {
+		for (let i = 0; i < this.room.users.length; i++) {
+			const u = this.room.users[i];
+			if(u.id == e.data.user.id) {
+				Vue.set(u, "handicap", e.data.handicap);
+			}
+		}
+	}
+
+	/**
 	 * Called when clicking "start" button.
 	 * It sends a socket event to all users including self
 	 * See onStartGame() method
@@ -250,6 +277,11 @@ export default class GroupLobby extends Vue {
 		this.room.expertMode = this.expertMode;
 		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
+	}
+
+	public onUpdateUserHandicap(user:UserData, handicap:number):void {
+		user.handicap = handicap;
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_HANDICAP, data:{user:user, handicap:handicap, groupId:this.room.id}});
 	}
 
 }
@@ -319,65 +351,10 @@ export default class GroupLobby extends Vue {
 			.content {
 				.blockContent();
 				padding-bottom: 0px;
-				ul {
-					padding-bottom: 10px;
-					.user {
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						line-height: 30px;
-						background-color: @mainColor_normal_light;
-						border-radius: 50px;
-						padding: 0 10px;
-						color: @mainColor_dark;
-						margin-bottom: 2px;
-			
-						&.me {
-							font-family: "Futura";
-						}
-						&::before {
-							content: " ";
-							background-color: @mainColor_normal;
-							border-radius: 50%;
-							display: inline-block;
-							width: 5px;
-							height: 5px;
-							margin-right: 13px;
-							margin-left: 7px;
-							vertical-align: middle;
-						}
 
-						&.offline {
-							filter: saturate(0%);
-							opacity: .5;
-							&::before {
-								background-color: transparent;
-								background-image: url("../assets/icons/offline.svg");
-								@ratio: 18 / 68;
-								width: 68px * @ratio;
-								height: 59px * @ratio;
-								margin-right: 10px;
-								margin-left: 0;
-								margin-top: 0;
-								border-radius: 0;
-								margin-top: -2px;
-								opacity: .5;
-							}
-						}
-						&.host {
-							&::before {
-								background-color: transparent;
-								background-image: url("../assets/icons/king.svg");
-								@ratio: 16 / 72;
-								width: 100px * @ratio;
-								height: 72px * @ratio;
-								margin-right: 5px;
-								margin-left: 0;
-								border-radius: 0;
-								vertical-align: baseline;
-							}
-						}
-					}
+				.list {
+					width: 100%;
+					padding-bottom: 10px;
 				}
 				
 				.form {

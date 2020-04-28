@@ -172,8 +172,8 @@ export default class SockController extends EventDispatcher {
 
 	private onMessage(message:any):void {
 		let json:any = JSON.parse(message.data);
-		console.log("Sock message");
-		console.log(json);
+		// console.log("Sock message");
+		// console.log(json);
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }
@@ -189,4 +189,5 @@ export enum SOCK_ACTIONS {
 	TRACKS_DATA="TRACKS_DATA",
 	GUESSED_TRACK="GUESSED_TRACK",
 	PLAYER_PASS="PLAYER_PASS",
+	UPDATE_HANDICAP="UPDATE_HANDICAP",
 };

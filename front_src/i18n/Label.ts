@@ -84,6 +84,8 @@ export default class Labels {
 					params:"Parameters",
 					gamesCount:"Number of games",
 					tracksCount:"Number of tracks",
+					handicap:"Handicap (seconds)",
+					handicapInfos:"Musics will start {SECONDS} seconds later than the other players.",
 					expertMode: {
 						title:"Expert mode",
 						details:"When enabled, orthographic tolerence will be slightly lowered and you can accept only track's title or artist's name",
@@ -260,6 +262,8 @@ export default class Labels {
 					params:"Paramètres",
 					gamesCount:"Nombre de manches",
 					tracksCount:"Nombre de morceaux",
+					handicap:"Handicap (secondes)",
+					handicapInfos:"Ses musiques commenceront {SECONDS} secondes après les autres.",
 					expertMode: {
 						title:"Mode expert",
 						details:"Le mode expert réduit légèrement la tolérence orthographique des réponses et vous pouvez choisir de n'accepter que le titre ou l'artiste du morceau",

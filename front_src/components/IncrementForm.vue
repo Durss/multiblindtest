@@ -1,10 +1,22 @@
 <template>
 	<div class="incrementform">
-		<label class="title" :for="inputId">{{title}}</label>
+		<label class="title" :for="inputId" v-if="title">{{title}}</label>
 		<div class="content" @mousewheel="onMouseWheel">
-			<Button :icon="require('@/assets/icons/minus.svg')" @click="valueLocal--;" class="button" />
-			<input type="number" v-model="valueLocal" min="1" :max="maxValue" class="dark" :id="inputId">
-			<Button :icon="require('@/assets/icons/plus.svg')" @click="valueLocal++;" class="button" />
+			<Button :icon="require('@/assets/icons/minus.svg')"
+				@mousedown.native="startIncrement(-1);"
+				@mouseup.native="stopIncrement($event);"
+				@touchstart.native="startIncrement(-1);"
+				@touchend.native="stopIncrement($event);"
+				class="button"
+			/>
+			<input type="number" v-model="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
+			<Button :icon="require('@/assets/icons/plus.svg')"
+				@mousedown.native="startIncrement(1);"
+				@mouseup.native="stopIncrement($event);"
+				@touchstart.native="startIncrement(1);"
+				@touchend.native="stopIncrement($event);"
+				class="button"
+			/>
 		</div>
 	</div>
 </template>
@@ -26,10 +38,14 @@ export default class IncrementForm extends Vue {
 	@Prop()
 	public value:number;
 
+	@Prop({default:1})
+	public minValue:number;
+
 	@Prop({default:30})
 	public maxValue:number;
 	
 	public inputId:string = "incrementInput_"+Math.round(Math.random() * 999999);
+	public incInterval:number;
 	public valueLocal:number = 0;
 
 	public mounted():void {
@@ -42,7 +58,7 @@ export default class IncrementForm extends Vue {
 
 	@Watch("valueLocal")
 	private changeCount():void {
-		this.valueLocal = Math.max(1, Math.min(this.maxValue, this.valueLocal));
+		this.valueLocal = Math.max(this.minValue, Math.min(this.maxValue, this.valueLocal));
 		this.$emit("input", this.valueLocal);
 	}
 
@@ -50,6 +66,18 @@ export default class IncrementForm extends Vue {
 		let delta = e.deltaY? e.deltaY : e.deltaX;
 		if(delta > 0) this.valueLocal--;
 		if(delta < 0) this.valueLocal++;
+		e.preventDefault();
+	}
+
+	public startIncrement(inc:number):void {
+		this.valueLocal += inc;
+		clearInterval(this.incInterval);
+		this.incInterval = setInterval(_=> { this.valueLocal += inc; }, 100);
+	}
+
+	public stopIncrement(e:MouseEvent|TouchEvent):void {
+		clearInterval(this.incInterval);
+		e.preventDefault();
 	}
 
 }

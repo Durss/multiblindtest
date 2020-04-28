@@ -21,6 +21,17 @@ export default class HTTPServer {
 		this.app = <Express>express();
 		let server = http.createServer(<any>this.app);
 
+		SocketServer.instance.onUpdateUser = (user:UserData, roomId:string) => {
+			let room = this._rooms[roomId];
+			// console.log("Update user", user.name, "on room", roomId);
+			if(!room) return;
+			for (let i = 0; i < room.users.length; i++) {
+				const u = room.users[i];
+				if(u.id == user.id) {
+					room.users[i] = user;
+				}
+			}
+		};
 
 		SocketServer.instance.onUserDisconnect = (roomId:string, user:UserData) => {
 			// Logger.log("Remove user", user.name, "from room", roomId)
@@ -187,17 +198,26 @@ export default class HTTPServer {
 				return;
 			}
 			
-			me.score = 0;
 			me.offline = false;
 			if(room.users.length == 0) {
 				room.creator = me.id;
 			}
+
+			let exists = false;
 			for (let i = 0; i < room.users.length; i++) {
 				const u = room.users[i];
-				if(u.id == me.id) u.offline = false;
+				if(u.id == me.id) {
+					u.offline = false;
+					if(!u.handicap) u.handicap = 0;
+					me.offline = u.offline;
+					me.handicap = u.handicap;
+					exists = true;
+				}
 			}
-			let exists = room.users.map((e) => { return e.id; }).indexOf(me.id) != -1;
 			if(!exists) {
+				//User not part of room
+				me.score = 0;//Reset score
+				me.handicap = 0;//Reset handicap
 				room.users.push(me);
 			}
 			SocketServer.instance.addToGroup(roomId, me);

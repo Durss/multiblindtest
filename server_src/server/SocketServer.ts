@@ -11,6 +11,7 @@ export default class SocketServer {
 
 	public onUserDisconnect:Function;
 	public onUserConnect:Function;
+	public onUpdateUser:Function;
 
 	private static _instance: SocketServer;
 	private _DISABLED: boolean = false;
@@ -195,6 +196,10 @@ export default class SocketServer {
 					this.sendToGroup(group, json, exclude);
 				}
 
+				if(json.action == SOCK_ACTIONS.UPDATE_HANDICAP) {
+					if(this.onUpdateUser) this.onUpdateUser(json.data.user, json.data.groupId);
+				}
+
 			}
 		});
 		conn.on("close", (p) => {
@@ -248,4 +253,5 @@ export enum SOCK_ACTIONS {
 	TRACKS_DATA="TRACKS_DATA",
 	GUESSED_TRACK="GUESSED_TRACK",
 	PLAYER_PASS="PLAYER_PASS",
+	UPDATE_HANDICAP="UPDATE_HANDICAP",
 };

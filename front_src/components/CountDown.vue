@@ -1,5 +1,6 @@
 <template>
 	<div class="countdown">
+		{{seconds}}
 		<div v-for="index in seconds" :key="index" ref="number" class="number">{{(seconds - index==0)? "GO" : seconds - index}}</div>
 	</div>
 </template>
@@ -14,11 +15,16 @@ import Beeper from '../utils/Beeper';
 })
 export default class CountDown extends Vue {
 
-	public seconds:number = 4;
+	@Prop({default:4})
+	public seconds:number;
+
 	public timeout:number;
 
 	public mounted():void {
+		console.log(this.seconds);
 		let nbrs = <HTMLDivElement[]>this.$refs.number;
+		if(!nbrs) return;
+
 		for (let i = 0; i < nbrs.length; i++) {
 			const element = nbrs[i];
 			gsap.set(nbrs[i], {scale:0, opacity:0});

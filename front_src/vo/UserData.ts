@@ -3,5 +3,6 @@ export default interface UserData {
     id:string;
     offline:boolean;
     score:number;
+    handicap:number;
     pass?:boolean;
 }
