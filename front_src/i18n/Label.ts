@@ -4,7 +4,8 @@ export default class Labels {
 			global: {
 				yes:"Yes",
 				no:"No",
-				quit:"Retour",
+				quit:"Quit",
+				loading:"Loading...",
 				online:"connected",
 				offline:"not connected",
 				playback:"Click anywhere to enable audio playback",
@@ -112,6 +113,13 @@ export default class Labels {
 						title: "Give up ?",
 						description: "If majority of the players give up, this game will be over and answers will be displayed.",
 					},
+					expertMode: {
+						title:"Expert mode enabled",
+						acceptTitle:"Title accepted",
+						acceptArtist:"Artist accepted",
+						refuseTitle:"Title refused",
+						refuseArtist:"Artist refused",
+					},
 				}
 			},
 			game: {
@@ -119,6 +127,7 @@ export default class Labels {
 				guess: "Guess a track :",
 				guessPlaceholder: "title OR artist...",
 				stopTrack: "Stop this track",
+				loadingMP3:"Loading tracks...",
 				answerForm: {
 					show: "Show answers",
 					share: "Share this mix",
@@ -171,6 +180,8 @@ export default class Labels {
 			global: {
 				yes:"Oui",
 				no:"Non",
+				quit:"Retour",
+				loading:"Chargement...",
 				online:"connecté",
 				offline:"déconnecté",
 				playback:"Clique n'importe où pour autoriser la lecture",
@@ -268,7 +279,7 @@ export default class Labels {
 					new:"Nouvelle partie",
 					complete:"Partie terminée",
 					wait:"Attendez que <strong>{hostName}</strong> lance la partie suivante",
-					giveup:"Je passe",
+					giveup:"Passer mon tour",
 					gaveup:"A passé",
 					rank:"Classement",
 					giveupConfirm: {
@@ -289,6 +300,7 @@ export default class Labels {
 				guess: "Faire une proposition :",
 				guessPlaceholder: "titre OU artiste...",
 				stopTrack: "Arrêter ce morceau",
+				loadingMP3:"Chargement des musiques...",
 				answerForm: {
 					show: "Voir les réponses",
 					share: "Partager ce mix",

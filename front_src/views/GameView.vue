@@ -1,8 +1,9 @@
 <template>
 	<div class="multiplayer">
-		<div v-if="loading" class="loader">
-			<img src="@/assets/loader/loader.svg" alt="loader">
-		</div>
+		<SimpleLoader theme="mainColor_normal"
+			v-if="loading"
+			class="loader"
+			:label="$t('game.loadingMP3')" />
 
 		<div v-if="tracksToPlay && !loading">
 			<div class="trackList">
@@ -83,11 +84,13 @@ import AnswerTester from '../utils/AnswerTester';
 import VolumeButton from '../components/VolumeButton.vue';
 import NeedInteractionLayer from '../components/NeedInteractionLayer.vue';
 import ScoreHistory from '../vo/ScoreHistory';
+import SimpleLoader from '../components/SimpleLoader.vue';
 
 @Component({
 	components:{
 		Button,
 		TrackEntry,
+		SimpleLoader,
 		VolumeButton,
 		TrackAnswerForm,
 		NeedInteractionLayer,
@@ -502,13 +505,7 @@ export default class GameView extends Vue {
 	
 	.loader {
 		margin: auto;
-		width: 80px;
-		height: 80px;
-		margin-bottom: 20px;
-		img {
-			width: 100%;
-			height: 100%;
-		}
+		margin-bottom: 50px;
 	}
 
 	.trackList {

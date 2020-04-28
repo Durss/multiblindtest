@@ -40,7 +40,7 @@ export default class GroupUserList extends Vue {
 	public userClasses(u:UserData):string[] {
 		let res = ["player"];
 		if(u.id == this.me.id) res.push("me");
-		if(u.id == this.room.creator) res.push("host");
+		if(u.id == this.room.creator && !u.offline) res.push("host");
 		if(u.offline) res.push("offline");
 		if(u.pass && !this.gameComplete) res.push("passed");
 		return res;
@@ -157,6 +157,7 @@ export default class GroupUserList extends Vue {
 
 		.content {
 			display: flex;
+			flex-grow: 1;
 			flex-direction: column;
 			.info {
 				display: flex;

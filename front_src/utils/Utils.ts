@@ -425,8 +425,7 @@ export default class Utils {
 	* returns:
 	* 	{myLessVariable:123}
 	*/
-	public static getLessVars(parseNumbers: boolean = true):any {
-		let id = "lessVars";
+	public static getLessVars(id:string = "lessVars", parseNumbers: boolean = true):any {
 		var bNumbers = parseNumbers === undefined ? true : parseNumbers
 			, oLess = {}
 			, rgId = /\#[\w-]+/

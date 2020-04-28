@@ -6,7 +6,7 @@ export default class AnswerTester {
 	
 	private static _instance:AnswerTester;
 
-	private logsEnabled:boolean = true;
+	private logsEnabled:boolean = false;
 	
 	constructor() {
 		this.initialize();
@@ -102,8 +102,7 @@ export default class AnswerTester {
 		expectedAnswer = expectedAnswer.replace(/ ?- ?version radio/gi, "").trim();
 		expectedAnswer = expectedAnswer.replace(/ ?- ?bonus track/gi, "").trim();
 
-		//If string ends with something between parenthesis/brackets and if that parenthesis
-		//makes more than half of the string's length. Test the answer without the parenthesis
+		//If string ends with something between parenthesis/brackets, test the answer without the parenthesis
 		//and, if it fail, proceed to normal testing
 		let tmpAnswer = expectedAnswer.replace(/(.*)(\[|\().*?(\)|\])$/gi, "$1").trim();
 		if(tmpAnswer.length != expectedAnswer.length ) {
