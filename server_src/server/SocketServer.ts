@@ -9,7 +9,8 @@ import Config from "../utils/Config";
 
 export default class SocketServer {
 
-	public onDeleteUser:Function;
+	public onUserDisconnect:Function;
+	public onUserConnect:Function;
 
 	private static _instance: SocketServer;
 	private _DISABLED: boolean = false;
@@ -167,8 +168,7 @@ export default class SocketServer {
 				//Don't care, just sent to check if connection's style alive
 				return;
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
-				Logger.warn("Registering ", json.data.name);
-
+				Logger.warn("Register ", json.data.name);
 				//Associate socket connection to user
 				this._uidToConnection[json.data.id] = conn;
 				this._connectionToUid[conn.id] = json.data.id;
@@ -227,9 +227,9 @@ export default class SocketServer {
 			for (let i = 0; i < userList.length; i++) {
 				if(userList[i].id == uid) {
 					user = userList[i]
-					Logger.warn("Unregister ", user.name);
+					Logger.warn("Unregister ", user.name, "from group", groupId);
 					userList.splice(i, 1);
-					this.onDeleteUser(groupId, user);
+					this.onUserDisconnect(groupId, user);
 				}
 			}
 			if(user) {

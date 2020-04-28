@@ -22,10 +22,10 @@ export default class HTTPServer {
 		let server = http.createServer(<any>this.app);
 
 
-		SocketServer.instance.onDeleteUser = (roomId:string, user:UserData) => {
+		SocketServer.instance.onUserDisconnect = (roomId:string, user:UserData) => {
 			// Logger.log("Remove user", user.name, "from room", roomId)
 			if(!this._rooms[roomId]) {
-				Logger.error("onDeleteUser : Room not found")
+				Logger.error("onUserDisconnect : Room not found")
 				return;
 			}
 			let allOffline = true;
@@ -177,6 +177,7 @@ export default class HTTPServer {
 					id: uuidv4(),
 					score :0,
 					offline: false,
+					handicap: 0,
 					name: username.substr(0, 50),
 				};
 			}
@@ -190,6 +191,10 @@ export default class HTTPServer {
 			me.offline = false;
 			if(room.users.length == 0) {
 				room.creator = me.id;
+			}
+			for (let i = 0; i < room.users.length; i++) {
+				const u = room.users[i];
+				if(u.id == me.id) u.offline = false;
 			}
 			let exists = room.users.map((e) => { return e.id; }).indexOf(me.id) != -1;
 			if(!exists) {
