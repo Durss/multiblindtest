@@ -1,10 +1,9 @@
+import router from '@/router';
 import { EventDispatcher } from '@/utils/EventDispatcher';
+import UserData from '@/vo/UserData';
 import * as SockJS from "sockjs-client";
 import Config from "../utils/Config";
 import SocketEvent from "../vo/SocketEvent";
-import store from '@/store';
-import UserData from '@/vo/UserData';
-import router from '@/router';
 
 /**
  * Created by FDursus on 28/03/2019
@@ -19,6 +18,7 @@ export default class SockController extends EventDispatcher {
 	private _timeout: number;
 	private _pingInterval: number;
 	private _attempts: number;
+	private _groupID : string;
 	private _connected : boolean = false;
 	private _enabled : boolean = false;
 	private _verbose : boolean = false;
@@ -47,6 +47,10 @@ export default class SockController extends EventDispatcher {
 		}
 	}
 
+	public set groupId(value:string) {
+		this._groupID = value;
+	}
+
 
 	/******************
 	 * PUBLIC METHODS *
@@ -56,23 +60,37 @@ export default class SockController extends EventDispatcher {
 		if(this._verbose) console.log("SC :: connect...");
 		this._enabled = true;
 		if(this.connected) return;
-		// if(this._sockjs) return;
+		
 		clearTimeout(this._timeout);
 
-		//@ts-ignore
+		if(this._sockjs) {
+			//remove handlers from old sockjs
+			this._sockjs.onclose = null;
+			this._sockjs.onmessage = null;
+			this._sockjs.onopen = null;
+		}
+
 		this._sockjs = new SockJS(Config.SOCKET_PATH);
+		this._sockjs.onopen = ()=> this.onConnect();
 		this._sockjs.onclose = (e)=> this.onClose(e);
 		this._sockjs.onmessage = (message:string)=> this.onMessage(message);
-		this._sockjs.onopen = ()=> this.onConnect();
 	}
 
+	/**
+	 * Disconnects socket.
+	 * Called by default on page close
+	 */
 	public disconnect() {
 		if(this._verbose) console.log("SC :: disconnect");
 		this._enabled = false;
 		if(this._connected) {
 			try {
 				if(this._user) {
-					this._sockjs.send(JSON.stringify({action:SOCK_ACTIONS.LEAVE_ROOM, data:this._user}));
+					let data = {
+						user:this._user,
+						groupId:this._groupID,
+					}
+					this._sockjs.send(JSON.stringify({action:SOCK_ACTIONS.LEAVE_ROOM, data}));
 				}
 			}catch(e) {
 				//Ignore..
@@ -117,7 +135,7 @@ export default class SockController extends EventDispatcher {
 		if(this._verbose) console.log("SC :: REGISTER USER");
 		this.sendMessage({action:SOCK_ACTIONS.DEFINE_UID, data:this._user});
 		if(router.currentRoute.meta.needGroupAuth) {
-			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:this._user});
+			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:{user:this._user}});
 		}
 	}
 
@@ -140,11 +158,12 @@ export default class SockController extends EventDispatcher {
 
 	private onClose(e):void {
 		if(this._verbose) console.log("SC :: onClose", e);
-		this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.OFFLINE, null));
 		this._connected = false;
-		clearInterval(<any>this._pingInterval);
+		this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.OFFLINE, null));
+		clearInterval(this._pingInterval);
 
 		if(this._enabled) {
+			// Attempt to reconnect
 			if(++this._attempts == 20) return;
 			this.connect();
 			this._timeout = <any>setTimeout(_=> this.connect(), 500 * Math.pow(this._attempts,2));
@@ -153,8 +172,8 @@ export default class SockController extends EventDispatcher {
 
 	private onMessage(message:any):void {
 		let json:any = JSON.parse(message.data);
-		// console.log("Sock message");
-		// console.log(json);
+		console.log("Sock message");
+		console.log(json);
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }

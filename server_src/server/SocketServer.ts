@@ -114,6 +114,13 @@ export default class SocketServer {
 		if(!this._groupIdToUsers[groupId]) {
 			this._groupIdToUsers[groupId] = [];
 		}
+
+		if(this._userIdToGroupId[user.id]) {
+			//if user still on another group, remove it
+			this.removeUserFromGroup(user.id, this._userIdToGroupId[user.id]);
+		}
+		
+
 		this._groupIdToUsers[groupId].push(user);
 		let users = this._groupIdToUsers[groupId];
 		for (let i = 0; i < users.length; i++) {
@@ -170,6 +177,13 @@ export default class SocketServer {
 				if(this._DISABLED) return;
 				let uid = this._connectionToUid[ conn.id ];
 				let group = this._userIdToGroupId[ uid ];
+
+				//User left room, cleanup its references
+				if(json.action == SOCK_ACTIONS.LEAVE_ROOM) {
+					Logger.simpleLog("Leave room", uid, "from", json.data.groupId);
+					// this.onClose(conn);
+					this.removeUserFromGroup(uid, json.data.groupId);
+				}else
 				if(uid && group) {
 					//Message is sent by a valid user on a valid room.
 					let exclude = uid;
@@ -179,13 +193,6 @@ export default class SocketServer {
 					// console.log(json);
 					// Logger.simpleLog("uid:"+uid+"    group:"+group);
 					this.sendToGroup(group, json, exclude);
-				}
-
-				//User left room, cleanup its references
-				if(json.action == SOCK_ACTIONS.LEAVE_ROOM) {
-					// Logger.simpleLog("Force socket close");
-					// this.onClose(conn);
-					this.removeUserFromGroup(uid);
 				}
 
 			}
@@ -211,22 +218,22 @@ export default class SocketServer {
 		}
 	}
 
-	private removeUserFromGroup(uid:string):void {
+	private removeUserFromGroup(uid:string, groupId?:string):void {
 		delete this._uidToConnection[uid];
-		let groupId = this._userIdToGroupId[uid];
-		let users = this._groupIdToUsers[groupId];
-		if(users) {
+		if(!groupId) groupId = this._userIdToGroupId[uid];
+		let userList = this._groupIdToUsers[groupId];
+		if(userList) {
 			let user:UserData;
-			for (let i = 0; i < users.length; i++) {
-				if(users[i].id == uid) {
-					user = users[i]
+			for (let i = 0; i < userList.length; i++) {
+				if(userList[i].id == uid) {
+					user = userList[i]
 					Logger.warn("Unregister ", user.name);
-					users.splice(i, 1);
+					userList.splice(i, 1);
 					this.onDeleteUser(groupId, user);
 				}
 			}
 			if(user) {
-				this.sendToGroup(this._userIdToGroupId[uid], {action:SOCK_ACTIONS.LEAVE_ROOM, data:user}, user.id);
+				this.sendToGroup(groupId, {action:SOCK_ACTIONS.LEAVE_ROOM, data:{user}}, user.id);
 			}
 		}
 	}

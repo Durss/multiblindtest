@@ -1,8 +1,9 @@
 <template>
 	<div class="grouplobby">
-		<div v-if="loading" class="loader">
-			<img src="@/assets/loader/loader.svg" alt="loader">
-		</div>
+		<SimpleLoader theme="mainColor_normal"
+			v-if="loading"
+			class="loader"
+			big />
 
 		<div v-if="!loading" class="holder">
 			<div class="playlists header">
@@ -48,10 +49,10 @@
 				v-if="isHost"
 				@click="startGame()" />
 
-			<div v-if="!isHost && room.users.length > 0" class="waitHost">
-				<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
-				<span v-html="$t('group.lobby.wait', {hostName:hostName})"></span>
-			</div>
+			<SimpleLoader theme="mainColor_normal"
+				v-if="!isHost && room.users.length > 0"
+				class="waitHost"
+				:label="$t('group.lobby.wait', {hostName:hostName})" />
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
 		</div>
@@ -70,10 +71,12 @@ import SocketEvent from '../vo/SocketEvent';
 import IncrementForm from '../components/IncrementForm.vue';
 import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import ExpertModeForm from '../components/ExpertModeForm.vue';
+import SimpleLoader from '../components/SimpleLoader.vue';
 
 @Component({
 	components:{
 		Button,
+		SimpleLoader,
 		IncrementForm,
 		ExpertModeForm,
 		ShareMultiplayerLink,
@@ -205,13 +208,13 @@ export default class GroupLobby extends Vue {
 	public onJoin(e:SocketEvent):void {
 		let found = false;
 		for (let i = 0; i < this.room.users.length; i++) {
-			if(this.room.users[i].id == e.data.id) {
+			if(this.room.users[i].id == e.data.user.id) {
 				found = true;
 				this.room.users[i].offline = false;
 			}
 		}
 		if(!found) {
-			this.room.users.push(e.data);
+			this.room.users.push(e.data.user);
 		}
 	}
 	
@@ -221,7 +224,7 @@ export default class GroupLobby extends Vue {
 	public onLeave(e:SocketEvent):void {
 		for (let i = 0; i < this.room.users.length; i++) {
 			const u = this.room.users[i];
-			if(u.id == e.data.id) {
+			if(u.id == e.data.user.id) {
 				this.room.users[i].offline = true;
 			}
 		}
@@ -258,7 +261,7 @@ export default class GroupLobby extends Vue {
 	.loader {
 		.center();
 		position: absolute;
-		transform: translate(-50%, -50%) scale(2, 2);
+		transform: translate(-50%, -50%);
 	}
 
 	.holder {
@@ -401,26 +404,6 @@ export default class GroupLobby extends Vue {
 	
 		.waitHost {
 			margin-top: 25px;
-			font-style: italic;
-			color: #fff;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			span {
-				text-align: center;
-				flex-grow: 1;
-				background-color: @mainColor_warn;
-				border-radius: 50px;
-				padding: 10px;
-			}
-			.spinner {
-				width: 20px;
-				height: 20px;
-				margin-bottom: -3px;
-				// background-color: @mainColor_warn;
-				padding: 10px 20px;
-				background-image: url("../assets/loader/loader_bg.svg");
-			}
 		}
 	
 		.shareUrl {

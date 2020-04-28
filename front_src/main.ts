@@ -77,7 +77,10 @@ function nextStep(next:Function, to:Route):void {
 		if(SockController.instance.connected) {
 			//If user leaves multiplayer game, tell the server s·he left the room
 			let u = store.state.userGroupData;
-			SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, data:u});
+			let g = store.state.groupRoomData;
+			if(g) {
+				SockController.instance.sendMessage({action:SOCK_ACTIONS.LEAVE_ROOM, data:{user:u, groupId:g.id}});
+			}
 			disconnectTimeout = setTimeout(_=> {
 				//Cut socket connexion
 				SockController.instance.disconnect();
