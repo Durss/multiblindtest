@@ -25,7 +25,8 @@ export default class CountDown extends Vue {
 			gsap.to(nbrs[i], {duration: .1, scale:1, opacity:1, delay:i});
 			gsap.to(nbrs[i], {duration: .1, scale:.5, opacity:0, delay:i+.9});
 		}
-		Beeper.instance.beepPatern([{d:100, f:800, p:900},{d:100, f:800, p:900},{d:100, f:800, p:900},{d:300, f:1600}], .2);
+		let volume = this.$store.state.volume / 2;
+		Beeper.instance.beepPatern([{d:100, f:800, p:900},{d:100, f:800, p:900},{d:100, f:800, p:900},{d:300, f:1600}], volume);
 		clearTimeout(this.timeout);
 		this.timeout = setTimeout(_=> {
 			this.$emit("complete")
@@ -33,6 +34,7 @@ export default class CountDown extends Vue {
 	}
 
 	public beforeDestroy():void {
+		Beeper.instance.stopAll();
 		clearTimeout(this.timeout);
 	}
 

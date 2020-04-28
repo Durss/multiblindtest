@@ -43,7 +43,7 @@ export default class Beeper {
 		let v = this.version
 		for (let i = 0; i < patern.length; i++) {
 			const p = patern[i];
-			if(volumeOverride) p.v = volumeOverride;
+			if(typeof volumeOverride == "number") p.v = volumeOverride;
 			await this.beep(p.d, p.f, p.v, p.t, v);
 			if(p.p) {
 				await Utils.promisedTimeout(p.p);
@@ -77,7 +77,7 @@ export default class Beeper {
 			oscillator.connect(gainNode);
 			gainNode.connect(this.audioCtx.destination);
 	
-			if (volume){gainNode.gain.value = volume;}
+			if (typeof volume == "number"){gainNode.gain.value = volume;}
 			if (frequency){oscillator.frequency.value = frequency;}
 			if (type){oscillator.type = type;}
 			oscillator.onended = _=> resolve();
