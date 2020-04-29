@@ -6,7 +6,7 @@
 	:target="target"
 	:to="to"
 	:data-selected="selected"
-	@click="onClick()"
+	@click="onClick($event)"
 	:style="progressStyle">
 		<img :src="parsedIcon" v-if="parsedIcon" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<!--
@@ -121,8 +121,8 @@ export default class Button extends Vue {
 		(<HTMLFormElement>this.$refs.browse).value = null;
 	}
 
-	public onClick():void {
-		this.$emit('click');//bubble up event to avoid having to listen for @click.native everytime
+	public onClick(e):void {
+		this.$emit('click',e);//bubble up event to avoid having to listen for @click.native everytime
 	}
 
 
