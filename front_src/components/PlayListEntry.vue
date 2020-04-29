@@ -172,6 +172,21 @@ export default class PlayListEntry extends Vue {
 		// border-radius: 50%;
 		background-color: #fff;
 		flex-grow: 0;
+		min-width: 25px;
+		min-height: 25px;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.playlistentry{
+		padding-left: 15px;
+		.cover {
+			margin-left: 10px;
+		}
+
+		.title {
+			margin-left: 20px;
+		}
 	}
 }
 </style>

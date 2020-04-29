@@ -169,6 +169,7 @@ export default class Labels {
 						date:"04/24/2020",
 						updates: [
 							"New multiplayer mode",
+							"French translation added (language selected from browser's default language)",
 							"Making interface clearer",
 						]
 					},
@@ -176,7 +177,7 @@ export default class Labels {
 						date:"01/27/2020",
 						updates: [
 							"Possibility to change number of simultaneous tracks",
-							"New demo mode to try out with connecting to spotify",
+							"New demo mode to try out without connecting to spotify",
 						]
 					},
 					{
@@ -359,6 +360,7 @@ export default class Labels {
 						date:"24/04/2020",
 						updates: [
 							"Nouveau mode multijoueur",
+							"Interface traduite en Français (langue sélectionnée en fonction de la langue par défaut du nvigateur)",
 							"Mises à jour de l'interface pour la rendre plus claire",
 						]
 					},

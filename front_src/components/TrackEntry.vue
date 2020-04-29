@@ -134,6 +134,7 @@ export default class TrackEntry extends Vue {
 
 			&::before {
 				content: "+";
+				margin-left: -9px;
 				font-size: 18px;
 				vertical-align: top;
 			}
@@ -210,21 +211,6 @@ export default class TrackEntry extends Vue {
 			border-radius: 20px;
 			background-color: @mainColor_warn;
 		}
-
-		.plus {
-			position: relative;
-			margin-left: -5px;
-			// margin-top: -10px;
-		}
-
-		.score {
-			padding: 5px 0;
-			border-radius: 50px;
-			font-size: 30px;
-			margin-left: -10px;
-			width: 40px;
-			background-color: @mainColor_warn;
-		}
 	}
 }
 
@@ -234,6 +220,20 @@ export default class TrackEntry extends Vue {
 		padding: 7px;
 		&>.icon {
 			max-height: 20px;
+
+			.score {
+				font-size: 16px;
+				width: 40px;
+				height: auto;
+				margin-left: 0px;
+				margin-top: -10px;
+				padding: 13px 0;
+
+				&::before {
+					margin-left: -5px;
+					font-size: 13px;
+				}
+			}
 		}
 
 		.trackInfos {
