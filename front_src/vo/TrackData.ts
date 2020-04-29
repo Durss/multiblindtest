@@ -9,4 +9,5 @@ export default interface TrackData {
 	isPlaying?:boolean;
 	picture?:string;
 	guessedBy?:UserData;//For multiplayer mode
+	loadFail?:boolean;
  }

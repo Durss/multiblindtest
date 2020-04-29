@@ -4,12 +4,14 @@ import store from '@/store';
 export default class AudioPlayer {
 
 	public onLoadComplete:any;
+	public onLoadError:any;
 	public onNeedUserInteraction:any;
 	
 	private loadedCount:number = 0;
 	private toLoadCount:number = 0;
 	private audioObjects:HTMLAudioElement[] = [];
 	private loadCompleteHandler:any = null;
+	private loadErrorHandler:any = null;
 	private trackIdToIndex:any = null;
 	private volumeFactor:number = .5;
 	
@@ -43,6 +45,7 @@ export default class AudioPlayer {
 		this.toLoadCount = tracks.length;
 		for (let i = 0; i < tracks.length; i++) {
 			this.trackIdToIndex[tracks[i].id] = i;
+			this.audioObjects[i].setAttribute("data-trackid", tracks[i].id);
 			this.audioObjects[i].setAttribute("src", tracks[i].audioPath);
 		}
 	}
@@ -93,6 +96,7 @@ export default class AudioPlayer {
 			const element:HTMLAudioElement = this.audioObjects[i];
 			element.pause();
 			element.removeAttribute("src");
+			element.removeEventListener("error", this.loadErrorHandler);
 			element.removeEventListener("canplaythrough", this.loadCompleteHandler)
 		}
 		delete this.audioObjects;
@@ -108,9 +112,11 @@ export default class AudioPlayer {
 		for (let i = 0; i < this.audioObjects.length; i++) {
 			const audio = this.audioObjects[i];
 			audio.play().catch(error=> {
-				//Autoplay failed, show play button
-				if(this.onNeedUserInteraction) {
-					this.onNeedUserInteraction();
+				if(!audio.dataset.error) {//this is set to true if MP3 path is wrong
+					//Autoplay failed, show play button
+					if(this.onNeedUserInteraction) {
+						this.onNeedUserInteraction();
+					}
 				}
 			});
 		}
@@ -136,6 +142,7 @@ export default class AudioPlayer {
 	 */
 	private initialize():void {
 		this.loadCompleteHandler = (e) => this._onLoadComplete(e)
+		this.loadErrorHandler = (e) => this._onLoadError(e)
 		
 		for (let i = 0; i < this.audioCount; i++) {
 			let elem = new Audio();
@@ -143,6 +150,7 @@ export default class AudioPlayer {
 			elem.autoplay = false;
 			elem.volume = Math.max(0, Math.min(1, store.state.volume * this.volumeFactor));
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
+			elem.addEventListener("error", this.loadErrorHandler);
 			this.audioObjects.push(elem);
 		}
 	}
@@ -157,9 +165,11 @@ export default class AudioPlayer {
 			for (let i = 0; i < this.audioObjects.length; i++) {
 				const audio = this.audioObjects[i];
 				audio.play().catch(error=> {
-					//Autoplay failed, show play button
-					if(this.onNeedUserInteraction) {
-						this.onNeedUserInteraction();
+					if(!audio.dataset.error) {//this is set to true if MP3 path is wrong
+						//Autoplay failed, tell parent
+						if(this.onNeedUserInteraction) {
+							this.onNeedUserInteraction();
+						}
 					}
 				});
 			}
@@ -167,6 +177,19 @@ export default class AudioPlayer {
 			if(this.onLoadComplete) {
 				this.onLoadComplete();
 			}
+		}
+	}
+
+	/**
+	 * Called when a track's loading fails
+	 */
+	public _onLoadError(event:Event):void {
+		// this.toLoadCount --;
+		this._onLoadComplete(event);
+		if(this.onLoadError) {
+			let elem = (<HTMLAudioElement>event.currentTarget);
+			elem.setAttribute("data-error", "true");
+			this.onLoadError(elem.dataset.trackid);
 		}
 	}
 }

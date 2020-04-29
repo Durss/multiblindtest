@@ -130,6 +130,7 @@ export default class Labels {
 				guessPlaceholder: "title OR artist...",
 				stopTrack: "Stop this track",
 				loadingMP3:"Loading tracks...",
+				loadError:"TRACK LOADING FAILED",
 				answerForm: {
 					show: "Show answers",
 					share: "Share this mix",
@@ -311,6 +312,7 @@ export default class Labels {
 				guessPlaceholder: "titre OU artiste...",
 				stopTrack: "Arrêter ce morceau",
 				loadingMP3:"Chargement des musiques...",
+				loadError:"ERREUR DE CHARGEMENT",
 				answerForm: {
 					show: "Voir les réponses",
 					share: "Partager ce mix",

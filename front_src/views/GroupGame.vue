@@ -98,6 +98,7 @@ export default class GroupGame extends Vue {
 	public loadingSkip:boolean = false;
 	public gameStepComplete:boolean = false;
 	public me:UserData = null;
+	public allTracks:TrackData[] = null;
 
 	public tracksDataHandler:any;
 	public playerSkipHandler:any;
@@ -179,10 +180,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 	}
 
-	/**
-	 * Select tracks to be played
-	 */
-	public pickRandomTracks():void {
+	private generateAllTracksCollection():void {
 		this.loading = true;
 		let playlistIds = this.room.playlists.map(p => p.id);
 		let playlists = this.$store.state.playlistsCache;
@@ -194,25 +192,28 @@ export default class GroupGame extends Vue {
 			}
 		}
 		
-		let tracks = [];
+		this.allTracks = [];
 		for (let i = 0; i < selectedPlaylists.length; i++) {
 			const p = selectedPlaylists[i];
-			tracks = tracks.concat(p.tracks);
+			this.allTracks = this.allTracks.concat(p.tracks);
+		}
+	}
+
+	/**
+	 * Select tracks to be played
+	 */
+	public pickRandomTracks():void {
+		if(!this.allTracks || this.allTracks.length < this.room.tracksCount) {
+			this.generateAllTracksCollection();
 		}
 
-		tracks = Utils.shuffle(tracks);
+		this.allTracks = Utils.shuffle(this.allTracks);
 		let toPlay:TrackData[] = [];
 		for (let i = 0; i < Math.min(6, Math.max(1, this.room.tracksCount)); i++) {
-			let t = tracks[i];
-			if(!t.audioPath) {
-				i--;
-				continue;
-			}
+			let t = this.allTracks.shift();
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;
-
-		// console.log(toPlay.map(t => t.name));
 
 		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay});
 	}

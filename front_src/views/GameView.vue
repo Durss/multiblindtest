@@ -190,6 +190,7 @@ export default class GameView extends Vue {
 	 */
 	public initAudioElements():void {
 		this.audioPlayer = new AudioPlayer(this.tracksCountAsNum);
+		this.audioPlayer.onLoadError = (id)=> this.onLoadError(id);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			console.warn("Need user interaction...");
@@ -314,6 +315,18 @@ export default class GameView extends Vue {
 			const t = this.tracksToPlay[i];
 			if(t.enabled || this.pause) {
 				this.stopTrack(t);
+			}
+		}
+	}
+
+	/**
+	 * Called when a track's loading failed
+	 */
+	public onLoadError(trackId:string):void {
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const element = this.tracksToPlay[i];
+			if(element.id == trackId) {
+				Vue.set(element, "loadFail", true);
 			}
 		}
 	}
@@ -459,7 +472,7 @@ export default class GameView extends Vue {
 		//Check if all the tracks have been found
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const t = this.tracksToPlay[i];
-			if(!t.enabled) {
+			if(!t.enabled && !t.loadFail) {
 				allGood = false;
 			}else{
 				this.stopTrack(t);

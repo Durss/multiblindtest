@@ -1,8 +1,9 @@
 <template>
 	<div :class="classes">
 		<div class="icon">
-			<img v-if="!reveal || !data.guessedBy" src="@/assets/icons/song.svg" alt="song" class="icon">
-			<div v-if="reveal && data.guessedBy" class="score">{{score}}</div>
+			<img v-if="(!reveal || !data.guessedBy) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
+			<div v-if="reveal && data.guessedBy && !data.loadFail" class="score">{{score}}</div>
+			<img v-if="data.loadFail" src="@/assets/icons/cross_white.svg" alt="error" class="icon">
 		</div>
 		
 		<div v-if="reveal" class="trackInfos">
@@ -10,7 +11,12 @@
 			<div class="name">{{data.name}}</div>
 		</div>
 		
-		<p v-if="!reveal" class="placeholder">{{$t('game.hidden')}}</p>
+		<div v-if="data.loadFail" class="trackInfos">
+			<div class="artist">{{$t("game.loadError")}}</div>
+			<div class="name">{{data.artist}} - {{data.name}}</div>
+		</div>
+		
+		<p v-if="!reveal && !data.loadFail" class="placeholder">{{$t('game.hidden')}}</p>
 
 		<div class="stop" v-if="reveal && canStop" :data-tooltip="$t('game.stopTrack')">
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="$emit('stop', data)">
@@ -49,6 +55,7 @@ export default class TrackEntry extends Vue {
 	public get classes():string[] {
 		let res = ["trackentry"];
 		if(this.reveal) res.push("enabled");
+		if(this.data.loadFail) res.push("error");
 		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
 		return res;
 	}
@@ -166,6 +173,10 @@ export default class TrackEntry extends Vue {
 		.icon{
 			opacity: .6;
 		}
+	}
+
+	&.error {
+		background-color: #c00;
 	}
 
 	.trackInfos {
