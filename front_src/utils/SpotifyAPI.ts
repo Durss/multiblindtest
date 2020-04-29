@@ -66,7 +66,11 @@ export default class SpotifyAPI {
 				}, parseInt(result.headers.get("retry-after")) * 1000+500);
 			})
 		}
-		return await result.json();
+		if(result.status == 200) {
+			return await result.json();
+		}else{
+			return Promise.reject();
+		}
 	}
 
 	/**
