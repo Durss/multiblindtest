@@ -66,8 +66,8 @@ export default class InfiniteList {
 			
 			this._holder.style.touchAction = "none";//Avoid warning on "preventDefault" on mouseMove on mobile devices
 	
-			this._holder.addEventListener("mousewheel", (e:any) => this._onScroll(e), {passive: true});
-			this._holder.addEventListener("DOMMouseScroll", (e:any) => this._onScroll(e), {passive: true});//FF
+			this._holder.addEventListener("mousewheel", (e:any) => this._onScroll(e));
+			this._holder.addEventListener("DOMMouseScroll", (e:any) => this._onScroll(e));//FF
 			
 			this._initialize();
 		}
@@ -529,6 +529,8 @@ export default class InfiniteList {
 			// this._throwSpeed += -(e["deltaY"] > 0? this._itemHeight : -this._itemHeight) * .1;
 			this._verticalScroll -= (e["deltaY"] > 0? this._itemHeight : -this._itemHeight) * 1;
 			this._limitScroll();
+			e.stopPropagation();
+			e.preventDefault();
 		}
 	
 		/**
