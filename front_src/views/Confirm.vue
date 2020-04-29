@@ -28,7 +28,7 @@ export default class ConfirmView extends Vue {
 	public hidden:boolean = true;
 
 	public mounted():void {
-		document.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e))
+		document.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
 	}
 
 	@Watch('$store.state.confirm', { immediate: true, deep: true })
@@ -56,7 +56,7 @@ export default class ConfirmView extends Vue {
 		}
 	}
 
-	private onKeyUp(e:KeyboardEvent):void {
+	private onKeyDown(e:KeyboardEvent):void {
 		if(this.hidden) return;
 		if(e.keyCode == 13 || e.keyCode == 32) {//Enter / space
 			this.answer(true);
