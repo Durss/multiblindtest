@@ -148,6 +148,12 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"04/30/2020",
+						updates: [
+							"Adding possibility to search for playlists.",
+						]
+					},
+					{
 						date:"04/29/2020",
 						updates: [
 							"Adding an \"handicap\" option to the multiplayer mode. This will make the countdown last X seconds more for a user.",
@@ -231,7 +237,7 @@ export default class Labels {
 					head : "Vous n'avez aucune playlist disponible dans Spotify. Créez-en ou abonnez-vous à des playlists existantes puis cliquez sur <strong>{refresh}</strong> au-dessus.",
 					suggestion : "Voici quelques suggestions de playlists auxquelles vous abonner",
 				},
-				noTrack :"Les playlists suivantes ne possèdent pas assez de mirceaux jouables",
+				noTrack :"Les playlists suivantes ne possèdent pas assez de morceaux jouables",
 				title: "Sélectionne des playlists",
 				subtitle: "Sélectionne les playlists dans lesquelles piocher des morceaux aléatoirement",
 				refresh: "Rafraîchir la liste",
@@ -331,6 +337,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"30/04/2020",
+						updates: [
+							"Ajout de la possibilité de chercher des playlists.",
+						]
+					},
 					{
 						date:"29/04/2020",
 						updates: [
