@@ -235,10 +235,10 @@ export default class GameView extends Vue {
 		}
 
 		let playlistIds = this.playlistids;
-		let playlists = this.$store.state.playlistsCache;
+		let playlistsCache = this.$store.state.playlistsCache;
 		let selectedPlaylists = [];
-		for (let i = 0; i < playlists.length; i++) {
-			const p = playlists[i];
+		for (let i = 0; i < playlistsCache.length; i++) {
+			const p = playlistsCache[i];
 			if(playlistIds.indexOf(p.id) > -1) {
 				selectedPlaylists.push(p);
 			}

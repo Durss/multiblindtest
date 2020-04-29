@@ -1,5 +1,5 @@
 <template>
-	<div class="searchresultitem" v-if="data" :class="selected? 'hover': ''">
+	<div class="SearchTrackResultItem" v-if="data" :class="selected? 'hover': ''">
 		<img :src="picture" alt="track" class="icon">
 		<div class="label">
 			<span class="artist">{{data.artist}}</span>
@@ -15,7 +15,7 @@ import TrackData from '@/vo/TrackData';
 @Component({
 	components:{}
 })
-export default class SearchResultItem extends Vue {
+export default class SearchTrackResultItem extends Vue {
 
 	@Prop()
 	public data:TrackData;
@@ -40,7 +40,7 @@ export default class SearchResultItem extends Vue {
 
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
-.searchresultitem{
+.SearchTrackResultItem{
 	display:flex;
 	align-items:center;
 	// justify-content: flex-start;
@@ -88,7 +88,7 @@ export default class SearchResultItem extends Vue {
 }
 
 @media only screen and (max-width: 500px) {
-	.searchresultitem {
+	.SearchTrackResultItem {
 		font-size: 16px;
 	}
 }

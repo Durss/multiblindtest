@@ -1,6 +1,7 @@
 <template>
-	<div :class="classes" @click="selected = !selected">
-		<Button type="checkbox" :value="selected" class="checkbox" />
+	<div :class="classes" @click="onClick($event)">
+		<Button type="checkbox" :value="selected" class="checkbox" v-if="!data.processingTracks" />
+		<img src="@/assets/loader/loader_white.svg" alt="loader" v-if="data.processingTracks">
 
 		<img :src="data.cover" class="cover" v-if="data.cover">
 		
@@ -10,7 +11,8 @@
 			<div v-if="reduced === false" class="owner">{{$t('playlists.owner', {owner:data.owner})}}</div>
 			<div v-if="reduced === false" class="total" :data-tooltip="$t('playlists.playableTracksInfos')">{{$t('playlists.playableTracks', {count:data.tracks.length})}}</div>
 		</div>
-
+		
+		<Button :icon="require('@/assets/icons/cross.svg')" v-if="data.searchOrigin" @click="onClickDelete($event)" />
 	</div>
 </template>
 
@@ -19,6 +21,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import Button from './Button.vue';
 import SpotifyAPI from '@/utils/SpotifyAPI';
 import PlaylistData from '@/vo/PlaylistData';
+import Utils from '../utils/Utils';
 
 @Component({
 	components:{
@@ -39,6 +42,7 @@ export default class PlayListEntry extends Vue {
 		let res = ["playlistentry"];
 		if(this.selected) res.push("selected");
 		if(this.reduced !== false) res.push("disabled");
+		if(this.data.searchOrigin) res.push("fromSearch");
 		return res;
 	}
 
@@ -51,6 +55,22 @@ export default class PlayListEntry extends Vue {
 		
 	}
 
+	public onClick(event):void {
+		if(this.data.processingTracks) {
+			this.selected = false;
+		}else{
+			this.selected = !this.selected
+		}
+		this.$emit('select');
+	}
+
+	public onClickDelete(event:MouseEvent|TouchEvent):void {
+		event.stopPropagation();//Avoid selection event being fired
+		Utils.confirm(this.$t("playlists.deleteConfirm").toString())
+		.then(_=> {
+			this.$emit('delete', this.data);
+		}).catch(e=>{/*ignore*/})
+	}
 
 }
 </script>
@@ -104,6 +124,13 @@ export default class PlayListEntry extends Vue {
 
 	&:hover {
 		background-color: @mainColor_normal_light;
+	}
+
+	&.fromSearch:not(.selected) {
+		background-color: @mainColor_light;
+		&:hover {
+			background-color: @mainColor_light_light;
+		}
 	}
 
 	.cover {

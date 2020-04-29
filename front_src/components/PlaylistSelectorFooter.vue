@@ -40,7 +40,7 @@ export default class PlaylistSelectorFooter extends Vue {
 	@Prop()
 	public mode:string;
 
-	public tracksCount:number = 6;
+	public tracksCount:number = 4;
 
 	public get maxTracks():number { return Config.MAX_TRACK_COUNT; }
 

@@ -5,21 +5,12 @@
 			<p class="infos" v-html="$t('create.subtitle', {tracksCount:tracksCount})"></p>
 		</div>
 
-		<div :class="formClasses" v-if="selectedTracks.length < tracksCount">
-			<label for="searchField">{{$t('create.search.label')}}</label>
-			<input type="text" id="searchField" :placeholder="$t('create.search.placeholder')" class="input dark" v-model="search" @keyup.esc="search=''" autocomplete="off" @focus="showAutoComplete=search.length>0">
-			<img src="@/assets/icons/cross_white.svg" alt="clear" class="clear" @click="search=''" v-if="search && !loading">
-			<img src="@/assets/loader/loader.svg" alt="loader" class="spinner" @click="search=''" v-if="loading">
-		</div>
-
-		<div class="tracksList" v-show="showAutoComplete">
-			<div class="autocomplete" key="autocomplete" ref="autocomplete" ></div>
-		</div>
+		<AutoCompleteForm searchType="track" v-if="selectedTracks.length < tracksCount" :filteredItems="selectedTracks" @select="onSelectTrack" />
 
 		<div class="selectedTracks" v-if="selectedTracks.length > 0">
 			<div class="title">{{$t('create.selected')}}</div>
 			<div class="trackItem" v-for="(t, index) in selectedTracks" :key="t.id+'_'+index">
-				<SearchResultItem :data="t" class="track" />
+				<SearchTrackResultItem :data="t" class="track" />
 				<Button :icon="require('@/assets/icons/stop_square.svg')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
 				<Button :icon="require('@/assets/icons/delete.svg')" highlight class="deleteBt" @click="removeTrack(t)" />
 			</div>
@@ -44,158 +35,41 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import SpotifyAPI from '@/utils/SpotifyAPI';
 import InfiniteList from '@/components/InfiniteList';
 import TrackData from '@/vo/TrackData';
-import SearchResultItem from '@/components/SearchResultItem.vue';
+import SearchTrackResultItem from '@/components/SearchTrackResultItem.vue';
 import Button from '@/components/Button.vue';
 import Config from '@/utils/Config';
 import AudioPlayer from '../components/AudioPlayer';
 import VolumeButton from '../components/VolumeButton.vue';
 import Utils from '../utils/Utils';
+import AutoCompleteForm from '../components/AutoCompleteForm.vue';
 
 @Component({
 	components:{
 		Button,
 		VolumeButton,
-		SearchResultItem,
+		AutoCompleteForm,
+		SearchTrackResultItem,
 	}
 })
 export default class MixCreator extends Vue {
 
-	public search:string = "";
 	public testing:boolean = false;
-	public loading:boolean = false;
 	public expandHelp:boolean = false;
 	public loadingAudio:boolean = false;
-	public showAutoComplete:boolean = false;
 	public selectedTracks:TrackData[] = [];
 	
-	private list:InfiniteList;
 	private audioPlayer:AudioPlayer;
-	private debounceTimeout:number;
-	private listInstances:Vue[] = [];
 
 	public get tracksCount():number { return Config.MAX_TRACK_COUNT; }
-	public get formClasses():string[] { 
-		let res = ["form"];
-		if(this.loading) res.push("loading");
-		return res;
-	}
 
 	public mounted():void {
-		this.list = new InfiniteList(<HTMLDivElement>this.$refs.autocomplete, 40, 1);
-		this.list.onRenderItem = (data:any, index:number, holder:HTMLDivElement)=> this.renderItem(data, index, holder);
-		this.list.onItemClicked = (data:any, index:number, holder:HTMLDivElement)=> this.onItemClicked(data, index, holder);
-		this.list.onItemDestroyed = (holder:HTMLDivElement)=> this.onItemDestroyed(holder);
 		this.audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
 		this.audioPlayer.onLoadComplete = () => this.loadingAudio = false;
 	}
 
 	public beforeDestroy():void {
-		this.list.dispose();
 		this.audioPlayer.stopAll();
 		this.audioPlayer.dispose();
-	}
-
-	/**
-	 * Called when searching for something
-	 */
-	@Watch("search")
-	public onSearch():void {
-		if(this.search.length == 0) {
-			this.showAutoComplete = false;
-		}else{
-			this.loading = true;
-			clearTimeout(this.debounceTimeout);
-			this.debounceTimeout = setTimeout(()=>this.doSearch(), 200);
-		}
-	}
-
-	/**
-	 * Executes a search with spotify API
-	 */
-	public async doSearch():Promise<void> {
-		if(this.search.length == 0) return;//Field cleared during debounce
-		
-		let res, offset:number = 0;
-		let trackList:TrackData[] = [];
-		do {
-			res = await SpotifyAPI.instance.call("v1/search", {q:this.search, type:"track", limit:50, include_external:true, offset});
-			for (let i = 0; i < res.tracks.items.length; i++) {
-				const t = res.tracks.items[i];
-				if(!t.preview_url) continue;
-				let alreadySelected = false;
-				for (let j = 0; j < this.selectedTracks.length; j++) {
-					if(this.selectedTracks[j].id == t.id) alreadySelected = true;
-				}
-				if(alreadySelected) continue;
-				let trackData:TrackData = {
-					id: t.id,
-					name: t.name,
-					artist: t.artists[0].name,
-					audioPath: t.preview_url,
-					picture:t.album.images? t.album.images[0].url : null,
-					isPlaying:false,
-				};
-				trackList.push(trackData);
-			}
-
-			this.showAutoComplete = trackList.length > 0;
-			this.$nextTick().then(_=> {
-				//Wait for component to be displayed to get proper size computation of the list
-				this.list.populate(trackList);
-				if(offset == 0) {
-					this.list.scrollToIndex(0);
-				}
-				this.list.refreshItems();
-			});
-			offset += 50;
-		}while(res.tracks.next && trackList.length < 500);
-		this.loading = false;
-	}
-
-	/**
-	 * Renders an item of the auto complete list
-	 */
-	private renderItem(data:TrackData, index:number, holder:HTMLDivElement) {
-		let itemIndex = 0;
-		if(holder.dataset.initialized !== "true") {
-			let ComponentClass = Vue.extend(SearchResultItem)
-			let instance = new ComponentClass();
-			instance.$mount();
-			holder.appendChild(instance.$el);
-			holder.dataset.initialized = "true";
-			itemIndex = this.listInstances.length;
-			holder.dataset.index = itemIndex.toString();
-			this.listInstances[itemIndex] = instance;
-		}else{
-			itemIndex = parseInt(holder.dataset.index);
-		}
-		this.listInstances[itemIndex].$props.data = data;
-	}
-
-	/**
-	 * Called when an item is clicked on the list
-	 */
-	private onItemClicked(data:TrackData, index:number, holder:HTMLDivElement) {
-		this.selectedTracks.push(data);
-		this.showAutoComplete = false;
-		let list = this.list.data;
-		for (let i = 0; i < list.length; i++) {
-			if(list[i].id == data.id) {
-				list.splice(i, 1);
-			}
-		}
-		this.list.populate(list);
-	}
-
-	/**
-	 * Called when an item is destroyed
-	 */
-	private onItemDestroyed(holder:HTMLDivElement) {
-		let itemIndex = parseInt(holder.dataset.index);
-		if(!isNaN(itemIndex)) {
-			let vueItem = this.listInstances[itemIndex];
-			vueItem.$destroy();
-		}
 	}
 
 	/**
@@ -255,6 +129,13 @@ export default class MixCreator extends Vue {
 		this.audioPlayer.volume = this.$store.state.volume;
 	}
 
+	/**
+	 * Called when a track is selected on auto complete form
+	 */
+	public onSelectTrack(track:TrackData):void {
+		this.selectedTracks.push(track);
+	}
+
 }
 </script>
 
@@ -268,38 +149,6 @@ export default class MixCreator extends Vue {
 		text-align: center;
 		h1 {
 			margin-bottom: 10px;
-		}
-	}
-
-	.form{
-		display: flex;
-		flex-direction: column;
-		position: relative;
-		z-index: 2;
-		.input {
-			transition: all .25s;
-		}
-		&.loading {
-			.input {
-				padding-left: 40px;
-			}
-		}
-		.clear, .spinner {
-			position: absolute;
-			bottom: 10px;
-			right: 10px;
-			width: 20px;
-			height: 20px;
-			&.spinner {
-				left: 10px;
-			}
-		}
-		.clear {
-			cursor: pointer;
-			transition: all .2s;
-			&:hover {
-				transform: scale(1.15);
-			}
 		}
 	}
 
@@ -329,29 +178,6 @@ export default class MixCreator extends Vue {
 			padding: 10px;
 			border-radius: 10px;
 			background-color: fade(#fff, 50%);
-		}
-	}
-
-	.tracksList {
-		margin-top: -20px;
-		padding-top: 20px;
-		padding-bottom: 10px;
-		box-sizing: border-box;
-		background-color: @mainColor_dark_light;
-		border-bottom-left-radius: 20px;
-		border-bottom-right-radius: 20px;
-		position: absolute;
-		z-index: 1;
-		width: 500px;
-		max-width: 100%;
-
-		.autocomplete {
-			max-height: 300px;
-			height: 400px;
-			border-bottom-left-radius: 20px;
-			border-bottom-right-radius: 20px;
-			overflow: hidden;
-			color: @mainColor_dark;
 		}
 	}
 
@@ -391,16 +217,6 @@ export default class MixCreator extends Vue {
 		margin-top: 30px;
 		&>*:not(:last-child) {
 			margin-right: 10px;
-		}
-	}
-}
-
-@media only screen and (max-width: 500px) {
-	.mixcreator{
-		.tracksList {
-			.autocomplete {
-				max-height: 200px;
-			}
 		}
 	}
 }

@@ -6,4 +6,6 @@ export default interface PlaylistData {
 	cover: string;
 	owner: string;
 	tracks?: TrackData[];
+	searchOrigin?: boolean;
+	processingTracks?: boolean;
  }

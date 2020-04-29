@@ -14,12 +14,15 @@
 				/>
 			</div>
 
+			<SearchPlaylistForm class="searchForm" v-model="playlists" />
+
 			<PlayListEntry
 				v-for="p in filteredPlaylists"
 				:key="p.id"
 				:data="p"
 				class="playlist"
-				@click.native="selectPlaylist(p)"
+				@select="selectPlaylist(p)"
+				@delete="onDeletePlaylist"
 			/>
 
 			<NoPlaylist v-if="filteredPlaylists.length == 0" />
@@ -32,7 +35,6 @@
 				:data="p"
 				reduced
 				class="playlist"
-				@click.native="selectPlaylist(p)"
 			/>
 		</div>
 
@@ -62,6 +64,7 @@ import gsap from 'gsap';
 import { v4 as uuidv4 } from 'uuid';
 import PlaylistLoading from '../components/PlaylistLoading.vue';
 import NoPlaylist from '../components/NoPlaylist.vue';
+import SearchPlaylistForm from '../components/SearchPlaylistForm.vue';
 
 @Component({
 	components:{
@@ -69,6 +72,7 @@ import NoPlaylist from '../components/NoPlaylist.vue';
 		NoPlaylist,
 		PlayListEntry,
 		PlaylistLoading,
+		SearchPlaylistForm,
 		PlaylistSelectorFooter,
 	}
 })
@@ -89,6 +93,8 @@ export default class PlaylistSelector extends Vue {
 	public get filteredPlaylists():PlaylistData[] {
 		let playlists = this.playlists.concat();
 		playlists.sort((a:PlaylistData, b:PlaylistData)=> {
+			if(a.searchOrigin && !b.searchOrigin) return -1;
+			if(!a.searchOrigin && b.searchOrigin) return 1;
 			if(a.tracks.length > b.tracks.length) return -1;
 			if(a.tracks.length > b.tracks.length) return 1;
 			return 0;
@@ -190,8 +196,17 @@ export default class PlaylistSelector extends Vue {
 			this.load(offset+1);
 		}else{
 			this.loading = false;
-			this.$store.dispatch("playlistsCache", this.playlists);
+			// this.$store.dispatch("playlistsCache", this.playlists);
 		}
+	}
+
+	/**
+	 * Called wanytime playlists changes.
+	 * Caches the playlists to the store.
+	 */
+	@Watch("playlists")
+	public onUpdatePlaylists():void {
+		this.$store.dispatch("playlistsCache", this.playlists);
 	}
 
 	/**
@@ -199,6 +214,8 @@ export default class PlaylistSelector extends Vue {
 	 * Toggles its selection state
 	 */
 	public async selectPlaylist(data:PlaylistData):Promise<any> {
+		if(data.processingTracks) return;
+
 		for (let i = 0; i < this.selectedPlaylists.length; i++) {
 			if(this.selectedPlaylists[i].id == data.id) {
 				this.selectedPlaylists.splice(i, 1);
@@ -229,6 +246,24 @@ export default class PlaylistSelector extends Vue {
 		}
 	}
 
+	public onDeletePlaylist(data:PlaylistData):void {
+		//delete from local cache
+		for (let i = 0; i < this.playlists.length; i++) {
+			const p = this.playlists[i];
+			if(p.id == data.id) {
+				this.playlists.splice(i, 1);
+			}
+		}
+
+		//delete from selected list
+		for (let i = 0; i < this.selectedPlaylists.length; i++) {
+			const p = this.selectedPlaylists[i];
+			if(p.id == data.id) {
+				this.selectedPlaylists.splice(i, 1);
+			}
+		}
+	}
+
 }
 </script>
 
@@ -249,6 +284,10 @@ export default class PlaylistSelector extends Vue {
 		&.refused {
 			margin-top: 70px;
 		}
+	}
+
+	.searchForm {
+		margin-bottom: 20px;
 	}
 
 	.playlists {
