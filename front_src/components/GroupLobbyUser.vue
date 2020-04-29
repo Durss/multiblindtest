@@ -63,6 +63,11 @@ export default class GroupLobbyUser extends Vue {
 		this.$emit("update", this.data, this.handicap);
 	}
 
+	@Watch("hover")
+	private onHover():void {
+		this.handicap = this.data.handicap;
+	}
+
 }
 </script>
 

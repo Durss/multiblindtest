@@ -1,6 +1,5 @@
 <template>
 	<div class="countdown">
-		{{seconds}}
 		<div v-for="index in seconds" :key="index" ref="number" class="number">{{(seconds - index==0)? "GO" : seconds - index}}</div>
 	</div>
 </template>
@@ -19,6 +18,7 @@ export default class CountDown extends Vue {
 	public seconds:number;
 
 	public timeout:number;
+	public timeoutBeeps:number;
 
 	public mounted():void {
 		console.log(this.seconds);
@@ -33,11 +33,17 @@ export default class CountDown extends Vue {
 		}
 		let volume = this.$store.state.volume / 2;
 		let beeps = [];
-		for (let i = 0; i < this.seconds -1; i++) {
+		let len = 3;//this.seconds - 1
+		for (let i = 0; i < len; i++) {
 			beeps.push({d:100, f:800, p:900});
 		}
 		beeps.push({d:300, f:1600})
-		Beeper.instance.beepPatern(beeps, volume);
+		let delay = this.seconds - 4;
+		clearTimeout(this.timeoutBeeps);
+		//Start beeps only for last 4 seconds
+		this.timeoutBeeps = setTimeout(_=>{
+			Beeper.instance.beepPatern(beeps, volume);
+		}, delay * 1000);
 		clearTimeout(this.timeout);
 		this.timeout = setTimeout(_=> {
 			this.$emit("complete")
