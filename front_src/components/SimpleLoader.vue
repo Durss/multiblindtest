@@ -82,7 +82,7 @@ export default class SimpleLoader extends Vue {
 	.loader {
 		position: relative;
 		width: 60px;
-		height: 37px;
+		height: 36px;
 
 		.spinner {
 			position: absolute;
