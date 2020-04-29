@@ -59,7 +59,7 @@ export default class TrackEntry extends Vue {
 
 	public get score():number {
 		if(!this.scoreHistory) return null;
-		for (let i = 0; i < this.scoreHistory.length; i++) {
+		for (let i = this.scoreHistory.length-1; i > -1; i--) {
 			const s = this.scoreHistory[i];
 			if(s.trackId == this.data.id) return s.score;
 		}
