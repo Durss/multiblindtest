@@ -18,7 +18,7 @@
 			</div>
 
 			<div ref="stars" class="stars">
-				<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 1" :key="i">
+				<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
 			</div>
 		</form>
 		
@@ -148,10 +148,10 @@ export default class TrackAnswerForm extends Vue {
 		for (let i = 0; i < stars.length; i++) {
 			const s = stars[i];
 			gsap.killTweensOf(s);
-			let px = Math.random() * 400
+			let px = Math.random() * 400 + 40;
 			let py = Math.random() * 40 - 40;
-			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*.5 + .5});
-			gsap.to(s, {opacity:0, x:px + (Math.random()-Math.random()) * 100, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
+			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
+			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
 		}
 	}
 
