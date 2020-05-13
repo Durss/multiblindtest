@@ -5,7 +5,7 @@
 			class="loader"
 			:label="$t('game.loadingMP3')" />
 
-		<div v-if="tracksToPlay && !loading">
+		<div v-show="tracksToPlay && !loading">
 			<div class="trackList">
 				<div class="list">
 					<TrackEntry 
@@ -61,7 +61,7 @@
 					@showAnswers="showAnswers()"
 					@closeShare="shareUrl=''"
 					ref="trackAnswerForm"
-					:canGuess="!complete"
+					:canGuess="!complete || multiplayerMode"
 					:shareUrl="shareUrl"
 					:showShare="!demoMode"
 					:multiplayerMode="multiplayerMode"

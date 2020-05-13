@@ -338,7 +338,7 @@ export default class Labels {
 				answerForm: {
 					show: "Voir les réponses",
 					share: "Partager ce mix",
-					chat: "<center>Envoyer dans le chat.<br /><i>(CTRL+Enter)</i></center>",
+					chat: "Envoyer toutes les réponses dans le chat.<br />Si désactivé, <i>CTRL+Entrée</i> permet tout de même d'envoyer votre message dans le chat",
 				},
 				newDemo:"Nouvelle demo",
 				newGame:"Nouveau Multi Blindtest",

@@ -1,7 +1,7 @@
 <template>
-	<div class="chatwindow" v-if="messages.length > 0 || true">
+	<div class="chatwindow" v-if="messages.length > 0">
 		<div class="list" ref="list" v-if="opened">
-			<div v-for="m in messages" :key="m.id" class="line">
+			<div v-for="m in messages" :key="m.id" :class="getClasses(m)">
 				<div class="user">{{m.user.name}}</div>
 				<div class="message">{{m.message}}</div>
 			</div>
@@ -27,6 +27,12 @@ export default class ChatWindow extends Vue {
 	public opened:boolean = true;
 
 	private messageHandler:any;
+
+	public getClasses(m):string[] {
+		let res = ["line"];
+		if(m.user.id == this.$store.state.userGroupData.id) res.push("isme");
+		return res;
+	}
 
 	public mounted():void {
 		this.messageHandler = (e:SocketEvent) => this.onMessage(e);
@@ -61,11 +67,14 @@ export default class ChatWindow extends Vue {
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
 .chatwindow{
-	position: relative;
+	position: fixed;
+	bottom: 0;
+	right: 25px;
+	max-width: 300px;
 	.close {
 		position: absolute;
-		top: -15px;
-		right: -15px;
+		top: -20px;
+		left: -20px;
 	}
 
 	.list {
@@ -74,7 +83,7 @@ export default class ChatWindow extends Vue {
 		border: 1px solid @mainColor_normal_light;
 		padding: 10px;
 		border-radius: 20px;
-		max-height: 140px;
+		max-height: 290px;
 		overflow-y: auto;
 		.line {
 			display: flex;
@@ -83,6 +92,13 @@ export default class ChatWindow extends Vue {
 			&:not(:last-child) {
 				margin-bottom: 8px;
 			}
+
+			&.isme {
+				.user {
+					background-color: @mainColor_warn;
+				}
+			}
+
 			.user {
 				font-weight: bold;
 				text-transform: capitalize;
@@ -97,6 +113,20 @@ export default class ChatWindow extends Vue {
 			}
 		}
 	}
+}
 
+@media only screen and (max-width: 500px) {
+	.chatwindow{
+		position: relative;
+		bottom: unset;
+		right: unset;
+		.close {
+			left: auto;
+			right: -15px;
+		}
+		.list {
+			max-height: 140px;
+		}
+	}
 }
 </style>

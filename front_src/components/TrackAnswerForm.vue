@@ -3,6 +3,8 @@
 		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="canGuess" @keyup="onKeyUp">
 			<label for="trackName" class="label">{{$t('game.guess')}}</label>
 			<div class="line" ref="inputLine">
+				<Button type="button" :icon="require('@/assets/icons/chat'+(anonMode? '_off' :'')+'.svg')" class="chat" @click="anonMode=!anonMode" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
+
 				<input ref="input" type="text" :placeholder="$t('game.guessPlaceholder')"
 					v-model="guess"
 					class="input dark"
@@ -12,8 +14,7 @@
 					maxlength="100"
 				>
 
-				<Button type="submit" :icon="require('@/assets/icons/song.svg')" :disabled="guess.length == 0" class="submit" />
-				<Button type="button" :icon="require('@/assets/icons/chat.svg')" :disabled="guess.length == 0" class="chat" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
+				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="guess.length == 0" class="submit" />
 			</div>
 
 			<div ref="stars" class="stars">
@@ -61,6 +62,7 @@ export default class TrackAnswerForm extends Vue {
 	public guess:string = "";
 	public error:boolean = false;
 	public success:boolean = false;
+	public anonMode:boolean = false;
 	public focusHandler:any;
 
 	public get classes():string[] {
@@ -107,19 +109,26 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public onSubmitGuess(event):void {
+		if(!this.anonMode) {
+			this.sendChatMessage();
+		}
 		this.$emit("guess", this.guess);
 	}
 
 	public onKeyUp(event:KeyboardEvent):void {
 		//Manage ctrl+Enter to submit chat message
 		if(event.keyCode == 13 && event.ctrlKey && this.guess.length > 0) {
-			this.$emit("sendToChat", this.guess);
-			this.guess = "";
+			this.sendChatMessage();
 		}
 		//Escape key
 		if(event.keyCode == 27) {
 			this.guess = "";
 		}
+	}
+
+	public sendChatMessage():void {
+		this.$emit("sendToChat", this.guess);
+		this.guess = "";
 	}
 
 	public onShowAnswers():void {
@@ -178,8 +187,7 @@ export default class TrackAnswerForm extends Vue {
 				position: relative;
 				transition: background-color .25s, color .25s;
 				flex-grow: 1;
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
+				border-radius: 0;
 				&:focus, &:focus{
 					outline: none;
 				}
@@ -200,7 +208,12 @@ export default class TrackAnswerForm extends Vue {
 			.chat {
 				min-width: 40px;
 				width: 40px;
-				// border-bottom-left-radius: 0px;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+				background-color: @mainColor_dark_light;
+				border: 1px solid @mainColor_dark;
+				border-right: none;
+				border-bottom: none;
 				::v-deep {
 					img {
 						width: 100%;

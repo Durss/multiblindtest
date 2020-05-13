@@ -106,12 +106,12 @@ export default class App extends Vue {
 	.sockStatus {
 		position: fixed;
 		bottom: 2px;
-		right: 2px;
+		left: 2px;
 		opacity: .25;
 		font-size: 12px;
 		color: black;
 		// text-shadow: rgba(0,0,0,.25) 0px 0px 1px;
-		&::after {
+		&::before {
 			content: "";
 			background: red;
 			border-radius: 50%;
@@ -119,7 +119,7 @@ export default class App extends Vue {
 			height: 5px;
 			display: inline-block;
 			vertical-align: middle;
-			margin-left: 5px;
+			margin-right: 5px;
 		}
 		&.online {
 			&::after {
