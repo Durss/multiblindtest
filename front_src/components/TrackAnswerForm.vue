@@ -109,10 +109,10 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public onSubmitGuess(event):void {
+		this.$emit("guess", this.guess);
 		if(!this.anonMode) {
 			this.sendChatMessage();
 		}
-		this.$emit("guess", this.guess);
 	}
 
 	public onKeyUp(event:KeyboardEvent):void {
