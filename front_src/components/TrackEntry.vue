@@ -219,6 +219,7 @@ export default class TrackEntry extends Vue {
 
 		padding: 7px;
 		&>.icon {
+			max-width: 20px;
 			max-height: 20px;
 
 			.score {

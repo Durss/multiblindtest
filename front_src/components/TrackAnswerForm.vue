@@ -127,12 +127,14 @@ export default class TrackAnswerForm extends Vue {
 			display: flex;
 			flex-direction: row;
 			.input {
-				margin-bottom: 10px;
 				position: relative;
 				transition: background-color .25s, color .25s;
 				flex-grow: 1;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
+				&:focus, &:focus{
+					outline: none;
+				}
 			}
 			.submit {
 				flex-grow: 0;

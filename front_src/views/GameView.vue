@@ -1,5 +1,5 @@
 <template>
-	<div class="multiplayer">
+	<div class="tracksplayer">
 		<SimpleLoader theme="mainColor_normal"
 			v-if="loading"
 			class="loader"
@@ -513,7 +513,7 @@ export default class GameView extends Vue {
 
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
-.multiplayer{
+.tracksplayer{
 	@size: 200px;
 	
 	.loader {
@@ -526,20 +526,14 @@ export default class GameView extends Vue {
 		// position: absolute;
 		display: flex;
 		flex-direction: column;
-		width: 90%;
 		margin: auto;
-		max-width: 500px;
-		margin-bottom: 20px;
+		margin-bottom: 30px;
 
 		.list {
-			margin-bottom: 20px;
-			.track {
+			margin-bottom: 30px;
+			.track:not(:last-child) {
 				margin-bottom: 10px;
 			}
-		}
-
-		.answerForm {
-			margin-top: 20px;
 		}
 
 		.complete {
