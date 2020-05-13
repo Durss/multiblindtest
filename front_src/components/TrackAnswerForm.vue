@@ -69,6 +69,7 @@ export default class TrackAnswerForm extends Vue {
 		let res = ["trackanswerform"]
 		if(this.error) res.push("error");
 		if(this.success) res.push("success");
+		if(this.multiplayerMode) res.push("multiplayermode");
 		return res;
 	}
 
@@ -172,8 +173,23 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	&.success {
-		.input {
+		.form {
+			.line {
+				.input {
 			background-color: #fff;
+				}
+			}
+		}
+	}
+
+	&:not(.multiplayermode) {
+		.form {
+			.line {
+				.input {
+					border-top-left-radius: 20px;
+					border-bottom-left-radius: 20px;
+				}
+			}
 		}
 	}
 
@@ -188,6 +204,7 @@ export default class TrackAnswerForm extends Vue {
 				transition: background-color .25s, color .25s;
 				flex-grow: 1;
 				border-radius: 0;
+				border-right-color: transparent;
 				&:focus, &:focus{
 					outline: none;
 				}
@@ -198,6 +215,8 @@ export default class TrackAnswerForm extends Vue {
 				height: 40px;
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
+				border: 1px solid @mainColor_dark;
+				border-left: none;
 				::v-deep {
 					img {
 						width: 100%;
