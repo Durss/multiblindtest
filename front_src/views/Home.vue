@@ -67,13 +67,15 @@ export default class Home extends Vue {
 <style scoped lang="less">
 @import (reference) '../less/_includes.less';
 .home{
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	height: 100%;
 	.holder {
-		position: fixed;
+		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		.center();
-		transform: translate(-50%, -60%);
 	
 		.head {
 			margin-bottom: 30px;
@@ -106,9 +108,7 @@ export default class Home extends Vue {
 	}
 
 	.footer {
-		position: fixed;
-		bottom: 5px;
-		left: 0;
+		margin-top: 20px;
 		text-align: center;
 		width: 100%;
 		font-style: italic;
