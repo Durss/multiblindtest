@@ -51,9 +51,12 @@
 					big
 					@click="createBlindTest()"
 				/>
+
+				<slot></slot>
 				
 				<TrackAnswerForm class="answerForm"
 					@guess="guessTrack"
+					@sendToChat="sendToChat"
 					@share="shareCurrentList()"
 					@showAnswers="showAnswers()"
 					@closeShare="shareUrl=''"
@@ -61,7 +64,7 @@
 					:canGuess="!complete"
 					:shareUrl="shareUrl"
 					:showShare="!demoMode"
-					:showActions="!multiplayerMode"
+					:multiplayerMode="multiplayerMode"
 					v-if="!hideForm"
 				/>
 			</div>
@@ -85,6 +88,8 @@ import VolumeButton from '../components/VolumeButton.vue';
 import NeedInteractionLayer from '../components/NeedInteractionLayer.vue';
 import ScoreHistory from '../vo/ScoreHistory';
 import SimpleLoader from '../components/SimpleLoader.vue';
+import SockController, { SOCK_ACTIONS } from '../sock/SockController';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
 	components:{
@@ -403,6 +408,14 @@ export default class GameView extends Vue {
 				StatsManager.instance.event("play","complete", "Game complete");
 			}
 		}
+	}
+	
+
+	/**
+	 * Called when user sends a message to the chat
+	 */
+	public sendToChat(value:string):any {
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.CHAT_MESSAGE, includeSelf:true, data:{id:uuidv4(), user:this.$store.state.userGroupData, message:value,}});
 	}
 
 	/**

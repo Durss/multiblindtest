@@ -21,7 +21,6 @@ export default class CountDown extends Vue {
 	public timeoutBeeps:number;
 
 	public mounted():void {
-		console.log(this.seconds);
 		let nbrs = <HTMLDivElement[]>this.$refs.number;
 		if(!nbrs) return;
 

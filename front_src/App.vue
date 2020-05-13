@@ -92,6 +92,7 @@ export default class App extends Vue {
 		left: 0;
 		border-radius: 0;
 		border-bottom-right-radius: 50%;
+		z-index: 1;
 
 		&.slide-enter-active, &.slide-leave-active {
 			transition: all .5s;

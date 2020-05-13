@@ -22,7 +22,11 @@
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
-			/>
+			>
+				<ChatWindow class="chat" />
+			</GameView>
+			
+			
 
 			<Button
 				:title="$t('group.game.giveup')"
@@ -74,12 +78,14 @@ import ExpertModeState from '../components/ExpertModeState.vue';
 import GroupUserList from '../components/GroupUserList.vue';
 import CountDown from '../components/CountDown.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
+import ChatWindow from '../components/ChatWindow.vue';
 
 @Component({
 	components:{
 		Button,
 		GameView,
 		CountDown,
+		ChatWindow,
 		SimpleLoader,
 		GroupUserList,
 		ExpertModeState,
@@ -382,7 +388,7 @@ export default class GroupGame extends Vue {
 @import (reference) '../less/_includes.less';
 .groupgame{
 	.header {
-		margin-bottom: 50px;
+		margin-bottom: 30px;
 		h1 {
 			display: block;
 			width: min-content;
@@ -409,6 +415,10 @@ export default class GroupGame extends Vue {
 		// Allows the dimmer to be above the other elements of the page
 		z-index: 1;
 		position: relative;
+	}
+
+	.chat {
+		margin-bottom: 30px;
 	}
 
 	.players {

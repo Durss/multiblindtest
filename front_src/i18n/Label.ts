@@ -137,6 +137,7 @@ export default class Labels {
 				answerForm: {
 					show: "Show answers",
 					share: "Share this mix",
+					chat: "<center>Send chat message.<br /><i>(CTRL+Enter)</i></center>",
 				},
 				newDemo:"New demo",
 				newGame:"New Multi Blindtest",
@@ -147,6 +148,14 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"05/13/2020",
+						updates: [
+							"Adding a chat to multiplayer mode",
+							"Slightly reducing spelling tolerance",
+							"Minor UI tweaks on mobile",
+						]
+					},
 					{
 						date:"04/30/2020",
 						updates: [
@@ -329,6 +338,7 @@ export default class Labels {
 				answerForm: {
 					show: "Voir les réponses",
 					share: "Partager ce mix",
+					chat: "<center>Envoyer dans le chat.<br /><i>(CTRL+Enter)</i></center>",
 				},
 				newDemo:"Nouvelle demo",
 				newGame:"Nouveau Multi Blindtest",
@@ -338,6 +348,14 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"13/05/2020",
+						updates: [
+							"Ajout d'un chat dans le mode multi joueur",
+							"Légère réduction de la tolérance orthographique",
+							"Petites améliorations de mise en page sur mobile",
+						]
+					},
 					{
 						date:"30/04/2020",
 						updates: [
