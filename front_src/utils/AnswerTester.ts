@@ -38,7 +38,8 @@ export default class AnswerTester {
 		this.checkTest("showbiz", "Showbiz (the battle)", true);
 		this.checkTest("papa", "Papa pingouin", false);
 		this.checkTest("pingouin", "Papa pingouin", true);
-		this.checkTest("franky vinc", "Francky Vincent", true);
+		this.checkTest("franky vinc", "Francky Vincent", false);
+		this.checkTest("franky vincen", "Francky Vincent", true);
 		this.checkTest("freedom", "Freedom! '90", true);
 		this.checkTest("wassup", "What's Up?", true);
 		this.checkTest("lambé", "Lambé An Dro", true);
@@ -53,6 +54,7 @@ export default class AnswerTester {
 		this.checkTest("bed", "death bed (coffee for your head) (feat. beabadoobee)", false);
 		this.checkTest("coffee for your", "death bed (coffee for your head) (feat. beabadoobee)", true);
 		this.checkTest("céliendion", "Céline Dion", true);
+		this.checkTest("Sabaton", "jackson", false);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
@@ -114,14 +116,14 @@ export default class AnswerTester {
 		let cleanAnswer = this.cleanup(expectedAnswer);
 		let cleanUserAnswer = this.cleanup(userAnswer);
 		let chunks = expectedAnswer.split(" ").map(s => this.cleanup(s));
-		let tolerence = reducedTolerence? .2 : .3;
+		let tolerence = reducedTolerence? .18 : .28;
 		
 		//Check for answer with elastic error tolerence
 		let costs = {insert:null, remove:.5, substitute:.5, transpose:0};
 		// console.log(Utils.levenshtein(cleanUserAnswer, cleanAnswer), Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs), cleanAnswer)
 		let res1 = Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs) < cleanAnswer.length * tolerence;
 		if(this.logsEnabled) {
-			console.log("%cLevenstein :", "font-size:16px;color:blue;font-weight:bold"+(res1? ";color:green" : ";color:red"), cleanUserAnswer + " VS " + cleanAnswer, Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs), "/", (cleanAnswer.length * .3).toFixed(1));
+			console.log("%cLevenstein :", "font-size:16px;color:blue;font-weight:bold"+(res1? ";color:green" : ";color:red"), cleanUserAnswer + " VS " + cleanAnswer, Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs), "/", (cleanAnswer.length * tolerence).toFixed(1));
 		}
 
 		//check for exact occurence in answer to be able to write a shortened version of the answer.
