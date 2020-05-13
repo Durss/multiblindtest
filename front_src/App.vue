@@ -78,10 +78,12 @@ export default class App extends Vue {
 <style scoped lang="less">
 @import (reference) 'less/_includes.less';
 .app{
+	height: 100%;
+	padding: 20px 0;
+	box-sizing: border-box;
 	.content {
 		max-width: 500px;
 		margin: auto;
-		padding: 20px 0;
 	}
 
 	.button.backHome {
