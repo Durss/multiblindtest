@@ -6,7 +6,7 @@ export default class AnswerTester {
 	
 	private static _instance:AnswerTester;
 
-	private logsEnabled:boolean = false;
+	private logsEnabled:boolean = true;
 	
 	constructor() {
 		this.initialize();
@@ -32,29 +32,31 @@ export default class AnswerTester {
 	 * PUBLIC METHODS *
 	 ******************/
 	public run():void {
-		this.checkTest("dont stop", "don't stop moving", true);
-		this.checkTest("worlds", "worlds appart", true);
-		this.checkTest("worlds ap", "worlds appart", true);
-		this.checkTest("showbiz", "Showbiz (the battle)", true);
-		this.checkTest("papa", "Papa pingouin", false);
-		this.checkTest("pingouin", "Papa pingouin", true);
-		this.checkTest("franky vinc", "Francky Vincent", false);
-		this.checkTest("franky vincen", "Francky Vincent", true);
-		this.checkTest("freedom", "Freedom! '90", true);
-		this.checkTest("wassup", "What's Up?", true);
-		this.checkTest("lambé", "Lambé An Dro", true);
-		this.checkTest("redhot hcilli pappers", "Red Hot Chili Peppers", true);
-		this.checkTest("walk on the", "Walk On the Wild Side", true);
-		this.checkTest("shame on you", "Shame on U", true);
-		this.checkTest("stach stach", "Stach Stach — Karaoké Avec Chant Témoin — Rendu Célèbre Par Bratisla Boys", true);
-		this.checkTest("que calor", "Que Calor (feat. J Balvin & El Alfa)", true);
-		this.checkTest("test of a title", "test of a title longer than (the parenthesis)", true);
-		this.checkTest("test with a (complete answer !)", "test with a (complete answer !)", true);
-		this.checkTest("death bed", "death bed (coffee for your head) (feat. beabadoobee)", true);
-		this.checkTest("bed", "death bed (coffee for your head) (feat. beabadoobee)", false);
-		this.checkTest("coffee for your", "death bed (coffee for your head) (feat. beabadoobee)", true);
-		this.checkTest("céliendion", "Céline Dion", true);
-		this.checkTest("Sabaton", "jackson", false);
+		// this.checkTest("dont stop", "don't stop moving", true);
+		// this.checkTest("worlds", "worlds appart", true);
+		// this.checkTest("worlds ap", "worlds appart", true);
+		// this.checkTest("showbiz", "Showbiz (the battle)", true);
+		// this.checkTest("papa", "Papa pingouin", false);
+		// this.checkTest("pingouin", "Papa pingouin", true);
+		// this.checkTest("franky vinc", "Francky Vincent", false);
+		// this.checkTest("franky vincen", "Francky Vincent", true);
+		// this.checkTest("freedom", "Freedom! '90", true);
+		// this.checkTest("wassup", "What's Up?", true);
+		// this.checkTest("lambé", "Lambé An Dro", true);
+		// this.checkTest("redhot hcilli pappers", "Red Hot Chili Peppers", true);
+		// this.checkTest("walk on the", "Walk On the Wild Side", true);
+		// this.checkTest("shame on you", "Shame on U", true);
+		// this.checkTest("stach stach", "Stach Stach — Karaoké Avec Chant Témoin — Rendu Célèbre Par Bratisla Boys", true);
+		// this.checkTest("que calor", "Que Calor (feat. J Balvin & El Alfa)", true);
+		// this.checkTest("test of a title", "test of a title longer than (the parenthesis)", true);
+		// this.checkTest("test with a (complete answer !)", "test with a (complete answer !)", true);
+		// this.checkTest("death bed", "death bed (coffee for your head) (feat. beabadoobee)", true);
+		// this.checkTest("bed", "death bed (coffee for your head) (feat. beabadoobee)", false);
+		// this.checkTest("coffee for your", "death bed (coffee for your head) (feat. beabadoobee)", true);
+		// this.checkTest("céliendion", "Céline Dion", true);
+		// this.checkTest("Sabaton", "jackson", false);
+		// this.checkTest("*.*", "The Real Slim Shady", false);
+		this.checkTest("*.*", "Eminem", false);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
@@ -127,19 +129,20 @@ export default class AnswerTester {
 		}
 
 		//check for exact occurence in answer to be able to write a shortened version of the answer.
-		let res2 = (userAnswer.length >= expectedAnswer.length * .5) && cleanAnswer.indexOf(cleanUserAnswer) > -1
+		console.log(cleanAnswer, cleanUserAnswer)
+		let res2 = (userAnswer.length >= expectedAnswer.length * .5) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
 		if(this.logsEnabled) {
 			console.log("%cShort answer :", "font-size:16px;color:blue;font-weight:bold"+(res2? ";color:green" : ";color:red"), res2);
 		}
 
 		//check for one specific word longer than 5 chars
-		let res3 = (userAnswer.length >= 5 || cleanUserAnswer.length >= cleanAnswer.length * .5) && chunks.indexOf(cleanUserAnswer) > -1;
+		let res3 = (userAnswer.length >= 5 || cleanUserAnswer.length >= cleanAnswer.length * .5) && chunks.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
 		if(this.logsEnabled) {
 			console.log("%cExact word :", "font-size:16px;color:blue;font-weight:bold"+(res3? ";color:green" : ";color:red"), res3);
 		}
 
 		//If answer is longer than 8 chars, check its exact match (workaround stupidly long titles with useless informations on it)
-		let res4 = (userAnswer.length >= 9) && cleanAnswer.indexOf(cleanUserAnswer) > -1;
+		let res4 = (userAnswer.length >= 9) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
 		if(this.logsEnabled) {
 			console.log("%cExact word long :", "font-size:16px;color:blue;font-weight:bold"+(res4? ";color:green" : ";color:red"), res4, userAnswer, cleanAnswer.indexOf(cleanUserAnswer));
 		}
