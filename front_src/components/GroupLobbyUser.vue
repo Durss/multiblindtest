@@ -1,16 +1,18 @@
 <template>
 	<div class="grouplobbyuser" @mouseleave="hover=false" @mouseenter="hover=true">
-		<div :class="classes" v-if="!hover">
+		<div :class="classes" v-if="true">
 			<div class="text">{{data.name}}</div>
 			<div v-if="data.handicap" class="handicap">
 				<img src="@/assets/icons/delay.svg" alt="delay">
 				<span>{{data.handicap}}s</span>
 			</div>
 		</div>
-		<div class="form" v-if="hover">
-			<IncrementForm class="incForm" v-model="handicap" :title="$t('group.lobby.handicap')" minValue="0" maxValue="30" />
-			<div>{{$t("group.lobby.handicapInfos", {SECONDS:handicap})}}</div>
-		</div>
+		<transition name="expand" >
+			<div class="form" v-if="hover">
+				<IncrementForm class="incForm" v-model="handicap" :title="$t('group.lobby.handicap')" minValue="0" maxValue="30" />
+				<div>{{$t("group.lobby.handicapInfos", {SECONDS:handicap})}}</div>
+			</div>
+		</transition>
 	</div>
 </template>
 
@@ -157,17 +159,32 @@ export default class GroupLobbyUser extends Vue {
 	}
 
 	.form {
-		min-height: 30px;
-		background-color: @mainColor_normal_light;
+		background-color: @mainColor_normal_extralight;
 		border-radius: 15px;
-		padding: 5px 10px;
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
 		top: 0;
+		width: calc(100% - 26px);
 		color: @mainColor_dark;
+		box-sizing: border-box;
+		margin-left: 13px;
+		overflow: hidden;
+		transition: all .25s;
+			padding: 5px 10px;
 
 		.incForm {
 			::v-deep .button:hover {
 				background-color: @mainColor_normal_extralight;
 			}
+		}
+
+		&.expand-enter-active, &.expand-leave-active {
+			padding: 5px 10px;
+			max-height: 125px;
+		}
+		&.expand-enter, &.expand-leave-to {
+			max-height: 0px;
+			padding: 0px 10px;
 		}
 	}
 }
