@@ -45,7 +45,7 @@ export default class ChatWindow extends Vue {
 
 	private  onMessage(e:SocketEvent):any {
 		this.messages.push(e.data);
-		if(this.messages.length > 20) this.messages.shift();
+		if(this.messages.length > 100) this.messages.shift();
 		this.scrollToBottom();
 	}
 
@@ -71,6 +71,10 @@ export default class ChatWindow extends Vue {
 	bottom: 0;
 	right: 25px;
 	max-width: 300px;
+	max-height: calc(100vh - 150px);
+	display: flex;
+	z-index: 1;
+
 	.close {
 		position: absolute;
 		top: -20px;
@@ -79,16 +83,17 @@ export default class ChatWindow extends Vue {
 
 	.list {
 		background-color: #fff;
-		// background-color: @mainColor_normal_light;
 		border: 1px solid @mainColor_normal_light;
 		padding: 10px;
 		border-radius: 20px;
-		max-height: 290px;
 		overflow-y: auto;
+		box-sizing: border-box;
+
 		.line {
-			display: flex;
-			flex-direction: row;
 			align-items: center;
+			max-width: 100%;
+			box-sizing: border-box;
+
 			&:not(:last-child) {
 				margin-bottom: 8px;
 			}
@@ -107,9 +112,15 @@ export default class ChatWindow extends Vue {
 				padding: 2px 5px;
 				border-radius: 10px;
 				align-self: flex-start;
+				white-space: nowrap;
+				display: inline;
+				line-height: 25px;
 			}
 			.message {
+				display: inline;
 				margin-left: 5px;
+				word-wrap: break-word;
+				max-width: calc(100%);
 			}
 		}
 	}
@@ -120,12 +131,14 @@ export default class ChatWindow extends Vue {
 		position: relative;
 		bottom: unset;
 		right: unset;
+		min-width: 100%;
 		.close {
 			left: auto;
 			right: -15px;
 		}
 		.list {
 			max-height: 140px;
+			width: 100%;
 		}
 	}
 }

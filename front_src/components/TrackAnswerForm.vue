@@ -128,6 +128,7 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public sendChatMessage():void {
+		if(this.guess.trim().length == 0) return;
 		this.$emit("sendToChat", this.guess);
 		this.guess = "";
 	}
