@@ -142,6 +142,7 @@ export default class Labels {
 				newDemo:"New demo",
 				newGame:"New Multi Blindtest",
 				createGame:"Create a Multi Blindtest",
+				noPlaylists:"The requested playlist(s) haven't been found, you may have deleted them ?",
 			},
 
 
@@ -343,6 +344,7 @@ export default class Labels {
 				newDemo:"Nouvelle demo",
 				newGame:"Nouveau Multi Blindtest",
 				createGame:"Créer un Multi Blindtest",
+				noPlaylists:"Aucune des playlists demandées n'a été trouvée. Peut-être les as-tu supprimées entre temps ?",
 			},
 
 			changelog: {

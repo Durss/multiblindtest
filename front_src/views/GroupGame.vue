@@ -185,7 +185,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 	}
 
-	private generateAllTracksCollection():void {
+	private generateAllTracksCollection():boolean {
 		this.loading = true;
 		let playlistIds = this.room.playlists.map(p => p.id);
 		let playlists = this.$store.state.playlistsCache;
@@ -196,12 +196,18 @@ export default class GroupGame extends Vue {
 				selectedPlaylists.push(p);
 			}
 		}
+
+		if(selectedPlaylists.length == 0) {
+			this.$store.dispatch("alert", this.$t("game.noPlaylists"));
+			return false;
+		}
 		
 		this.allTracks = [];
 		for (let i = 0; i < selectedPlaylists.length; i++) {
 			const p = selectedPlaylists[i];
 			this.allTracks = this.allTracks.concat(p.tracks);
 		}
+		return true;
 	}
 
 	/**
@@ -209,7 +215,11 @@ export default class GroupGame extends Vue {
 	 */
 	public pickRandomTracks():void {
 		if(!this.allTracks || this.allTracks.length < this.room.tracksCount) {
-			this.generateAllTracksCollection();
+			if(!this.generateAllTracksCollection()) {
+				//User probably deleted the playlist s·he's trying to load tracks from
+				this.$router.push({name:"home"});
+				return;
+			}
 		}
 
 		this.allTracks = Utils.shuffle(this.allTracks);

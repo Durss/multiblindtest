@@ -25,7 +25,7 @@ export default class AlertView extends Vue {
 			this.$nextTick().then(_=> {
 				this.$el.removeAttribute("style");
 				gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-				setTimeout(_=> this.close(), 6000);
+				setTimeout(_=> this.close(), mess.length/10 * 1000);
 			});
 		}else{
 			this.$nextTick().then(_=> {
@@ -37,7 +37,7 @@ export default class AlertView extends Vue {
 	}
 
 	public close():void {
-		this.$store.state.alert = null;
+		this.$store.dispatch("alert", null);
 	}
 }
 </script>

@@ -201,14 +201,11 @@ export default class PlaylistSelector extends Vue {
 	}
 
 	/**
-	 * Called wanytime playlists changes.
+	 * Called anytime playlists changes.
 	 * Caches the playlists to the store.
 	 */
 	@Watch("playlists", {immediate: false, deep:true})
 	public onUpdatePlaylists(newValue, oldValue):void {
-		console.log("UPDATE PLAYLISTS : ignore", !oldValue)
-		// console.log(a, b)
-		// if(!oldValue) return;
 		this.$store.dispatch("playlistsCache", this.playlists);
 	}
 
