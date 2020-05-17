@@ -10,7 +10,6 @@
 				<ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" />
 			</div>
 
-			<!-- :hideForm="gameComplete || fullMe.pass" -->
 			<GameView
 				v-if="tracksToPlay && tracksToPlay.length > 0"
 				:rawTracksData="tracksToPlay"

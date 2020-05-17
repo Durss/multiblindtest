@@ -331,7 +331,7 @@ export default class GameView extends Vue {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const element = this.tracksToPlay[i];
 			if(element.id == trackId) {
-				Vue.set(element, "loadFail", true);
+				Vue.set(element, "loadFail", true);//Component will show the error
 			}
 		}
 	}
@@ -419,7 +419,7 @@ export default class GameView extends Vue {
 	}
 
 	/**
-	 * Display all answers when clicking "show answers" button
+	 * Display all answers when clicking "show answers" button (in solo mode)
 	 */
 	public showAnswers():void {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
@@ -434,7 +434,7 @@ export default class GameView extends Vue {
 	}
 
 	/**
-	 * Update URL with a shareable link to current playlist
+	 * Update URL with a shareable link to current playlist (in solo mode)
 	 */
 	public shareCurrentList():void {
 		let ids = this.tracksToPlay.map(t=>t.id);
@@ -454,14 +454,14 @@ export default class GameView extends Vue {
 
 	/**
 	 * Called when manually stopping a track.
-	 * We can stop a track after revealing all the answers manually
+	 * We can stop a track after revealing all the answers manually in solo mode
 	 */
 	public stopTrack(data:TrackData):void {
 		this.audioPlayer.stopTrack(data);
 	}
 	
 	/**
-	 * Toggle the play/pause state
+	 * Toggle the play/pause state (in solo mode)
 	 */
 	public togglePlayPause():void {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {

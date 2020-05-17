@@ -101,7 +101,7 @@ export default class PlaylistSelector extends Vue {
 		})
 		for (let i = 0; i < playlists.length; i++) {
 			const p = playlists[i];
-			if(p.tracks.length < this.minTracksPerPlaylist) {
+			if(p.tracks.length < this.minTracksPerPlaylist && !p.searchOrigin) {
 				playlists.splice(i,1);
 				i--;
 			}
@@ -118,7 +118,7 @@ export default class PlaylistSelector extends Vue {
 		})
 		for (let i = 0; i < playlists.length; i++) {
 			const p = playlists[i];
-			if(p.tracks.length >= this.minTracksPerPlaylist) {
+			if(p.tracks.length >= this.minTracksPerPlaylist || p.searchOrigin) {
 				playlists.splice(i,1);
 				i--;
 			}
@@ -204,8 +204,11 @@ export default class PlaylistSelector extends Vue {
 	 * Called wanytime playlists changes.
 	 * Caches the playlists to the store.
 	 */
-	@Watch("playlists")
-	public onUpdatePlaylists():void {
+	@Watch("playlists", {immediate: false, deep:true})
+	public onUpdatePlaylists(newValue, oldValue):void {
+		console.log("UPDATE PLAYLISTS : ignore", !oldValue)
+		// console.log(a, b)
+		// if(!oldValue) return;
 		this.$store.dispatch("playlistsCache", this.playlists);
 	}
 
