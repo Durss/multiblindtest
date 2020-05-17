@@ -133,7 +133,7 @@ export default class AutoCompleteForm extends Vue {
 						for (let j = 0; j < this.filteredItems.length; j++) {
 							if(this.filteredItems[j].id == t.id) alreadySelected = true;
 						}
-						if(alreadySelected) continue;
+						if(alreadySelected || t.tracks.total == 0) continue;
 						let playlistData:PlaylistData = {
 							id: t.id,
 							name: t.name,
