@@ -10,7 +10,7 @@
 			<span>{{$t('playlists.footer.tracksCount', {count:totalTracks})}}</span>
 		</div>
 
-		<Slider v-if="mode == 'solo'" class="slider" :label="$t('playlists.footer.difficulty')" :min="2" :max="maxTracks" v-model="tracksCount" />
+		<Slider v-if="mode == 'solo'" class="slider" :label="$t('playlists.footer.difficulty')" :min="1" :max="maxTracks" v-model="tracksCount" />
 		
 		<div class="min" v-if="totalTracks < 20">{{$t('playlists.footer.notEnough')}}</div>
 

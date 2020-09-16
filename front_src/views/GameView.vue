@@ -146,7 +146,7 @@ export default class GameView extends Vue {
 	public get tracksCountAsNum():number {
 		let v = parseInt(this.trackscounts);
 		if(isNaN(v)) v = Config.MAX_TRACK_COUNT;
-		return Math.min(Config.MAX_TRACK_COUNT, Math.max(2, v));
+		return Math.min(Config.MAX_TRACK_COUNT, Math.max(1, v));
 	}
 	
 	public mounted():void {
