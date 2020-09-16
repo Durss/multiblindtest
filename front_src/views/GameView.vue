@@ -59,9 +59,10 @@
 					@sendToChat="sendToChat"
 					@share="shareCurrentList()"
 					@showAnswers="showAnswers()"
-					@closeShare="shareUrl=''"
+					@closeshare="shareUrl=''"
 					ref="trackAnswerForm"
-					:canGuess="!complete || multiplayerMode"
+					:canGuess="canGuess"
+					:showForm="!complete || multiplayerMode"
 					:shareUrl="shareUrl"
 					:showShare="!demoMode"
 					:multiplayerMode="multiplayerMode"
@@ -129,6 +130,9 @@ export default class GameView extends Vue {
 
 	@Prop({default:false})
 	public pause:boolean;
+
+	@Prop({default:false})
+	public canGuess:boolean;
 	
 	public shareUrl:string = "";
 	public loading:boolean = false;

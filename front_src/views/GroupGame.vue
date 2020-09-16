@@ -18,6 +18,7 @@
 				:scoreHistory="room.scoreHistory"
 				:forceReveal="fullMe.pass"
 				:pause="pause"
+				:canGuess="!gaveUp"
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
@@ -99,6 +100,7 @@ export default class GroupGame extends Vue {
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
 	public pause:boolean = true;
+	public gaveUp:boolean = false;
 	public loading:boolean = true;
 	public loadingSkip:boolean = false;
 	public gameStepComplete:boolean = false;
@@ -290,6 +292,7 @@ export default class GroupGame extends Vue {
 	 */
 	private onTracksData(event:SocketEvent):void {
 		this.loading = false;
+		this.gaveUp = false;
 		this.room = event.data;
 		this.gameStepComplete = false;
 		this.tracksToPlay = this.room.currentTracks;
@@ -357,6 +360,7 @@ export default class GroupGame extends Vue {
 	 * Called when player clicks "give up" button
 	 */
 	private onGiveUp():void {
+		this.gaveUp = true;
 		Utils.confirm(this.$t('group.game.giveupConfirm.title').toString(), null, this.$t('group.game.giveupConfirm.description').toString())
 		.then(async _=> {
 			this.loadingSkip = true;

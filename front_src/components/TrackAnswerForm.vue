@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="canGuess" @keyup="onKeyUp">
+		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="showForm" @keyup="onKeyUp">
 			<label for="trackName" class="label">{{$t('game.guess')}}</label>
 			<div class="line" ref="inputLine">
 				<Button type="button" :icon="require('@/assets/icons/chat'+(anonMode? '_off' :'')+'.svg')" class="chat" @click="anonMode=!anonMode" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
@@ -23,13 +23,13 @@
 		</form>
 		
 		<div v-if="shareUrl" class="shareUrl" ref="share">
-			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeShare')" />
+			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeshare')" />
 			<p class="title">{{$t('group.lobby.share.copied')}}</p>
 			<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
 		</div>
 		
 		<div class="actions" v-if="!multiplayerMode">
-			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" :data-tooltip="$t('game.answerForm.show')" big v-if="canGuess" />
+			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" :data-tooltip="$t('game.answerForm.show')" big v-if="showForm" />
 			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" :data-tooltip="$t('game.answerForm.share')" big v-if="showShare" />
 		</div>
 	</div>
@@ -46,6 +46,9 @@ import gsap from 'gsap';
 	}
 })
 export default class TrackAnswerForm extends Vue {
+
+	@Prop({default:true})
+	public showForm:boolean;
 
 	@Prop({default:true})
 	public canGuess:boolean;
@@ -110,7 +113,10 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public onSubmitGuess(event):void {
-		this.$emit("guess", this.guess);
+		if(this.canGuess) {
+			this.$emit("guess", this.guess);
+		}
+
 		if(!this.anonMode) {
 			this.sendChatMessage();
 		}
