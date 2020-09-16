@@ -71,7 +71,6 @@ export default class GroupUserList extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .groupuserlist{
 
 	.player {

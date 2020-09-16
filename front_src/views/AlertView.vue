@@ -43,7 +43,6 @@ export default class AlertView extends Vue {
 </script>
 
 <style lang="less">
-@import (reference) '../less/_includes.less';
 .alert {
 	background-color: #c00;
 	color: #fff;

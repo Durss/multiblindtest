@@ -268,7 +268,6 @@ export default class PlaylistSelector extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .playlistselector{
 	margin: auto;
 	width: auto;

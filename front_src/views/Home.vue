@@ -65,7 +65,6 @@ export default class Home extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .home{
 	display: flex;
 	flex-direction: column;

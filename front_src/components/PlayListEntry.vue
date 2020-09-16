@@ -76,7 +76,6 @@ export default class PlayListEntry extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .playlistentry{
 	display: flex;
 	flex-direction: row;

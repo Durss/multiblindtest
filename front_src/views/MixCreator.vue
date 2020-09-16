@@ -140,7 +140,6 @@ export default class MixCreator extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .mixcreator{
 	max-width: 90%;
 	margin: auto;

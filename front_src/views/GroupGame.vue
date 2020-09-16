@@ -394,7 +394,6 @@ export default class GroupGame extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .groupgame{
 	.header {
 		margin-bottom: 30px;

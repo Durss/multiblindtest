@@ -30,7 +30,6 @@ export default class PlaylistLoading extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .playlistloading{
 	display: flex;
 	flex-direction: column;

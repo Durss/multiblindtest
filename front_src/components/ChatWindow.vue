@@ -65,7 +65,6 @@ export default class ChatWindow extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .chatwindow{
 	position: fixed;
 	bottom: 0;

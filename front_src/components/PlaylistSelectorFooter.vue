@@ -69,7 +69,6 @@ export default class PlaylistSelectorFooter extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .playlistselectorfooter{
 	padding: 15px 0;
 	color: #fff;

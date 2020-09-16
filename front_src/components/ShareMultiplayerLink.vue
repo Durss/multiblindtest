@@ -58,7 +58,6 @@ export default class ShareMultiplayerLink extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .sharemultiplayerlink{
 	margin: auto;
 	margin-top: 50px;

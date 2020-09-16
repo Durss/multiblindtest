@@ -64,7 +64,6 @@ export default class SimpleLoader extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .SimpleLoader{
 	display: flex;
 	flex-direction: column;

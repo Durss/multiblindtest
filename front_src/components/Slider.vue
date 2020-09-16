@@ -49,7 +49,6 @@ export default class Slider extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .slider{
 	.label {
 		font-family: "Futura";

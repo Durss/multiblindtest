@@ -57,7 +57,6 @@ export default class ExpertModeState extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .expertmodestate{
 	
 	background-color: @mainColor_warn;

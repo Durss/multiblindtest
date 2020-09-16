@@ -58,7 +58,6 @@ export default class CountDown extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .countdown{
 	pointer-events: none;
 	.number {

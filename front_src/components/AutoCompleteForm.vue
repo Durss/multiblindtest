@@ -246,7 +246,6 @@ export default class AutoCompleteForm extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .autocompleteform{
 	.form {
 		display: flex;

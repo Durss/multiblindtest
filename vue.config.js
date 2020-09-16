@@ -13,7 +13,7 @@ module.exports = {
 	css: {
 		loaderOptions: {
 			less: {
-				data: `@import "@/less/index.less";`
+				additionalData: `@import (reference) "@/less/index.less";@import (reference) "@/less/_includes.less";`
 			}
 		}
 	}

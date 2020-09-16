@@ -84,7 +84,6 @@ export default class IncrementForm extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .incrementform{
 	.title {
 		white-space: nowrap;

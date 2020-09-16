@@ -34,7 +34,6 @@ export default class NeedInteractionLayer extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .needinteractionlayer{
 	cursor: pointer;
 	.dimmer {

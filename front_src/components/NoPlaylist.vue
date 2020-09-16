@@ -36,7 +36,6 @@ export default class NoPlaylist extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .noplaylist{
 	background-color: @mainColor_warn;
 	padding: 20px;

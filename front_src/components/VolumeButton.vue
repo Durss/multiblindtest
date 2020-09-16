@@ -123,7 +123,6 @@ export default class VolumeButton extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .volumebutton{
 	position: fixed;
 	top: 0;

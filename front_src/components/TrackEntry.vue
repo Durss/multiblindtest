@@ -93,7 +93,6 @@ export default class TrackEntry extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .trackentry{
 	background-color: @mainColor_normal;
 	color: #fff;

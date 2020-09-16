@@ -161,7 +161,6 @@ export default class TrackAnswerForm extends Vue {
 </script>
 
 <style scoped lang="less">
-@import (reference) '../less/_includes.less';
 .trackanswerform{
 	display: flex;
 	flex-direction: column;

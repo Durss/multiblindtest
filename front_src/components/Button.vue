@@ -142,7 +142,6 @@ export default class Button extends Vue {
 </script>
 
 <style lang="less" scoped>
-@import (reference) '../less/_includes.less';
 .button {
 	position: relative;//Necessary for loader spinning absolute placement
 	display: inline-flex;
