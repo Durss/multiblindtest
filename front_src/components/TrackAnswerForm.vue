@@ -113,6 +113,7 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public onSubmitGuess(event):void {
+		console.log(this.canGuess, this.anonMode)
 		if(this.canGuess) {
 			this.$emit("guess", this.guess);
 		}
@@ -211,7 +212,7 @@ export default class TrackAnswerForm extends Vue {
 				flex-grow: 1;
 				border-radius: 0;
 				border-right-color: transparent;
-				&:focus, &:focus{
+				&:focus{
 					outline: none;
 				}
 			}

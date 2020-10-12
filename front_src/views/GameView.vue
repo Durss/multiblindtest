@@ -131,7 +131,7 @@ export default class GameView extends Vue {
 	@Prop({default:false})
 	public pause:boolean;
 
-	@Prop({default:false})
+	@Prop({default:true})
 	public canGuess:boolean;
 	
 	public shareUrl:string = "";
