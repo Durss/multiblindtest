@@ -196,7 +196,7 @@ export default class SocketServer {
 					this.sendToGroup(group, json, exclude);
 				}
 
-				if(json.action == SOCK_ACTIONS.UPDATE_HANDICAP) {
+				if(json.action == SOCK_ACTIONS.UPDATE_HANDICAP || json.action == SOCK_ACTIONS.UPDATE_USERNAME) {
 					if(this.onUpdateUser) this.onUpdateUser(json.data.user, json.data.groupId);
 				}
 
@@ -254,5 +254,6 @@ export enum SOCK_ACTIONS {
 	GUESSED_TRACK="GUESSED_TRACK",
 	PLAYER_PASS="PLAYER_PASS",
 	UPDATE_HANDICAP="UPDATE_HANDICAP",
+	UPDATE_USERNAME="UPDATE_USERNAME",
 	CHAT_MESSAGE="CHAT_MESSAGE",
 };

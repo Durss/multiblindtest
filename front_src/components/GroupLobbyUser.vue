@@ -1,7 +1,11 @@
 <template>
 	<div class="grouplobbyuser" @mouseleave="hover=false" @mouseenter="hover=true">
 		<div :class="classes" v-if="true">
-			<div class="text">{{data.name}}</div>
+			<div class="text" @click="clickName()" v-if="!editName">{{data.name}}</div>
+			<div v-if="editName" class="editForm">
+				<input type="text" v-model="data.name" @keyup.enter="submitName()">
+				<Button :icon="require('@/assets/icons/checkmark.svg')" white @click.stop="submitName()" />
+			</div>
 			<div v-if="data.handicap" class="handicap">
 				<img src="@/assets/icons/delay.svg" alt="delay">
 				<span>{{data.handicap}}s</span>
@@ -21,9 +25,11 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import UserData from '../vo/UserData';
 import IncrementForm from './IncrementForm.vue';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
+import Button from './Button.vue';
 
 @Component({
 	components:{
+		Button,
 		IncrementForm
 	}
 })
@@ -38,8 +44,8 @@ export default class GroupLobbyUser extends Vue {
 	@Prop()
 	public isHost:boolean;
 
-	public userName:string;
 	public hover:boolean = false;
+	public editName:boolean = false;
 	public handicap:number = 0;
 
 	public get classes():string[] {
@@ -53,7 +59,6 @@ export default class GroupLobbyUser extends Vue {
 	}
 
 	public mounted():void {
-		
 	}
 
 	public beforeDestroy():void {
@@ -68,6 +73,17 @@ export default class GroupLobbyUser extends Vue {
 	@Watch("hover")
 	private onHover():void {
 		this.handicap = this.data.handicap;
+	}
+
+	private clickName():void {
+		if(this.me) {
+			this.editName = true;
+		}
+	}
+
+	private submitName():void {
+		this.$emit("updateName", this.data);
+		this.editName = false;
 	}
 
 }
@@ -153,6 +169,20 @@ export default class GroupLobbyUser extends Vue {
 			span {
 				font-size: 16px;
 				color: #fff;
+			}
+		}
+
+		.editForm {
+			display: flex;
+			flex-direction: row;
+			margin: 5px;
+			input {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			button {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
 			}
 		}
 	}

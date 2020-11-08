@@ -25,8 +25,6 @@
 			>
 				<ChatWindow class="chat" />
 			</GameView>
-			
-			
 
 			<Button
 				:title="$t('group.game.giveup')"

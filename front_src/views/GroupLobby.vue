@@ -25,6 +25,7 @@
 							:me="me"
 							:isHost="u.id == room.creator"
 							@update="onUpdateUserHandicap"
+							@updateName="onUpdateUserName"
 						/>
 					</div>
 
@@ -109,6 +110,7 @@ export default class GroupLobby extends Vue {
 	public leaveHandler:any;
 	public startGameHandler:any;
 	public handicapHandler:any;
+	public updateUserNameHandler:any;
 
 	//Sort playlists by name size for a better looking list rendering
 	public get sortedPlaylists():any[] {
@@ -142,10 +144,12 @@ export default class GroupLobby extends Vue {
 		this.leaveHandler = (e) => this.onLeave(e);
 		this.startGameHandler = (e) => this.onStartGame(e);
 		this.handicapHandler = (e) => this.onHandicap(e);
+		this.updateUserNameHandler = (e) => this.onUserName(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
 		this.loadDetails();
 	}
 
@@ -155,6 +159,7 @@ export default class GroupLobby extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
 	}
 
 	/**
@@ -267,6 +272,18 @@ export default class GroupLobby extends Vue {
 	}
 
 	/**
+	 * Called when a user's name is updated
+	 */
+	public onUserName(e:SocketEvent):void {
+		for (let i = 0; i < this.room.users.length; i++) {
+			const u = this.room.users[i];
+			if(u.id == e.data.user.id) {
+				Vue.set(u, "name", e.data.user.name);
+			}
+		}
+	}
+
+	/**
 	 * Called when clicking "start" button.
 	 * It sends a socket event to all users including self
 	 * See onStartGame() method
@@ -282,6 +299,11 @@ export default class GroupLobby extends Vue {
 	public onUpdateUserHandicap(user:UserData, handicap:number):void {
 		user.handicap = handicap;
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_HANDICAP, data:{user:user, handicap:handicap, groupId:this.room.id}});
+	}
+
+	public onUpdateUserName(user:UserData):void {
+		this.$store.dispatch("setUserName", user.name);
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_USERNAME, data:{user:user, groupId:this.room.id}});
 	}
 
 }

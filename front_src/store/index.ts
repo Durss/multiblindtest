@@ -92,6 +92,11 @@ export default new Vuex.Store({
 		},
 
 		setNeedUserInteraction(state, payload) { state.needUserInteraction = payload; },
+
+		setUserName(state, payload) {
+			state.userGroupData.name = payload;
+			localStorage.setItem("userGroupData", JSON.stringify(state.userGroupData));
+		},
 		
 	},
 
@@ -175,5 +180,7 @@ export default new Vuex.Store({
 		setVolume({commit}, payload) { commit("setVolume", payload); },
 
 		setNeedUserInteraction({commit}, payload) { commit("setNeedUserInteraction", payload); },
+
+		setUserName({commit}, payload) { commit("setUserName", payload); },
 	}
 })
