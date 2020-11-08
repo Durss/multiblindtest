@@ -14,8 +14,10 @@
 						:data="track"
 						:scoreHistory="scoreHistory"
 						:forceReveal="forceReveal"
+						:canReplay="(forceReveal && multiplayerMode) || !multiplayerMode"
 						class="track"
 						ref="track"
+						@play="playTrack"
 						@stop="stopTrack"
 					/>
 				</div>
@@ -462,6 +464,13 @@ export default class GameView extends Vue {
 	 */
 	public stopTrack(data:TrackData):void {
 		this.audioPlayer.stopTrack(data);
+	}
+
+	/**
+	 * Called when manually playing a track.
+	 */
+	public playTrack(data:TrackData):void {
+		this.audioPlayer.unpauseTrack(data);
 	}
 	
 	/**

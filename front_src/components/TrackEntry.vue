@@ -18,9 +18,9 @@
 		
 		<p v-if="!reveal && !data.loadFail" class="placeholder">{{$t('game.hidden')}}</p>
 
-		<div class="stop" v-if="reveal && canStop" :data-tooltip="$t('game.stopTrack')">
-			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="$emit('stop', data)">
-			<img src="@/assets/loader/loader_border.svg" alt="song" class="icon loader" @click="onClickStop()">
+		<div class="stop" v-if="reveal && canReplay">
+			<img src="@/assets/icons/play_withBg.svg" alt="song" class="icon" @click="onClickPlay()" v-if="!playing">
+			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="onClickStop()" v-if="playing">
 		</div>
 
 		<div class="guesser" v-if="data.guessedBy">
@@ -49,8 +49,11 @@ export default class TrackEntry extends Vue {
 
 	@Prop({default:false})
 	public forceReveal:boolean;
+
+	@Prop({default:true})
+	public canReplay:boolean;
 	
-	public canStop:boolean = false;
+	public playing:boolean = false;
 
 	public get classes():string[] {
 		let res = ["trackentry"];
@@ -81,12 +84,18 @@ export default class TrackEntry extends Vue {
 	}
 
 	public allowManualStop():void {
-		this.canStop = true;
+		this.canReplay = true;
+		this.playing = true;
 	}
 
 	public onClickStop():void {
 		this.$emit('stop', this.data);
-		this.canStop = false;
+		this.playing = false;
+	}
+
+	public onClickPlay():void {
+		this.playing = true;
+		this.$emit('play', this.data);
 	}
 
 }

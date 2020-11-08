@@ -150,6 +150,13 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"11/08/2020",
+						updates: [
+							"Adding possibility to replay a track on multiplayer mode",
+							"Adding possibility to update our multiplayer's nickname",
+						]
+					},
+					{
 						date:"05/13/2020",
 						updates: [
 							"Adding a chat to multiplayer mode",
@@ -350,6 +357,13 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"08/11/2020",
+						updates: [
+							"Ajout de la possibilité de rejouer les morceaux d'une manche multijoueur",
+							"Ajout de la possiblité d'éditer notre pseudo en mode multijoueur",
+						]
+					},
 					{
 						date:"13/05/2020",
 						updates: [
