@@ -22,7 +22,7 @@
 					/>
 				</div>
 
-				<VolumeButton v-if="!complete" />
+				<VolumeButton />
 
 				<Button
 					class="complete"

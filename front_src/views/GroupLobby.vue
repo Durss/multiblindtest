@@ -32,7 +32,7 @@
 					<form @submit.prevent="onSubmit()" class="form" v-if="!me">
 						<label for="username">{{$t('group.lobby.join')}}</label>
 						<div class="row">
-							<input type="text" id="username" class="dark" v-model="userName" maxlength="50" :placeholder="$t('group.lobby.usernamePlaceholder')" v-focus>
+							<input type="text" id="username" class="dark" v-model="userName" maxlength="30" :placeholder="$t('group.lobby.usernamePlaceholder')" v-focus>
 							<Button :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
 						</div>
 					</form>
