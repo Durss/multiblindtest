@@ -122,7 +122,7 @@ export default class App extends Vue {
 			margin-right: 5px;
 		}
 		&.online {
-			&::after {
+			&::before {
 				background: green;
 			}
 		}
