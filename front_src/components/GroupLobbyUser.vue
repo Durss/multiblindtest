@@ -48,12 +48,15 @@ export default class GroupLobbyUser extends Vue {
 	public editName:boolean = false;
 	public handicap:number = 0;
 
+	public get isMe():boolean {
+		return this.me && this.data.id == this.me.id;;
+	}
+
 	public get classes():string[] {
 		let res = ["label"];
-		let isMe = this.me && this.data.id == this.me.id;
-		if(isMe) res.push("me");
-		if(this.isHost) res.push("host");
+		if(this.isMe) res.push("me");
 		if(this.data.offline) res.push("offline");
+		else if(this.isHost) res.push("host");
 		// if(this.data.offline && !isMe) res.push("offline");
 		return res;
 	}
@@ -76,7 +79,7 @@ export default class GroupLobbyUser extends Vue {
 	}
 
 	private clickName():void {
-		if(this.me) {
+		if(this.isMe) {
 			this.editName = true;
 		}
 	}
