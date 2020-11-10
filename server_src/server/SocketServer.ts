@@ -122,11 +122,14 @@ export default class SocketServer {
 			this.removeUserFromGroup(user.id, this._userIdToGroupId[user.id]);
 		}
 		
-
-		this._groupIdToUsers[groupId].push(user);
-		let users = this._groupIdToUsers[groupId];
-		for (let i = 0; i < users.length; i++) {
-			this._userIdToGroupId[users[i].id] = groupId;
+		let exists = this._groupIdToUsers[groupId].find(u => u.id == user.id );
+		console.log("USER EXISTS ? ", exists)
+		if(!exists) {
+			this._groupIdToUsers[groupId].push(user);
+			let users = this._groupIdToUsers[groupId];
+			for (let i = 0; i < users.length; i++) {
+				this._userIdToGroupId[users[i].id] = groupId;
+			}
 		}
 		// console.log(this._groupIdToUsers[groupId])
 	}
