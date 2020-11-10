@@ -3,7 +3,7 @@
 		<div :class="classes" v-if="true">
 			<div class="text" @click="clickName()" v-if="!editName">{{data.name}}</div>
 			<div v-if="editName" class="editForm">
-				<input type="text" v-model="data.name" @keyup.enter="submitName()" @keydown.esc="editName=false" maxlength="30">
+				<input type="text" v-model="data.name" @keyup.enter="submitName()" @keydown.esc="editName=false" maxlength="30" v-focus>
 				<Button :icon="require('@/assets/icons/checkmark.svg')" white @click.stop="submitName()" />
 			</div>
 			<div v-if="data.handicap" class="handicap">
