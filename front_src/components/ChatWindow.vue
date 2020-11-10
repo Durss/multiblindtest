@@ -43,7 +43,7 @@ export default class ChatWindow extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.CHAT_MESSAGE, this.messageHandler);
 	}
 
-	private  onMessage(e:SocketEvent):any {
+	private onMessage(e:SocketEvent):any {
 		this.messages.push(e.data);
 		if(this.messages.length > 100) this.messages.shift();
 		this.scrollToBottom();

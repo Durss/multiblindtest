@@ -421,7 +421,8 @@ export default class GameView extends Vue {
 	 * Called when user sends a message to the chat
 	 */
 	public sendToChat(value:string):any {
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.CHAT_MESSAGE, includeSelf:true, data:{id:uuidv4(), user:this.$store.state.userGroupData, message:value,}});
+		if(!this.multiplayerMode) return;
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.CHAT_MESSAGE, includeSelf:true, data:{id:uuidv4(), user:this.$store.state.userGroupData, message:value}});
 	}
 
 	/**

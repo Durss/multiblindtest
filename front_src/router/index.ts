@@ -1,14 +1,15 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '@/views/Home.vue'
-import OAuth from '@/views/OAuth.vue'
-import GroupGame from '@/views/GroupGame.vue';
-import GroupLobby from '@/views/GroupLobby.vue';
-import MixCreator from '@/views/MixCreator.vue';
+import Api from '@/utils/Api';
+import ChangeLog from '@/views/ChangeLog.vue';
 import DemoConfig from '@/views/DemoConfig.vue';
 import GameView from '@/views/GameView.vue';
-import ChangeLog from '@/views/ChangeLog.vue';
+import GroupGame from '@/views/GroupGame.vue';
+import GroupLobby from '@/views/GroupLobby.vue';
+import Home from '@/views/Home.vue';
+import MixCreator from '@/views/MixCreator.vue';
+import OAuth from '@/views/OAuth.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
+import Vue from 'vue';
+import VueRouter, { Route } from 'vue-router';
 
 Vue.use(VueRouter)
 
@@ -127,6 +128,25 @@ const routes = [
 			}
 		},
 		component: GroupLobby
+	},
+	{
+		path: '/group/:id/restart',
+		name: 'groupRestart',
+		props:true,
+		meta: {
+			needGroupAuth:true,
+			restartMode:true,
+			tag:{
+				path:"/group/restart",
+				title:"restart group game"
+			}
+		},
+		component: GroupLobby,
+		beforeEnter: async (to:Route, from, next) =>{
+			let roomId = to.params.id;
+			let res = await Api.post("group/restart", {roomId});
+			next();
+		},
 	},
 	{
 		path: '/group/:id/play',

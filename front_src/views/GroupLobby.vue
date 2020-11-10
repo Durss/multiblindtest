@@ -218,6 +218,10 @@ export default class GroupLobby extends Vue {
 		if(this.room) {
 			SockController.instance.groupId = this.room.id;
 		}
+
+		if(this.$route.meta.restartMode) {
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.RESTART_GROUP_GAME, data:{roomId:this.room.id}})
+		}
 	}
 
 	/**

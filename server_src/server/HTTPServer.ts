@@ -168,8 +168,22 @@ export default class HTTPServer {
 		 * Updates an existing
 		 */
 		this.app.post("/api/group/update", (req, res) => {
-			let room = req.body.room
+			let room = req.body.room;
 			this._rooms[room.id] = room;
+			res.status(200).send(JSON.stringify({success:true, room}));
+		});
+
+		/**
+		 * Resets an existing group
+		 */
+		this.app.post("/api/group/restart", (req, res) => {
+			let roomId = req.body.roomId;
+			let room = this._rooms[roomId];
+			if(room) {
+				room.gameStepIndex = 0;
+				room.scoreHistory = [];
+				room.currentTracks = null;
+			}
 			res.status(200).send(JSON.stringify({success:true, room}));
 		});
 		

@@ -316,10 +316,10 @@ export default class Labels {
 				},
 				game: {
 					index:"Manche {index}/{total}",
-					next:"Partie suivante",
+					next:"Manche suivante",
 					new:"Nouvelle partie",
 					complete:"Partie terminée",
-					wait:"Attends que <strong>{hostName}</strong> lance la partie suivante",
+					wait:"Attends que <strong>{hostName}</strong> lance la manche suivante",
 					giveup:"Passer mon tour",
 					gaveup:"A passé",
 					rank:"Classement",

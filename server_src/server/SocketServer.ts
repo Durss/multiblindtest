@@ -117,8 +117,8 @@ export default class SocketServer {
 			this._groupIdToUsers[groupId] = [];
 		}
 
-		if(this._userIdToGroupId[user.id]) {
-			//if user still on another group, remove it
+		if(this._userIdToGroupId[user.id] != groupId) {
+			//if user still on another group, remove it from taht group
 			this.removeUserFromGroup(user.id, this._userIdToGroupId[user.id]);
 		}
 		
@@ -169,7 +169,7 @@ export default class SocketServer {
 				//Don't care, just sent to check if connection's style alive
 				return;
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
-				Logger.warn("Register ", json.data.name);
+				Logger.warn("Sock Register", json.data.name);
 				//Associate socket connection to user
 				this._uidToConnection[json.data.id] = conn;
 				this._connectionToUid[conn.id] = json.data.id;

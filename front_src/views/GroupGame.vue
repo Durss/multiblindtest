@@ -41,7 +41,8 @@
 				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
 				<div v-if="isHost" class="content">
 					<Button class="button next" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
-					<Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight />
+					<!-- <Button class="button" :title="$t('group.game.new')" :to="{name:'playlists', params:{mode:'multi'}}" v-if="gameComplete" highlight /> -->
+					<Button class="button" :title="$t('group.game.new')" :to="{name:'groupRestart', params:{id:id}}" v-if="gameComplete" highlight />
 					<Button class="button" :title="$t('global.quit')" :to="{name:'home'}" v-if="gameComplete" highlight />
 				</div>
 				<div v-if="!isHost && !gameComplete" class="wait">
@@ -109,6 +110,7 @@ export default class GroupGame extends Vue {
 	public playerSkipHandler:any;
 	public guessedTrackHandler:any;
 	public playerJoinLeftHandler:any;
+	public restartGameHandler:any;
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
@@ -151,11 +153,13 @@ export default class GroupGame extends Vue {
 		this.guessedTrackHandler = (e) => this.onGuessedTrack(e);
 		this.playerSkipHandler = (e) => this.onPlayerPass(e);
 		this.playerJoinLeftHandler = (e) => this.onPlayerJoinLeft(e);
+		this.restartGameHandler = (e) => this.onRestartGame(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerSkipHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
 		this.me = this.$store.state.userGroupData;
 		
 		if(!this.me) {
@@ -183,6 +187,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerSkipHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
 	}
 
 	private generateAllTracksCollection():boolean {
@@ -344,6 +349,15 @@ export default class GroupGame extends Vue {
 	}
 
 	/**
+	 * Called when a player joins/leaves the room
+	 */
+	public onRestartGame(e:SocketEvent):void {
+		console.log("RESTART GAME");
+		this.$router.push({name:"group", params:{id:e.data.roomId}})
+	}
+	
+
+	/**
 	 * Check if game is complete
 	 */
 	private checkComplete():void {
@@ -368,6 +382,10 @@ export default class GroupGame extends Vue {
 				this.$store.dispatch("alert", error.message);
 			}
 			this.loadingSkip = false;
+			for (let i = 0; i < this.tracksToPlay.length; i++) {
+				const t = this.tracksToPlay[i];
+				t.enabled = true;
+			}
 		}).catch(_=>{/*don't care*/});
 	}
 
