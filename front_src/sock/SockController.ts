@@ -166,8 +166,7 @@ export default class SockController extends EventDispatcher {
 		if(this._enabled) {
 			// Attempt to reconnect
 			if(++this._attempts == 20) return;
-			this.connect();
-			this._timeout = <any>setTimeout(_=> this.connect(), 500 * Math.pow(this._attempts,2));
+			this._timeout = <any>setTimeout(_=> this.connect(), 500);
 		}
 	}
 
@@ -175,14 +174,12 @@ export default class SockController extends EventDispatcher {
 		let json:any = JSON.parse(message.data);
 		// console.log("Sock message");
 		// console.log(json);
-
 		if(json.action == SOCK_ACTIONS.V) {
 			if(this._version != null && json.data != this._version) {
 				this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.SERVER_REBOOT, {}));
 			}
 			this._version = json.data;
 		}
-		
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }

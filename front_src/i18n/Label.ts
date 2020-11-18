@@ -158,6 +158,12 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"11/18/2020",
+						updates: [
+							"Adding possibility to kick a player out of the game",
+						]
+					},
+					{
 						date:"11/08/2020",
 						updates: [
 							"Adding possibility to replay a track on multiplayer mode",
@@ -373,6 +379,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"18/11/2020",
+						updates: [
+							"Ajout de la possibilité de kicker un joueur de la partie",
+						]
+					},
 					{
 						date:"08/11/2020",
 						updates: [
