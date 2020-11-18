@@ -4,7 +4,7 @@ import Logger, { LogStyle } from "../utils/Logger";
 import UserData from "../vo/UserData";
 import Config from "../utils/Config";
 /**
- * Created by FDursus on 28/03/2019
+ * Created by Durss on 28/03/2019
  */
 
 export default class SocketServer {

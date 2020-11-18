@@ -6,7 +6,7 @@ import Config from "../utils/Config";
 import SocketEvent from "../vo/SocketEvent";
 
 /**
- * Created by FDursus on 28/03/2019
+ * Created by Durss on 28/03/2019
  */
 
 export default class SockController extends EventDispatcher {

@@ -1,5 +1,5 @@
 /**
- * Created by fdursus
+ * Created by Durss
  */
 export default class InfiniteList {
 	

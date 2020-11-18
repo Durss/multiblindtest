@@ -1,6 +1,6 @@
 import * as os from "os";
 /**
- * Created by François
+ * Created by Durss
  */
 export default class Utils  {
 
