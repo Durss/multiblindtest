@@ -84,6 +84,7 @@ export default class GroupUserList extends Vue {
 
 <style scoped lang="less">
 .groupuserlist{
+	padding-top: 0 !important;
 
 	.player {
 		display: flex;
@@ -91,6 +92,8 @@ export default class GroupUserList extends Vue {
 		align-items: center;
 		position: relative;
 		overflow: hidden;
+		padding-bottom: 10px;
+		padding-top: 10px;
 
 		&:not(:last-child) {
 			padding-bottom: 10px;
@@ -104,11 +107,6 @@ export default class GroupUserList extends Vue {
 				display: block;
 				border-bottom: 1px solid @mainColor_normal;
 			}
-		}
-
-		&:not(:first-child) {
-			padding-bottom: 10px;
-			padding-top: 10px;
 		}
 
 		&.me {
