@@ -9,6 +9,7 @@ export default class Labels {
 				online:"connected",
 				offline:"not connected",
 				noResult:"No result",
+				back:"Back",
 				playback:"Click anywhere to enable audio playback",
 			},
 			oAuth: {
@@ -114,6 +115,7 @@ export default class Labels {
 					giveup:"I pass",
 					gaveup:"Passed",
 					rank:"Scores",
+					kicked:"You have been kicked out of the game",
 					giveupConfirm: {
 						title: "Give up ?",
 						description: "If majority of the players give up, this game will be over and answers will be displayed.",
@@ -221,6 +223,7 @@ export default class Labels {
 				online:"connecté",
 				offline:"déconnecté",
 				noResult:"Aucun résultat",
+				back:"Retour",
 				playback:"Clique n'importe où pour autoriser la lecture",
 			},
 			oAuth: {
@@ -230,7 +233,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Pour un mal de crâne garanti -",
-				head : "C'est comme jouer à plusieurs blindtests en simultané.<br />Insupportable",
+				head : "Joue jusqu'à 6 blindtests en simultané et anéantis ton cerveau !",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Partie solo",
@@ -323,6 +326,7 @@ export default class Labels {
 					giveup:"Passer mon tour",
 					gaveup:"A passé",
 					rank:"Classement",
+					kicked:"Tu as été kické hors de la partie",
 					giveupConfirm: {
 						title: "Passer ton tour ?",
 						description: "Si la majorité des joueurs passent, la manche sera terminée et les réponses affichées.",

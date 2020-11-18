@@ -4,6 +4,7 @@ import SpotifyAPI from '@/utils/SpotifyAPI';
 import StatsManager from '@/utils/StatsManager';
 import SockController from '@/sock/SockController';
 import Labels from '@/i18n/Label';
+import RoomData from '@/vo/RoomData';
 
 Vue.use(Vuex)
 
@@ -97,7 +98,7 @@ export default new Vuex.Store({
 			state.userGroupData.name = payload;
 			localStorage.setItem("userGroupData", JSON.stringify(state.userGroupData));
 		},
-		
+
 	},
 
 

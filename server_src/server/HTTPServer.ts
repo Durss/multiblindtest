@@ -329,6 +329,29 @@ export default class HTTPServer {
 			res.status(200).send(JSON.stringify({success:true, room, pass}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.PLAYER_PASS, data:{room, pass}});
 		});
+
+		/**
+		 * Called to kick a user out of the game
+		 */
+		this.app.post("/api/group/kick", (req, res) => {
+			let roomId = req.body.roomId;
+			let userId = req.body.userId;
+			let room = this._rooms[roomId];
+			if(!room) {
+				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+
+			console.log("Kick", userId)
+			for (let i = 0; i < room.users.length; i++) {
+				const u = room.users[i];
+				if(u.id == userId) {
+					room.users.splice(i, 1);
+				}
+			}
+			res.status(200).send(JSON.stringify({success:true, room}));
+			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.PLAYER_KICKED, data:{room, userId}});
+		});
 	}
 
 

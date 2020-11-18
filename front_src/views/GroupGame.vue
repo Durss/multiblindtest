@@ -2,7 +2,7 @@
 	<div class="groupgame">
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
-		<div v-if="room && fullMe && !loading && tracksToPlay">
+		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked">
 			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" :seconds="4 + me.handicap" />
 
 			<div class="header">
@@ -16,7 +16,7 @@
 				:trackscounts="tracksToPlay.length"
 				:expertMode="room.expertMode"
 				:scoreHistory="room.scoreHistory"
-				:forceReveal="fullMe.pass"
+				:forceReveal="fullMe.pass || gameStepComplete"
 				:pause="pause"
 				:canGuess="!gaveUp"
 				@guessed="onTrackFound"
@@ -56,8 +56,13 @@
 
 			<div class="players">
 				<h2>{{$t('group.game.rank')}}</h2>
-				<GroupUserList class="content" :room="room" :users="users" :me="me" :gameComplete="gameComplete" />
+				<GroupUserList class="content" :room="room" :users="users" :me="me" :gameComplete="gameComplete" @kick="onKickUser" />
 			</div>
+		</div>
+
+		<div v-if="kicked" class="kicked">
+			<div>{{$t('group.game.kicked')}}</div>
+			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
 		</div>
 	</div>
 </template>
@@ -99,6 +104,7 @@ export default class GroupGame extends Vue {
 	public tracksToPlay:TrackData[] = [];
 	public room:RoomData = null;
 	public pause:boolean = true;
+	public kicked:boolean = false;
 	public gaveUp:boolean = false;
 	public loading:boolean = true;
 	public loadingSkip:boolean = false;
@@ -111,6 +117,7 @@ export default class GroupGame extends Vue {
 	public guessedTrackHandler:any;
 	public playerJoinLeftHandler:any;
 	public restartGameHandler:any;
+	public userKickedHandler:any;
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
@@ -154,12 +161,14 @@ export default class GroupGame extends Vue {
 		this.playerSkipHandler = (e) => this.onPlayerPass(e);
 		this.playerJoinLeftHandler = (e) => this.onPlayerJoinLeft(e);
 		this.restartGameHandler = (e) => this.onRestartGame(e);
+		this.userKickedHandler = (e) => this.onUserKicked(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerSkipHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_KICKED, this.userKickedHandler);
 		this.me = this.$store.state.userGroupData;
 		
 		if(!this.me) {
@@ -188,6 +197,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_KICKED, this.userKickedHandler);
 	}
 
 	private generateAllTracksCollection():boolean {
@@ -352,8 +362,20 @@ export default class GroupGame extends Vue {
 	 * Called when a player joins/leaves the room
 	 */
 	public onRestartGame(e:SocketEvent):void {
-		console.log("RESTART GAME");
 		this.$router.push({name:"group", params:{id:e.data.roomId}})
+	}
+
+	/**
+	 * Called when a user has been kicked
+	 */
+	public onUserKicked(e:SocketEvent):void {
+		console.log("USER KICKED !");
+		console.log(e.data.room);
+		if(e.data.userId == this.me.id) {
+			this.kicked = true;
+		}
+		this.room = e.data.room;
+		this.$store.dispatch("setGroupRoomData", e.data.room);
 	}
 	
 
@@ -389,6 +411,9 @@ export default class GroupGame extends Vue {
 		}).catch(_=>{/*don't care*/});
 	}
 
+	/**
+	 * Called when a users skips
+	 */
 	private onPlayerPass(e:SocketEvent):void {
 		let room:RoomData = e.data.room;
 		let majorityPassed:Boolean = e.data.pass;
@@ -408,6 +433,14 @@ export default class GroupGame extends Vue {
 				t.enabled = true;
 			}
 		}
+	}
+
+	/**
+	 * Called when clicking kick button on a user
+	 */
+	private async onKickUser(user:UserData):Promise<void> {
+		console.log("ok")
+		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
 	}
 
 }
@@ -490,6 +523,22 @@ export default class GroupGame extends Vue {
 			.button:not(.next) {
 				margin-top: 10px;
 			}
+		}
+	}
+
+	.kicked {
+		.center();
+		position: absolute;
+		color: #FFFFFF;
+		background-color: @mainColor_warn;
+		padding: 20px;
+		border-radius: 20px;
+		text-align: center;
+		font-size: 24px;
+		font-family: "Futura";
+
+		.back {
+			margin-top: 10px;
 		}
 	}
 }

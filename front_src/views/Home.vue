@@ -1,7 +1,7 @@
 <template>
 	<div class="home">
 		<div class="holder">
-			<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
+			<img src="@/assets/icons/home_logo.svg" class="logo">
 
 			<div class="head">
 				<h1>{{$t('home.title')}}</h1>

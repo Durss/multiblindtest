@@ -123,7 +123,6 @@ export default class SocketServer {
 		}
 		
 		let exists = this._groupIdToUsers[groupId].find(u => u.id == user.id );
-		console.log("USER EXISTS ? ", exists)
 		if(!exists) {
 			this._groupIdToUsers[groupId].push(user);
 			let users = this._groupIdToUsers[groupId];
@@ -256,6 +255,7 @@ export enum SOCK_ACTIONS {
 	TRACKS_DATA="TRACKS_DATA",
 	GUESSED_TRACK="GUESSED_TRACK",
 	PLAYER_PASS="PLAYER_PASS",
+	PLAYER_KICKED="PLAYER_KICKED",
 	UPDATE_HANDICAP="UPDATE_HANDICAP",
 	UPDATE_USERNAME="UPDATE_USERNAME",
 	CHAT_MESSAGE="CHAT_MESSAGE",

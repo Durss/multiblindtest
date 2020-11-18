@@ -12,16 +12,21 @@
 					<div class="fill" :style="userScorePercentStyles(u)"></div>
 				</div>
 			</div>
+			<Button :icon="require('@/assets/icons/kick.svg')" class="kick" highlight @click="onClickKick(u)" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import Utils from '@/utils/Utils';
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import UserData from '../vo/UserData';
+import Button from './Button.vue';
 
 @Component({
-	components:{}
+	components:{
+		Button,
+	}
 })
 export default class GroupUserList extends Vue {
 
@@ -67,6 +72,13 @@ export default class GroupUserList extends Vue {
 		}
 	}
 
+	/**
+	 * Called when clicking Kick button
+	 */
+	public onClickKick(u:UserData):void {
+		this.$emit("kick", u);
+	}
+
 }
 </script>
 
@@ -77,14 +89,33 @@ export default class GroupUserList extends Vue {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		position: relative;
+		overflow: hidden;
 
 		&:not(:last-child) {
-			margin-bottom: 10px;
 			padding-bottom: 10px;
-			border-bottom: 1px solid @mainColor_normal;
+			&::after {
+				content: "";
+				display: block;
+				width: 100%;
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				display: block;
+				border-bottom: 1px solid @mainColor_normal;
+			}
 		}
+
+		&:not(:first-child) {
+			padding-bottom: 10px;
+			padding-top: 10px;
+		}
+
 		&.me {
 			font-family: "Futura";
+			.kick {
+				display: none;
+			}
 		}
 
 		&.offline {
@@ -140,6 +171,28 @@ export default class GroupUserList extends Vue {
 			}
 			.content {
 				opacity: .25;
+			}
+		}
+
+		&:hover {
+			.kick {
+				right: 0;
+			}
+		}
+
+		.kick {
+			position: absolute;
+			right: -50px;
+			z-index: 1;
+			padding: 5px;
+			width: 40px;
+			height: 40px;
+			transition: right .24s;
+			/deep/ .icon {
+				width: 100%;
+				height: 100%;
+				max-width: 100%;
+				max-height: 100%;
 			}
 		}
 
