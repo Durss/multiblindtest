@@ -2,7 +2,7 @@
 	<div class="groupgame">
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
-		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked && !serverReboot">
+		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked && !serverReboot && !notEnoughPlayers">
 			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" :seconds="4 + me.handicap" />
 
 			<div class="header">
@@ -69,6 +69,11 @@
 			<div v-html="$t('group.game.serverReboot')"></div>
 			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
 		</div>
+
+		<div v-if="notEnoughPlayers" class="serverReboot">
+			<div v-html="$t('group.game.notEnoughPlayers')"></div>
+			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
+		</div>
 	</div>
 </template>
 
@@ -115,6 +120,7 @@ export default class GroupGame extends Vue {
 	public serverReboot:boolean = false;
 	public loadingSkip:boolean = false;
 	public gameStepComplete:boolean = false;
+	public notEnoughPlayers:boolean = false;
 	public me:UserData = null;
 	public allTracks:TrackData[] = null;
 
@@ -381,8 +387,16 @@ export default class GroupGame extends Vue {
 	public onUserKicked(e:SocketEvent):void {
 		if(e.data.userId == this.me.id) {
 			this.kicked = true;
+			//Stop all tracks
+			for (let i = 0; i < this.tracksToPlay.length; i++) {
+				const t = this.tracksToPlay[i];
+				t.enabled = true;
+			}
 		}
 		this.room = e.data.room;
+		if(this.room.users.length < 2) {
+			this.notEnoughPlayers = true;
+		}
 		this.$store.dispatch("setGroupRoomData", e.data.room);
 	}
 
@@ -458,11 +472,6 @@ export default class GroupGame extends Vue {
 	 * Called when clicking kick button on a user
 	 */
 	private async onKickUser(user:UserData):Promise<void> {
-		//Stop all tracks
-		for (let i = 0; i < this.tracksToPlay.length; i++) {
-			const t = this.tracksToPlay[i];
-			t.enabled = true;
-		}
 		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
 	}
 

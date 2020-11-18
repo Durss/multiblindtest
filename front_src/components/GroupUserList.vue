@@ -76,7 +76,11 @@ export default class GroupUserList extends Vue {
 	 * Called when clicking Kick button
 	 */
 	public onClickKick(u:UserData):void {
-		this.$emit("kick", u);
+		
+		Utils.confirm(this.$t('group.game.kickConfirm.title').toString(), null, this.$t('group.game.kickConfirm.description').toString())
+		.then( _=> {
+			this.$emit("kick", u);
+		}).catch(_=>{/*don't care*/});
 	}
 
 }

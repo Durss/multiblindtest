@@ -347,6 +347,10 @@ export default class HTTPServer {
 				const u = room.users[i];
 				if(u.id == userId) {
 					room.users.splice(i, 1);
+					if(u.id == room.creator && room.users.length > 0) {
+						//define new host
+						room.creator = room.users[0].id;
+					}
 				}
 			}
 			res.status(200).send(JSON.stringify({success:true, room}));

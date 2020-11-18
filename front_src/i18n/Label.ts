@@ -116,6 +116,11 @@ export default class Labels {
 					gaveup:"Passed",
 					rank:"Scores",
 					kicked:"You have been kicked out of the game",
+					kickConfirm:{
+						title:"Kick user?",
+						description:"Do you really want to kick this player out of the game?",
+					},
+					notEnoughPlayers:"There is not enough users left on this game :(",
 					serverReboot:"Oopsie 😬<br />The serveur just rebooted, hence, your game went to the Multi Blindtest paradise prematurely...<br />✝ RIP ✝",
 					giveupConfirm: {
 						title: "Give up ?",
@@ -327,7 +332,12 @@ export default class Labels {
 					giveup:"Passer mon tour",
 					gaveup:"A passé",
 					rank:"Classement",
-					kicked:"Tu as été kické hors de la partie",
+					kicked:"Tu as été kické de la partie",
+					kickConfirm:{
+						title:"Kick ?",
+						description:"Veux-tu éjecter cette personne de la partie ?",
+					},
+					notEnoughPlayers:"Il n'y a plus assez de joueur·se dans la partie :(",
 					serverReboot:"Oups 😬<br />Le serveur vient de redémarrer du coup la partie en cours a rejoint le paradis des Multi Blindtest prématurément...<br />✝ RIP ✝",
 					giveupConfirm: {
 						title: "Passer ton tour ?",
