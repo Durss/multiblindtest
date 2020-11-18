@@ -12,7 +12,7 @@
 					<div class="fill" :style="userScorePercentStyles(u)"></div>
 				</div>
 			</div>
-			<Button :icon="require('@/assets/icons/kick.svg')" class="kick" highlight @click="onClickKick(u)" />
+			<Button :icon="require('@/assets/icons/kick.svg')" class="kick" highlight @click="onClickKick(u)" v-if="canKick && u.id != me.id" />
 		</div>
 	</div>
 </template>
@@ -41,6 +41,8 @@ export default class GroupUserList extends Vue {
 
 	@Prop()
 	public gameComplete;
+
+	public get canKick():boolean { return this.me.id == this.room.creator; }
 
 	public userClasses(u:UserData):string[] {
 		let res = ["player"];
@@ -76,7 +78,6 @@ export default class GroupUserList extends Vue {
 	 * Called when clicking Kick button
 	 */
 	public onClickKick(u:UserData):void {
-		
 		Utils.confirm(this.$t('group.game.kickConfirm.title').toString(), null, this.$t('group.game.kickConfirm.description').toString())
 		.then( _=> {
 			this.$emit("kick", u);
@@ -115,9 +116,6 @@ export default class GroupUserList extends Vue {
 
 		&.me {
 			font-family: "Futura";
-			.kick {
-				display: none;
-			}
 		}
 
 		&.offline {
