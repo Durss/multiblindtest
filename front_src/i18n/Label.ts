@@ -116,6 +116,7 @@ export default class Labels {
 					gaveup:"Passed",
 					rank:"Scores",
 					kicked:"You have been kicked out of the game",
+					serverReboot:"Oopsie 😬<br />The serveur just rebooted, hence, your game went to the Multi Blindtest paradise prematurely...<br />✝ RIP ✝",
 					giveupConfirm: {
 						title: "Give up ?",
 						description: "If majority of the players give up, this game will be over and answers will be displayed.",
@@ -327,6 +328,7 @@ export default class Labels {
 					gaveup:"A passé",
 					rank:"Classement",
 					kicked:"Tu as été kické hors de la partie",
+					serverReboot:"Oups 😬<br />Le serveur vient de redémarrer du coup la partie en cours a rejoint le paradis des Multi Blindtest prématurément...<br />✝ RIP ✝",
 					giveupConfirm: {
 						title: "Passer ton tour ?",
 						description: "Si la majorité des joueurs passent, la manche sera terminée et les réponses affichées.",

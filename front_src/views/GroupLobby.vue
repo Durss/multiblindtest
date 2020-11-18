@@ -5,7 +5,7 @@
 			class="loader"
 			big />
 
-		<div v-if="!loading" class="holder">
+		<div v-if="!loading && !serverReboot" class="holder">
 			<div class="playlists header">
 				<h1>{{$t('group.lobby.title')}}</h1>
 				<div v-for="p in sortedPlaylists" :key="p.id" class="playlist">
@@ -64,6 +64,11 @@
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
 		</div>
+
+		<div v-if="serverReboot" class="serverReboot">
+			<div v-html="$t('group.game.serverReboot')"></div>
+			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
+		</div>
 	</div>
 </template>
 
@@ -103,6 +108,7 @@ export default class GroupLobby extends Vue {
 	public showCopied:boolean = false;
 	public loading:boolean = true;
 	public joining:boolean = false;
+	public serverReboot:boolean = false;
 	public room:RoomData = null;
 	public userName:string = "";
 
@@ -111,6 +117,7 @@ export default class GroupLobby extends Vue {
 	public startGameHandler:any;
 	public handicapHandler:any;
 	public updateUserNameHandler:any;
+	public serverRebootHandler:any;
 
 	//Sort playlists by name size for a better looking list rendering
 	public get sortedPlaylists():any[] {
@@ -145,11 +152,13 @@ export default class GroupLobby extends Vue {
 		this.startGameHandler = (e) => this.onStartGame(e);
 		this.handicapHandler = (e) => this.onHandicap(e);
 		this.updateUserNameHandler = (e) => this.onUserName(e);
+		this.serverRebootHandler = (e) => this.onServerReboot(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
 		this.loadDetails();
 	}
 
@@ -160,6 +169,7 @@ export default class GroupLobby extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
 	}
 
 	/**
@@ -300,14 +310,27 @@ export default class GroupLobby extends Vue {
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
 	}
 
+	/**
+	 * Handicap of a user updated
+	 */
 	public onUpdateUserHandicap(user:UserData, handicap:number):void {
 		user.handicap = handicap;
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_HANDICAP, data:{user:user, handicap:handicap, groupId:this.room.id}});
 	}
 
+	/**
+	 * Called when a user updates her/his nickname
+	 */
 	public onUpdateUserName(user:UserData):void {
 		this.$store.dispatch("setUserName", user.name);
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_USERNAME, data:{user:user, groupId:this.room.id}});
+	}
+
+	/**
+	 * Called when server has reboot
+	 */
+	public onServerReboot(e:SocketEvent):void {
+		this.serverReboot = true;
 	}
 
 }
@@ -432,6 +455,22 @@ export default class GroupLobby extends Vue {
 			.increment:not(:last-child) {
 				margin-bottom: 20px;
 			}
+		}
+	}
+	
+	.serverReboot {
+		.center();
+		position: absolute;
+		color: #FFFFFF;
+		background-color: @mainColor_warn;
+		padding: 20px;
+		border-radius: 20px;
+		text-align: center;
+		font-size: 24px;
+		font-family: "Futura";
+
+		.back {
+			margin-top: 10px;
 		}
 	}
 }

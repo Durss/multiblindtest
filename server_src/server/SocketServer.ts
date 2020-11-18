@@ -3,6 +3,8 @@ import {Connection, ServerOptions} from "sockjs";
 import Logger, { LogStyle } from "../utils/Logger";
 import UserData from "../vo/UserData";
 import Config from "../utils/Config";
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Created by Durss on 28/03/2019
  */
@@ -16,6 +18,7 @@ export default class SocketServer {
 	private static _instance: SocketServer;
 	private _DISABLED: boolean = false;
 	private _sockjs: any;
+	private _version:string;
 	private _connections:Connection[];
 	private _connectionToUid:{ [id: string] : string; };
 	private _uidToConnection:{ [id: string] : Connection; };
@@ -155,6 +158,7 @@ export default class SocketServer {
 	 */
 	private initialize(): void {
 		if(this._DISABLED) return;
+		this._version = uuidv4()
 		this._connections = [];
 		this._uidToConnection = {};
 		this._connectionToUid = {};
@@ -164,12 +168,17 @@ export default class SocketServer {
 		if(this._DISABLED) return;
 		this._connections.push(conn);
 
+		//Allows to warn current users that the server rebooted
+		conn.write(JSON.stringify({action:SOCK_ACTIONS.V, data:this._version}));
+		
 		// Logger.info("Socket connexion opened : "+LogStyle.Reset+conn.id);
 		conn.on("data", (message) => {
 			let json:{action:string, data:any, includeSelf?:boolean, from?:string} = JSON.parse(message);
 			if(json.action == SOCK_ACTIONS.PING) {
 				//Don't care, just sent to check if connection's style alive
 				return;
+
+
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
 				Logger.warn("Sock Register", json.data.name);
 				//Associate socket connection to user
@@ -247,6 +256,7 @@ export default class SocketServer {
 }
 
 export enum SOCK_ACTIONS {
+	V="V",
 	PING="PING",
 	DEFINE_UID="DEFINE_UID",
 	JOIN_ROOM="JOIN_ROOM",

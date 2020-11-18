@@ -2,7 +2,7 @@
 	<div class="groupgame">
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
-		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked">
+		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked && !serverReboot">
 			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" :seconds="4 + me.handicap" />
 
 			<div class="header">
@@ -64,6 +64,11 @@
 			<div>{{$t('group.game.kicked')}}</div>
 			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
 		</div>
+
+		<div v-if="serverReboot" class="serverReboot">
+			<div v-html="$t('group.game.serverReboot')"></div>
+			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
+		</div>
 	</div>
 </template>
 
@@ -107,6 +112,7 @@ export default class GroupGame extends Vue {
 	public kicked:boolean = false;
 	public gaveUp:boolean = false;
 	public loading:boolean = true;
+	public serverReboot:boolean = false;
 	public loadingSkip:boolean = false;
 	public gameStepComplete:boolean = false;
 	public me:UserData = null;
@@ -118,6 +124,7 @@ export default class GroupGame extends Vue {
 	public playerJoinLeftHandler:any;
 	public restartGameHandler:any;
 	public userKickedHandler:any;
+	public serverRebootHandler:any;
 
 	public get isHost():boolean { return this.me.id == this.room.creator; }
 
@@ -162,6 +169,7 @@ export default class GroupGame extends Vue {
 		this.playerJoinLeftHandler = (e) => this.onPlayerJoinLeft(e);
 		this.restartGameHandler = (e) => this.onRestartGame(e);
 		this.userKickedHandler = (e) => this.onUserKicked(e);
+		this.serverRebootHandler = (e) => this.onServerReboot(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerSkipHandler);
@@ -169,6 +177,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
 		SockController.instance.addEventListener(SOCK_ACTIONS.PLAYER_KICKED, this.userKickedHandler);
+		SockController.instance.addEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
 		this.me = this.$store.state.userGroupData;
 		
 		if(!this.me) {
@@ -198,6 +207,7 @@ export default class GroupGame extends Vue {
 		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.playerJoinLeftHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.RESTART_GROUP_GAME, this.restartGameHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_KICKED, this.userKickedHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
 	}
 
 	private generateAllTracksCollection():boolean {
@@ -369,15 +379,24 @@ export default class GroupGame extends Vue {
 	 * Called when a user has been kicked
 	 */
 	public onUserKicked(e:SocketEvent):void {
-		console.log("USER KICKED !");
-		console.log(e.data.room);
 		if(e.data.userId == this.me.id) {
 			this.kicked = true;
 		}
 		this.room = e.data.room;
 		this.$store.dispatch("setGroupRoomData", e.data.room);
 	}
-	
+
+	/**
+	 * Called when server has reboot
+	 */
+	public onServerReboot(e:SocketEvent):void {
+		this.serverReboot = true;
+		//Stop all tracks
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			t.enabled = true;
+		}
+	}
 
 	/**
 	 * Check if game is complete
@@ -439,7 +458,11 @@ export default class GroupGame extends Vue {
 	 * Called when clicking kick button on a user
 	 */
 	private async onKickUser(user:UserData):Promise<void> {
-		console.log("ok")
+		//Stop all tracks
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			t.enabled = true;
+		}
 		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
 	}
 
@@ -526,7 +549,7 @@ export default class GroupGame extends Vue {
 		}
 	}
 
-	.kicked {
+	.kicked, .serverReboot {
 		.center();
 		position: absolute;
 		color: #FFFFFF;

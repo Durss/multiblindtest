@@ -19,6 +19,7 @@ export default class SockController extends EventDispatcher {
 	private _pingInterval: number;
 	private _attempts: number;
 	private _groupID : string;
+	private _version : string;
 	private _connected : boolean = false;
 	private _enabled : boolean = false;
 	private _verbose : boolean = false;
@@ -174,11 +175,21 @@ export default class SockController extends EventDispatcher {
 		let json:any = JSON.parse(message.data);
 		// console.log("Sock message");
 		// console.log(json);
+
+		if(json.action == SOCK_ACTIONS.V) {
+			if(this._version != null && json.data != this._version) {
+				this.dispatchEvent(new SocketEvent(SOCK_ACTIONS.SERVER_REBOOT, {}));
+			}
+			this._version = json.data;
+		}
+		
 		this.dispatchEvent(new SocketEvent(json.action, json.data));
 	}
 }
 
 export enum SOCK_ACTIONS {
+	V="V",
+	SERVER_REBOOT="SERVER_REBOOT",
 	ONLINE="ONLINE",
 	OFFLINE="OFFLINE",
 	PING="PING",
