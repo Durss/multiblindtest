@@ -24,6 +24,7 @@
     "vuex": "^3.5.1"
   },
   "devDependencies": {
+    "@types/sockjs": "^0.3.32",
     "@types/universal-analytics": "^0.4.4",
     "@vue/cli-plugin-router": "^4.5.6",
     "@vue/cli-plugin-typescript": "^4.5.6",
