@@ -107,8 +107,8 @@ export default class HTTPServer {
 		
 		this.createEndpoints();
 		
-		let publicFolder = Config.PUBLIC_PATH;
-		this.app.use(Config.SERVER_NAME+"/", express.static(publicFolder));//static files
+		let staticHandler:any = express.static( Config.PUBLIC_PATH );
+		this.app.use(Config.SERVER_NAME+"/", staticHandler);//static files
 		
 		this.app.use((error : any, request : Request, result : Response, next : NextFunction) => {
 			this.errorHandler(error , request, result, next)
