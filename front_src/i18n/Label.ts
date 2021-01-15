@@ -105,6 +105,12 @@ export default class Labels {
 						send: "Send this link :",
 						copy: "Copy",
 					},
+					twitch: {
+						title: "Play from Twitch :",
+						copied: "code copied to clipboard",
+						send: "Tell your users to type this command on chat to join the game :",
+						copy: "Copy",
+					},
 				},
 				game: {
 					next:"Next game",

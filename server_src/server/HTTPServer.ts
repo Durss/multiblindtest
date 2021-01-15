@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RoomData from "../vo/RoomData";
 import UserData from "../vo/UserData";
 import TrackData from "../vo/TrackData";
+import TwitchController from "./TwitchController";
 
 export default class HTTPServer {
 
@@ -20,6 +21,8 @@ export default class HTTPServer {
 	constructor(public port:number) {
 		this.app = <Express>express();
 		let server = http.createServer(<any>this.app);
+
+		TwitchController.instance.initialize(this.app);
 
 		SocketServer.instance.onUpdateUser = (user:UserData, roomId:string) => {
 			let room = this._rooms[roomId];

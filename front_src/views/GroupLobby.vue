@@ -63,6 +63,8 @@
 				:label="$t('group.lobby.wait', {hostName:hostName})" />
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
+
+			<ShareMultiplayerTwitch v-if="room" class="shareUrl" />
 		</div>
 
 		<div v-if="serverReboot" class="serverReboot">
@@ -86,6 +88,7 @@ import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import ExpertModeForm from '../components/ExpertModeForm.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import GroupLobbyUser from '../components/GroupLobbyUser.vue';
+import ShareMultiplayerTwitch from "@/components/ShareMultiplayerTwitch.vue";
 
 @Component({
 	components:{
@@ -95,6 +98,7 @@ import GroupLobbyUser from '../components/GroupLobbyUser.vue';
 		ExpertModeForm,
 		GroupLobbyUser,
 		ShareMultiplayerLink,
+		ShareMultiplayerTwitch,
 	}
 })
 export default class GroupLobby extends Vue {

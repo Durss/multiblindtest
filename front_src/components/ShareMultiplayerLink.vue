@@ -70,13 +70,6 @@ export default class ShareMultiplayerLink extends Vue {
 		flex-direction: column;
 		justify-content: center;
 		.blockContent();
-		.title {
-			font-family:"Futura";
-			text-align: center;
-			font-size: 20px;
-			margin-bottom: 5px;
-			display: block;
-		}
 		.copied {
 			background-color: @mainColor_highlight;
 			color: #fff;
