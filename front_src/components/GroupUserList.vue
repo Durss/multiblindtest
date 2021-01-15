@@ -127,8 +127,8 @@ export default class GroupUserList extends Vue {
 						background-color: transparent;
 						background-image: url("../assets/icons/offline.svg");
 						@ratio: 21 / 68;
-						width: 68px * @ratio;
-						height: 59px * @ratio;
+						width: calc(68px * @ratio);
+						height: calc(59px * @ratio);
 						margin-right: 5px;
 						margin-left: 0;
 						margin-top: 0;
@@ -147,8 +147,8 @@ export default class GroupUserList extends Vue {
 						background-color: transparent;
 						background-image: url("../assets/icons/king.svg");
 						@ratio: 16 / 72;
-						width: 100px * @ratio;
-						height: 72px * @ratio;
+						width: calc(100px * @ratio);
+						height: calc(72px * @ratio);
 						margin-right: 5px;
 						margin-left: 0;
 						margin-top: 0;
