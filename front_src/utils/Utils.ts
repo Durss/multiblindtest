@@ -759,4 +759,20 @@ export default class Utils {
 			setTimeout(_=>resolve(), delay);
 		})
 	}
+	
+	/**
+	 * Computes the luminance of a color.
+	 * @param color 
+	 * @returns value between 0 (dark) and 1 (bright)
+	 */
+	public static getLuminance(color:number|string):number {
+		let R,G,B;
+		if(typeof color == "string") color = parseInt(color.replace(/#/gi, ""), 16);
+		color = color & 0xffffff;//Strip out potential alpha channel
+		R = (color >> 16) & 0xff;
+		G = (color >> 8) & 0xff;
+		B = (color) & 0xff;
+		// return (0.299*R + 0.587*G + 0.114*B) / 255;
+		return (0.2126*R + 0.7152*G + 0.0722*B) / 255;
+	}
 }

@@ -23,6 +23,7 @@
 				<form @submit.prevent="submitToken()">
 					<input type="text" v-model="token" class="dark">
 					<div v-if="error" class="error" @click="error=null">Invalid token</div>
+					<div v-if="errorIRC" class="error" @click="error=null">Unable to connect to twitch chat via IRC</div>
 					<Button class="submit"
 						type="submit"
 						title="Submit"
@@ -54,6 +55,7 @@ export default class TwitchAuth extends Vue {
 	public checkingToken:boolean = false;
 	public showForm:boolean = false;
 	public error:boolean = false;
+	public errorIRC:boolean = false;
 	public token:string = null;
 
 	public async mounted():Promise<void> {
@@ -64,7 +66,8 @@ export default class TwitchAuth extends Vue {
 			let success = await this.submitToken();
 			if(!success) {
 				this.loading = false;
-				this.error = null;
+				this.error = false;
+				this.errorIRC = false;
 			}
 		}
 	}
@@ -74,16 +77,27 @@ export default class TwitchAuth extends Vue {
 	}
 
 	public async submitToken():Promise<boolean> {
+		this.error = false;
+		this.errorIRC = false;
 		this.checkingToken = true;
 		this.token = this.token.replace("oauth:", "");
 		let json = await TwitchUtils.validateToken(this.token);
 		if(!json) {
 			this.error = true;
 		}else{
+			this.loading = true;
 			this.$store.dispatch("setTwitchOAuthToken", this.token);
 			this.$store.dispatch("setTwitchLogin", json.login);
-			await IRCClient.instance.initialize(json.login, this.token);
-			this.loading = true;
+			let res;
+			try {
+				res = await IRCClient.instance.initialize(json.login, this.token);
+			}catch(error) {
+				this.errorIRC = true;
+				this.loading = false;
+				this.checkingToken = false;
+				return;
+			}
+			console.log('res', res);
 			this.$router.push({name:'playlists', params:{mode:'twitch'}});
 			return true;
 		}

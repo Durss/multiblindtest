@@ -9,6 +9,7 @@ import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
 import TwitchAuth from '@/views/TwitchAuth.vue';
+import TwitchGame from '@/views/TwitchGame.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
@@ -99,7 +100,6 @@ const routes = [
 		component: TwitchAuth,
 		props:true,
 		meta: {
-			hideHomeBt:true,
 			needAuth:false,
 		}
 	},
@@ -115,6 +115,19 @@ const routes = [
 			}
 		},
 		component: TwitchLobby
+	},
+	{
+		path: '/twitch/play/:playlistids/:tracksCount/:gamesCount/:expertMode?',
+		name: 'twitch/play',
+		props:true,
+		meta: {
+			needGroupAuth:true,
+			tag:{
+				path:"/twitch",
+				title:"twitch play"
+			}
+		},
+		component: TwitchGame
 	},
 	{
 		path: '/playlists/:mode',

@@ -20,7 +20,7 @@
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
 				big
-				:disabled="players.length < 2 || (expertMode != null && expertMode.length == 0)"
+				:disabled="players.length == 0"
 				@click="startGame()" />
 
 			<div class="block players">
@@ -33,8 +33,13 @@
 						<Button title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
 					</div>
 
+					<div class="playersCount">
+						<img src="@/assets/icons/user.svg" class="icon">
+						<span>{{players.length}}/{{maxPlayers}}</span>
+					</div>
+
 					<div class="users">
-						<div v-for="u in players" :key="u.id" class="user">
+						<div v-for="u in players" :key="u.id" class="user" :style="getUserClasses(u)">
 							<span class="text">{{u['display-name']}}</span>
 						</div>
 					</div>
@@ -58,6 +63,7 @@ import GameParams from "@/components/GameParams.vue";
 import IncrementForm from "@/components/IncrementForm.vue";
 import IRCClient, {IRCTypes} from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
+import Utils from "@/utils/Utils";
 import PlaylistData from "@/vo/PlaylistData";
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 
@@ -74,10 +80,6 @@ export default class TwitchLobby extends Vue {
 	@Prop({default:""})
 	public playlistids:string;
 
-	@Prop({default:""})
-	public trackscounts:string;
-
-
 	public selectedPlaylists:PlaylistData[] = null;
 
 	public ready:boolean = false;
@@ -93,6 +95,15 @@ export default class TwitchLobby extends Vue {
 
 	public get inviteMessage():string {
 		return "SingsNote Join the game with the following command \""+this.command+"\"";
+	}
+
+	public getUserClasses(u:IRCTypes.Tag):any {
+		let res:any = {};
+		if(u.color) res["background-color"] = u.color;
+		//If background is dark enough, make the label bright so it stays readable
+		let lum = Utils.getLuminance(u.color);
+		if(lum < .72) res["color"] = "#ffffff";
+		return res;
 	}
 
 	public async mounted():Promise<void> {
@@ -160,7 +171,17 @@ export default class TwitchLobby extends Vue {
 	}
 
 	public startGame():void {
-		console.log("Let's goooooowwww");
+		this.$store.dispatch("setAllowedTwitchUsers", this.players);
+		let params:any = {
+			playlistids:this.playlistids,
+			tracksCount:this.tracksCount.toString(),
+			gamesCount:this.gamesCount.toString(),
+		}
+		if(this.expertMode && this.expertMode.length > 0) {
+			params.expertMode = this.expertMode.join(",");
+		}
+		console.log(params);
+		this.$router.push({name:"twitch/play", params})
 	}
 
 }
@@ -168,6 +189,10 @@ export default class TwitchLobby extends Vue {
 
 <style scoped lang="less">
 .twitchlobby{
+	.loader {
+		.center();
+		position: absolute;
+	}
 	.playlists {
 		display: flex;
 		flex-direction: column;
@@ -239,14 +264,23 @@ export default class TwitchLobby extends Vue {
 			}
 		}
 
+		.playersCount {
+			text-align: center;
+			font-style: italic;
+			margin-bottom: 10px;
+			.icon {
+				height: 18px;
+				margin-right: 5px;
+				vertical-align: top;
+			}
+		}
+
 		.users {
 			.user {
 				background-color: @mainColor_normal_light;
 				border-radius: 15px;
 				padding: 0 10px;
 				color: @mainColor_dark;
-				display: flex;
-				flex-direction: row;
 				width: 100%;
 				margin-bottom: 2px;
 				box-sizing: border-box;
@@ -256,21 +290,10 @@ export default class TwitchLobby extends Vue {
 					overflow: hidden;
 					text-overflow: ellipsis;
 					line-height: 30px;
-					width: 180px;
-					flex-grow: 1;
-				}
-			
-				&::before {
-					content: " ";
-					background-color: @mainColor_normal;
-					border-radius: 50%;
+					width: 260px;
+					box-sizing: border-box;
 					display: inline-block;
-					width: 5px;
-					height: 5px;
-					margin-top: 12px;
-					margin-right: 13px;
-					margin-left: 7px;
-					vertical-align: middle;
+					text-align: center;
 				}
 			}
 		}

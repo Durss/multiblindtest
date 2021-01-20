@@ -1,4 +1,3 @@
-import store from "@/store";
 import { EventDispatcher } from "@/utils/EventDispatcher";
 import * as tmi from "tmi.js";
 import IRCEvent from "./IRCevent";
@@ -44,7 +43,7 @@ export default class IRCClient extends EventDispatcher {
 			this.token = token;
 	
 			this.client = new tmi.Client({
-				options: { debug: true },
+				options: { debug: false },
 				connection: { reconnect: true },
 				channels: [ login ],
 				identity: {
@@ -72,15 +71,15 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.on('message', (channel, tags, message, self) => {
-				console.log("################## ON MESSAGE ##################");
-				console.log(channel);
-				console.log(tags);
-				console.log(message);
-				console.log(self);
-				console.log(`${tags['display-name']}: ${message}`);
-				if(!self) {
+				// console.log("################## ON MESSAGE ##################");
+				// console.log(channel);
+				// console.log(tags);
+				// console.log(message);
+				// console.log(self);
+				// console.log(`${tags['display-name']}: ${message}`);
+				// if(!self) {
 					// this.client.say(channel, "Yoooo");
-				}
+				// }
 				this.dispatchEvent(new IRCEvent(IRCEvent.MESSAGE, message, <any>tags, channel, self));
 			});
 	

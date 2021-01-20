@@ -25,8 +25,11 @@ export default new Vuex.Store({
 		playlistsCache:null,
 		userGroupData:null,
 		groupRoomData:null,//This is only used to transmit data from lobby to game view
-		twitchOAuthToken:null,
+		
 		twitchLogin:null,
+		twitchOAuthToken:null,
+		allowedTwitchUsers:null,
+
 		confirm:{
 		  title:null,
 		  description:null,
@@ -110,6 +113,10 @@ export default new Vuex.Store({
 		setTwitchLogin(state, payload) {
 			state.twitchLogin = payload;
 			Store.set("twitchLogin", state.twitchLogin);
+		},
+
+		setAllowedTwitchUsers(state, payload) {
+			state.allowedTwitchUsers = payload;
 		},
 
 	},
@@ -205,5 +212,7 @@ export default new Vuex.Store({
 		setTwitchOAuthToken({commit}, payload) { commit("setTwitchOAuthToken", payload); },
 
 		setTwitchLogin({commit}, payload) { commit("setTwitchLogin", payload); },
+
+		setAllowedTwitchUsers({commit}, payload) { commit("setAllowedTwitchUsers", payload); },
 	}
 })
