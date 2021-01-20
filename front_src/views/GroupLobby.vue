@@ -14,6 +14,15 @@
 				</div>
 			</div>
 
+			<Button :title="$t('group.lobby.start')"
+				class="start"
+				type="button"
+				:icon="require('@/assets/icons/play.svg')"
+				big
+				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
+				v-if="isHost"
+				@click="startGame()" />
+
 			<div class="users">
 				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
 				<div class="content">
@@ -48,23 +57,12 @@
 				</div>
 			</div>
 
-			<Button :title="$t('group.lobby.start')"
-				class="start"
-				type="button"
-				:icon="require('@/assets/icons/play.svg')"
-				big
-				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
-				v-if="isHost"
-				@click="startGame()" />
-
 			<SimpleLoader theme="mainColor_normal"
 				v-if="!isHost && room.users.length > 0"
 				class="waitHost"
 				:label="$t('group.lobby.wait', {hostName:hostName})" />
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
-
-			<ShareMultiplayerTwitch v-if="room" class="shareUrl" />
 		</div>
 
 		<div v-if="serverReboot" class="serverReboot">
@@ -88,7 +86,6 @@ import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import ExpertModeForm from '../components/ExpertModeForm.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import GroupLobbyUser from '../components/GroupLobbyUser.vue';
-import ShareMultiplayerTwitch from "@/components/ShareMultiplayerTwitch.vue";
 
 @Component({
 	components:{
@@ -98,7 +95,6 @@ import ShareMultiplayerTwitch from "@/components/ShareMultiplayerTwitch.vue";
 		ExpertModeForm,
 		GroupLobbyUser,
 		ShareMultiplayerLink,
-		ShareMultiplayerTwitch,
 	}
 })
 export default class GroupLobby extends Vue {
@@ -393,6 +389,7 @@ export default class GroupLobby extends Vue {
 			display: flex;
 			margin: auto;
 			margin-top: 25px;
+			margin-bottom: 25px;
 		}
 	
 		.users {

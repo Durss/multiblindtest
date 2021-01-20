@@ -56,6 +56,11 @@ export default class IncrementForm extends Vue {
 		
 	}
 
+	@Watch("value")
+	private changeValue():void {
+		this.valueLocal = this.value;
+	}
+
 	@Watch("valueLocal")
 	private changeCount():void {
 		this.valueLocal = Math.max(this.minValue, Math.min(this.maxValue, this.valueLocal));

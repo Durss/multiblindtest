@@ -13,6 +13,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import SpotifyAPI from '@/utils/SpotifyAPI';
 import Home from './Home.vue';
 import Utils from '@/utils/Utils';
+import Store from "@/store/Store";
 
 @Component({
 	components:{
@@ -30,11 +31,11 @@ export default class OAuth extends Vue {
 			//Convert hash to key/value object
 			let vars = JSON.parse('{"' + decodeURI(document.location.hash.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
 			if(vars.access_token) {
-				let redirect = localStorage.getItem("redirect");
+				let redirect = Store.get("redirect");
 				this.$store.dispatch("authenticate", {access_token:vars.access_token, expires_in:vars.expires_in});
 	
 				if(redirect) {
-					localStorage.removeItem("redirect");
+					Store.remove("redirect");
 					window.location.href = redirect;
 				}else{
 					//Redirect to home

@@ -141,6 +141,11 @@ export default class Labels {
 					},
 				}
 			},
+			twitch: {
+				lobby: {
+					maxPlayers:"Max players",
+				}
+			},
 			game: {
 				hidden: "???",
 				guess: "Guess a track :",
@@ -256,6 +261,7 @@ export default class Labels {
 				demo : "Demo",
 				solo : "Partie solo",
 				multi : "Multijoueur",
+				twitch : "Play from Twitch",
 				create : "Créer un mix",
 				changelog : "Voir les dernières mises à jour",
 				footer : `

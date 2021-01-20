@@ -2,18 +2,18 @@
 	<div class="expertmodeform">
 		<div class="toggle">
 			<Button type="checkbox" id="expertmode" v-model="enabled" />
-			<label for="expertmode">{{$t('group.lobby.expertMode.title')}}</label>
+			<label for="expertmode" @click="enabled=!enabled">{{$t('group.lobby.expertMode.title')}}</label>
 		</div>
 		<div v-if="enabled" class="form">
 			<p class="infos">{{$t("group.lobby.expertMode.details")}}</p>
 			<div class="checkboxes">
 				<div class="row">
 					<Button type="checkbox" id="expertmode_title" v-model="acceptTitle" />
-					<label for="expertmode_title">{{$t('group.lobby.expertMode.acceptTitle')}}</label>
+					<label @click="acceptTitle=!acceptTitle" for="expertmode_title">{{$t('group.lobby.expertMode.acceptTitle')}}</label>
 				</div>
 				<div class="row">
 					<Button type="checkbox" id="expertmode_artist" v-model="acceptArtist" />
-					<label for="expertmode_artist">{{$t('group.lobby.expertMode.acceptArtist')}}</label>
+					<label @click="acceptArtist=!acceptArtist" for="expertmode_artist">{{$t('group.lobby.expertMode.acceptArtist')}}</label>
 				</div>
 			</div>
 			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{$t('group.lobby.expertMode.selectSomething')}}</div>
@@ -35,22 +35,33 @@ export default class ExpertModeForm extends Vue {
 	@Prop()
 	public value:"artist"|"title"[];
 
+	private isMount:boolean = false;
 	private enabled:boolean = false;
 	private acceptTitle:boolean = true;
 	private acceptArtist:boolean = true;
 
 	public mounted():void {
+		this.isMount = true;
+		this.onValueChanged();
+		this.isMount = false;
+	}
+
+	public beforeDestroy():void {
+		
+	}
+	@Watch("value")
+	private onValueChanged():void {
 		if(this.value && this.value.length > 0) {
+			this.acceptArtist = false;
+			this.acceptTitle = false;
 			for (let i = 0; i < this.value.length; i++) {
 				if(this.value[i] !== null) this.enabled = true;
 				if(this.value[i] == "artist") this.acceptArtist = true;
 				if(this.value[i] == "title") this.acceptTitle = true;
 			}
+		}else if(this.isMount){
+			this.enabled = false;
 		}
-	}
-
-	public beforeDestroy():void {
-		
 	}
 
 	@Watch("acceptArtist")

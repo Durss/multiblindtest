@@ -5,18 +5,20 @@
 	:type="type=='checkbox'? null : type"
 	:target="target"
 	:to="to"
+	:href="type=='link'? to : ''"
 	:data-selected="selected"
 	@click="onClick($event)"
 	:style="progressStyle">
-		<img :src="parsedIcon" v-if="parsedIcon" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
+		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
+		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
 		<!--
 			<img v-if="loading &&  white !== false" src="@/assets/loader/loader_light.svg" alt="icon" class="spinner">
 			<img v-if="loading && white === false" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
 		-->
 		<img v-if="loading" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
-		<input :id="id" type="file" v-if="type=='file'" class="browse" accept=".zip" ref="browse" @change="$emit('change', $event)" />
-		<input :id="id" type="checkbox" :name="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
+		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="$emit('change', $event)" />
+		<input type="checkbox" :name="name" :id="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 	</component>
 </template>
 
@@ -24,24 +26,25 @@
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import gsap from 'gsap';
 
-@Component
+@Component({
+	components:{
+	}
+})
 export default class Button extends Vue {
 
-	@Prop()
-	public id!:string;
-	@Prop()
+	@Prop({default: null})
 	public icon!:string;
-	@Prop()
+	@Prop({default: null})
 	public iconSelected!:string;
-	@Prop()
+	@Prop({default: null})
 	public title!:string;
-	@Prop()
+	@Prop({default: null})
 	public name!:string;
 	@Prop({default: false})
 	public loading!:boolean;
 	@Prop({default: "button"})
 	public type!:string;
-	@Prop()
+	@Prop({default: null})
 	public target!:string;
 	@Prop({default: null})
 	public to!:any;
@@ -59,14 +62,21 @@ export default class Button extends Vue {
 	public disabled!:boolean;
 	@Prop({default:false})
 	public value!:boolean;
+	@Prop({default:"image/*"})
+	public accept!:string;
 
 	private iconClass:string = "";
 	public pInterpolated:number = -1;
 	public checked:boolean = false;
 
+	public get isIconSVG():boolean {
+		return this.parsedIcon.indexOf("<") != -1;
+	}
+
 	public get nodeType():string {
 		if(this.to) return "router-link";
 		if(this.type == "checkbox") return "div";
+		if(this.type == "link") return "a";
 		return "button";
 	}
 
@@ -121,8 +131,9 @@ export default class Button extends Vue {
 		(<HTMLFormElement>this.$refs.browse).value = null;
 	}
 
-	public onClick(e):void {
-		this.$emit('click',e);//bubble up event to avoid having to listen for @click.native everytime
+	public onClick(event):void {
+		if(this.disabled) return;
+		this.$emit('click', event);//bubble up event to avoid having to listen for @click.native everytime
 	}
 
 
@@ -142,17 +153,22 @@ export default class Button extends Vue {
 </script>
 
 <style lang="less" scoped>
+
 .button {
 	position: relative;//Necessary for loader spinning absolute placement
 	display: inline-flex;
-	// width: 100%;
-	// height: 100%;
 	justify-content: center;
 	align-items: center;
 	flex-direction: row;
 	white-space: nowrap;
-	transition: all .25s;
+	// transition: all .25s;
 	overflow: hidden;
+	// touch-action: none;
+	user-select: none;
+
+	&>*:not(.browse):not(.checkbox) {
+		pointer-events: none;
+	}
 
 	&.noTitle {
 		margin: 0;
@@ -195,13 +211,13 @@ export default class Button extends Vue {
 			width: 70%;
 		}
 		&:hover {
-			background-color: @mainColor_normal_extralight;
+			background-color: fade(@mainColor_normal; 30%);
 		}
 	}
 
 	.icon {
-		// max-height: 20px;
-		width: 20px;
+		max-height: 20px;
+		width: 30px;
 		margin-right: 10px;
 		vertical-align: middle;
 	}
@@ -210,13 +226,14 @@ export default class Button extends Vue {
 		.center;
 		position: absolute;
 		vertical-align: middle;
-		height: 25px;
-		width: 25px;
+		height: 34px;
+		width: 34px;
 	}
 
 	.label {
 		flex-grow: 1;
 		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	.label, .icon {
@@ -256,9 +273,8 @@ export default class Button extends Vue {
 
 	&.big {
 		padding: 20px;
-		border-radius: 50px;
 		.label {
-			font-size: 30px;
+			font-size: 33px;
 		}
 		.icon {
 			min-width: 30px;
@@ -267,26 +283,33 @@ export default class Button extends Vue {
 	}
 
 	&.highlight {
-		background-color: @mainColor_warn;
+		color: @mainColor_normal;
+		background-color: @mainColor_highlight;
+		&.disabled {
+			background-color: fade(@mainColor_highlight,50%);
+		}
 		.label, .icon {
 			&.hide {
 				opacity: .4;
 			}
 		}
 		&:not(.loading):hover {
-			background-color: @mainColor_warn_light;
+			background-color: @mainColor_highlight_light;
 		}
 		&.loading {
-			background-color: fade(@mainColor_warn, 50%);
+			background-color: fade(@mainColor_highlight, 50%);
 		}
 		&.selected {
-			background-color: @mainColor_warn_extralight;
+			background-color: @mainColor_highlight_extralight;
 		}
 	}
 
 	&.selected:not(.highlight) {
-		background-color: @mainColor_highlight;
+		background-color: @mainColor_warn;
 		color: #fff;
+		&.disabled {
+			background-color: fade(@mainColor_warn,50%);
+		}
 		&:hover {
 			background-color: fade(@mainColor_normal_light, 50%);
 		}
@@ -294,22 +317,17 @@ export default class Button extends Vue {
 	&.small {
 		padding: 5px 10px;
 		border-radius: 7px;
-		font-size: 14px;
+		font-size: 17px;
 		text-transform: none;
 	}
 	
 	&.disabled {
-		opacity: .35;
-		color: rgba(255,255,255,.5);
-		.icon {
-			opacity: .35;
-		}
-	}
-	
-	&.cancel {
-		background-color: #ccc;
+		background-color: fade(@mainColor_normal, 50%);
 		&:hover {
-			background-color: #ddd;
+			background-color: fade(@mainColor_normal, 50%);
+		}
+		.icon {
+			opacity: .4;
 		}
 	}
 }
@@ -318,7 +336,6 @@ export default class Button extends Vue {
 	.button {
 		&.noTitle.big, &.big {
 			padding: 12px;
-			border-radius: 50px;
 			.label {
 				font-size: 25px;
 			}

@@ -1,6 +1,7 @@
 import ua from 'universal-analytics';
 import Config from './Config';
 import { v4 as uuidv4 } from 'uuid';
+import Store from '@/store/Store';
 
 export default class StatsManager {
 
@@ -30,7 +31,7 @@ export default class StatsManager {
 	 * Gets the singleton's reference
 	 */
 	public set clientId(value:string) {
-		localStorage.setItem("uid", value);
+		Store.set("uid", value);
 		this._visitor.set("uid", value);
 	}
 
@@ -85,16 +86,16 @@ export default class StatsManager {
 	 */
 	private initialize(): void {
 		let cid = uuidv4();
-		if(!localStorage.getItem("cid")) {
-			localStorage.setItem("cid", cid);
+		if(!Store.get("cid")) {
+			Store.set("cid", cid);
 		}else{
-			cid = localStorage.getItem("cid");
+			cid = Store.get("cid");
 		}
 
 		this._visitor = ua(Config.UA, cid);
 
-		if(localStorage.getItem("uid")) {
-			this.clientId = localStorage.getItem("uid");
+		if(Store.get("uid")) {
+			this.clientId = Store.get("uid");
 		}
 	}
 }

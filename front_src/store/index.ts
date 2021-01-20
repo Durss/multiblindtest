@@ -5,6 +5,7 @@ import StatsManager from '@/utils/StatsManager';
 import SockController from '@/sock/SockController';
 import Labels from '@/i18n/Label';
 import RoomData from '@/vo/RoomData';
+import Store from './Store';
 
 Vue.use(Vuex)
 
@@ -24,6 +25,8 @@ export default new Vuex.Store({
 		playlistsCache:null,
 		userGroupData:null,
 		groupRoomData:null,//This is only used to transmit data from lobby to game view
+		twitchOAuthToken:null,
+		twitchLogin:null,
 		confirm:{
 		  title:null,
 		  description:null,
@@ -43,12 +46,12 @@ export default new Vuex.Store({
 			if (payload.access_token) {
 				state.accessToken = payload.access_token;
 				let expirationDate:number = new Date().getTime() + parseInt(payload.expires_in) * 1000;
-				localStorage.setItem("accessToken", payload.access_token);
-				localStorage.setItem("expirationDate", expirationDate.toString());
+				Store.set("accessToken", payload.access_token);
+				Store.set("expirationDate", expirationDate.toString());
 				SpotifyAPI.instance.setToken(payload.access_token);
 			} else {
-				localStorage.removeItem("accessToken");
-				localStorage.removeItem("expirationDate");
+				Store.remove("accessToken");
+				Store.remove("expirationDate");
 			}
 		},
 
@@ -63,7 +66,7 @@ export default new Vuex.Store({
 		playlistsCache(state, payload) {
 			state.playlistsCache = payload;
 			try {
-				localStorage.setItem("playlistsCache", JSON.stringify(payload));
+				Store.set("playlistsCache", JSON.stringify(payload));
 			}catch(error) {
 				state.alert = "Maximum cache space reached, cannot cache your playlists sorry :("
 			}
@@ -74,7 +77,7 @@ export default new Vuex.Store({
 		setUserGroupData(state, payload) { 
 			state.userGroupData = payload;
 			SockController.instance.user = payload;
-			localStorage.setItem("userGroupData", JSON.stringify(payload));
+			Store.set("userGroupData", JSON.stringify(payload));
 		},
 
 		setGroupRoomData(state, payload) { state.groupRoomData = payload; },
@@ -89,14 +92,24 @@ export default new Vuex.Store({
 
 		setVolume(state, payload) {
 			state.volume = payload;
-			localStorage.setItem("volume", payload.toString())
+			Store.set("volume", payload.toString())
 		},
 
 		setNeedUserInteraction(state, payload) { state.needUserInteraction = payload; },
 
 		setUserName(state, payload) {
 			state.userGroupData.name = payload;
-			localStorage.setItem("userGroupData", JSON.stringify(state.userGroupData));
+			Store.set("userGroupData", JSON.stringify(state.userGroupData));
+		},
+
+		setTwitchOAuthToken(state, payload) {
+			state.twitchOAuthToken = payload;
+			Store.set("twitchOAuthToken", state.twitchOAuthToken);
+		},
+
+		setTwitchLogin(state, payload) {
+			state.twitchLogin = payload;
+			Store.set("twitchLogin", state.twitchLogin);
 		},
 
 	},
@@ -112,12 +125,12 @@ export default new Vuex.Store({
 			if (startPromise && payload.force !== true) return startPromise;
 			
 			state.initComplete = false;
-			let token = localStorage.getItem("accessToken");
+			let token = Store.get("accessToken");
 			if(token) {
 				state.loggedin = true;
 				state.accessToken = token;
 				SpotifyAPI.instance.setToken(token);
-				state.playlistsCache = JSON.parse( localStorage.getItem("playlistsCache") );
+				state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
 				if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
 					let me = await SpotifyAPI.instance.call("v1/me");
 					if(me && me.id) {
@@ -133,14 +146,19 @@ export default new Vuex.Store({
 				dispatch("setLabels", Labels.json)
 			}
 			
-			let volume = localStorage.getItem("volume");
+			let twitchToken = Store.get("twitchOAuthToken");
+			if(twitchToken) {
+				state.twitchOAuthToken = twitchToken;
+			}
+
+			let volume = Store.get("volume");
 			if(volume != null) {
 				state.volume = parseFloat(volume);
 			}else{
 				state.volume = .5;
 			}
 			
-			let user = localStorage.getItem("userGroupData");
+			let user = Store.get("userGroupData");
 			if(user) {
 				//load last group user from storage
 				commit("setUserGroupData", JSON.parse(user));
@@ -183,5 +201,9 @@ export default new Vuex.Store({
 		setNeedUserInteraction({commit}, payload) { commit("setNeedUserInteraction", payload); },
 
 		setUserName({commit}, payload) { commit("setUserName", payload); },
+
+		setTwitchOAuthToken({commit}, payload) { commit("setTwitchOAuthToken", payload); },
+
+		setTwitchLogin({commit}, payload) { commit("setTwitchLogin", payload); },
 	}
 })

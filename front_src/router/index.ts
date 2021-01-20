@@ -4,9 +4,11 @@ import DemoConfig from '@/views/DemoConfig.vue';
 import GameView from '@/views/GameView.vue';
 import GroupGame from '@/views/GroupGame.vue';
 import GroupLobby from '@/views/GroupLobby.vue';
+import TwitchLobby from '@/views/TwitchLobby.vue';
 import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
+import TwitchAuth from '@/views/TwitchAuth.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
@@ -90,6 +92,29 @@ const routes = [
 			hideHomeBt:true,
 			needAuth:false,
 		}
+	},
+	{
+		path: '/twitch/auth',
+		name: 'twitch/auth',
+		component: TwitchAuth,
+		props:true,
+		meta: {
+			hideHomeBt:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/twitch/lobby/:playlistids',
+		name: 'twitch/lobby',
+		props:true,
+		meta: {
+			needGroupAuth:true,
+			tag:{
+				path:"/twitch",
+				title:"twitch lobby"
+			}
+		},
+		component: TwitchLobby
 	},
 	{
 		path: '/playlists/:mode',
