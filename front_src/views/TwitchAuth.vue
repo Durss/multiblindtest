@@ -1,10 +1,10 @@
 <template>
 	<div class="twitchauth">
-		<div class="loadMessage" v-if="loading">
-			<img src="@/assets/loader/loader.svg" class="loader">
-			<img src="@/assets/icons/twitch.svg" class="twitch" ref="twitchIcon">
-			<div class="title">Connecting to Twitch...</div>
-		</div>
+		<BouncingLoader
+			v-if="loading"
+			class="loader"
+			:icon="require('@/assets/icons/twitch.svg')"
+			label="Connecting to Twitch..." />
 		
 		<div v-if="!loading">
 			<h1>Connect with twitch</h1>
@@ -36,15 +36,16 @@
 </template>
 
 <script lang="ts">
+import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import IRCClient from "@/twitch/IRCClient";
 import TwitchUtils from "@/twitch/TwitchUtils";
-import gsap from "gsap";
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 
 @Component({
 	components:{
 		Button,
+		BouncingLoader,
 	}
 })
 export default class TwitchAuth extends Vue {
@@ -58,12 +59,10 @@ export default class TwitchAuth extends Vue {
 	public async mounted():Promise<void> {
 		let token = this.$store.state.twitchOAuthToken;
 		if(token) {
-			gsap.from(this.$refs.twitchIcon, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:100}).yoyo(true);
 			this.loading = true;
 			this.token = token;
 			let success = await this.submitToken();
 			if(!success) {
-				gsap.killTweensOf(this.$refs.twitchIcon);
 				this.loading = false;
 				this.error = null;
 			}
@@ -103,26 +102,9 @@ export default class TwitchAuth extends Vue {
 .twitchauth{
 	text-align: center;
 
-	.loadMessage {
+	.loader {
 		.center();
 		position: absolute;
-
-		.title {
-			font-size: 20px;
-		}
-
-		.loader {
-			width: 100px;
-			height: 100px;
-		}
-
-		.twitch {
-			position: absolute;
-			width: 40px;
-			top: 30px;
-			left: 50%;
-			transform: translate(-50%, 0);
-		}
 	}
 
 	.step {

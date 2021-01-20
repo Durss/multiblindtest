@@ -1,6 +1,9 @@
 <template>
 	<div class="playlistselector">
-		<PlaylistLoading v-show="loading" />
+		<BouncingLoader v-if="loading" class="loader" :icon="require('@/assets/icons/home_logo.svg')">
+			<h1>{{$t('playlists.loading.title')}}</h1>
+			<p class="infos">{{$t('playlists.loading.description')}}</p>
+		</BouncingLoader>
 
 		<div class="playlists" v-if="!loading">
 			<div class="header">
@@ -62,16 +65,16 @@ import TrackData from '@/vo/TrackData';
 import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import gsap from 'gsap';
 import { v4 as uuidv4 } from 'uuid';
-import PlaylistLoading from '../components/PlaylistLoading.vue';
 import NoPlaylist from '../components/NoPlaylist.vue';
 import SearchPlaylistForm from '../components/SearchPlaylistForm.vue';
+import BouncingLoader from "@/components/BouncingLoader.vue";
 
 @Component({
 	components:{
 		Button,
 		NoPlaylist,
 		PlayListEntry,
-		PlaylistLoading,
+		BouncingLoader,
 		SearchPlaylistForm,
 		PlaylistSelectorFooter,
 	}
@@ -280,6 +283,16 @@ export default class PlaylistSelector extends Vue {
 	text-align: center;
 	max-width: 500px;
 	padding-bottom: 150px;
+
+	.loader {
+		.center();
+		position: absolute;
+		/deep/ .icon {
+			top: 12px;
+			width: 70px;
+			height: 70px;
+		}
+	}
 
 	.header {
 		h1 {
