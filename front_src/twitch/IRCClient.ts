@@ -13,6 +13,7 @@ export default class IRCClient extends EventDispatcher {
 	private login:string;
 	private token:string;
 	private channel:string;
+	private isConnected:boolean = false;
 	
 	constructor() {
 		super();
@@ -26,6 +27,10 @@ export default class IRCClient extends EventDispatcher {
 			IRCClient._instance = new IRCClient();
 		}
 		return IRCClient._instance;
+	}
+
+	public get connected():boolean {
+		return this.isConnected;
 	}
 	
 	
@@ -48,22 +53,31 @@ export default class IRCClient extends EventDispatcher {
 				},
 			});
 	
-			this.client.on("connected", (address, port)=> {
-				this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
-				resolve();
-			})
-	
-			this.client.on("join", (channel, username)=> {
-				this.channel = channel;
-			})
+			this.client.on("join", (channel, user)=> {
+				if(user == this.login && !this.isConnected) {
+					this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
+					this.isConnected = true;
+					// console.log(reason);
+					resolve();
+				}
+			});
+
+			//@ts-ignore dirty system event listener because i foudn no other
+			//way to capture a connexion error...
+			this.client.on("_promiseJoin", (message:string)=> {
+				if(message && message.indexOf("No response") > -1) {
+					console.log("IRCClient :: Connection failed");
+					reject();
+				}
+			});
 	
 			this.client.on('message', (channel, tags, message, self) => {
-				// console.log("################## ON MESSAGE ##################");
-				// console.log(channel);
-				// console.log(tags);
-				// console.log(message);
-				// console.log(self);
-				// console.log(`${tags['display-name']}: ${message}`);
+				console.log("################## ON MESSAGE ##################");
+				console.log(channel);
+				console.log(tags);
+				console.log(message);
+				console.log(self);
+				console.log(`${tags['display-name']}: ${message}`);
 				if(!self) {
 					// this.client.say(channel, "Yoooo");
 				}

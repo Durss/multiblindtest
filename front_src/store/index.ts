@@ -147,9 +147,9 @@ export default new Vuex.Store({
 			}
 			
 			let twitchToken = Store.get("twitchOAuthToken");
-			if(twitchToken) {
-				state.twitchOAuthToken = twitchToken;
-			}
+			if(twitchToken) state.twitchOAuthToken = twitchToken;
+			let twitchLogin = Store.get("twitchLogin");
+			if(twitchLogin) state.twitchLogin = twitchLogin;
 
 			let volume = Store.get("volume");
 			if(volume != null) {

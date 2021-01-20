@@ -1,50 +1,58 @@
 <template>
 	<div class="twitchlobby">
-
-		<div class="playlists header">
-			<h1>{{$t('group.lobby.title')}}</h1>
-			<div v-for="p in selectedPlaylists" :key="p.id" class="playlist">
-				<img :src="p.cover" :alt="p.name" class="cover">
-				<span class="label">{{p.name}}</span>
-			</div>
-		</div>
+		<BouncingLoader
+			v-if="!ready"
+			class="loader"
+			:icon="require('@/assets/icons/twitch.svg')"
+			label="Connecting to Twitch..." />
 		
-		<Button :title="$t('group.lobby.start')"
-			class="start"
-			type="button"
-			:icon="require('@/assets/icons/play.svg')"
-			big
-			:disabled="players.length < 2 || (expertMode != null && expertMode.length == 0)"
-			@click="startGame()" />
-
-		<div class="block players">
-			<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
-			<div class="content">
-				<div class="command">
-					<div>Type the following command on your chat to join the game:</div>
-					<input type="text" v-model="command" class="dark small">
-					<div class="info">(customize the command as you wish)</div>
-					<Button title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
+		<div v-if="ready">
+			<div class="playlists header">
+				<h1>{{$t('group.lobby.title')}}</h1>
+				<div v-for="p in selectedPlaylists" :key="p.id" class="playlist">
+					<img :src="p.cover" :alt="p.name" class="cover">
+					<span class="label">{{p.name}}</span>
 				</div>
+			</div>
 
-				<div class="users">
-					<div v-for="u in players" :key="u.id" class="user">
-						<span class="text">{{u['display-name']}}</span>
+			<Button :title="$t('group.lobby.start')"
+				class="start"
+				type="button"
+				:icon="require('@/assets/icons/play.svg')"
+				big
+				:disabled="players.length < 2 || (expertMode != null && expertMode.length == 0)"
+				@click="startGame()" />
+
+			<div class="block players">
+				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
+				<div class="content">
+					<div class="command">
+						<div>Type the following command on your chat to join the game:</div>
+						<input type="text" v-model="command" class="dark small">
+						<div class="info">(customize the command as you wish)</div>
+						<Button title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
+					</div>
+
+					<div class="users">
+						<div v-for="u in players" :key="u.id" class="user">
+							<span class="text">{{u['display-name']}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="block params">
-			<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
-				<IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" />
-			</GameParams>
+			<div class="block params">
+				<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
+					<IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" />
+				</GameParams>
+			</div>
 		</div>
 		
 	</div>
 </template>
 
 <script lang="ts">
+import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import GameParams from "@/components/GameParams.vue";
 import IncrementForm from "@/components/IncrementForm.vue";
@@ -58,6 +66,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 		Button,
 		GameParams,
 		IncrementForm,
+		BouncingLoader,
 	}
 })
 export default class TwitchLobby extends Vue {
@@ -71,6 +80,7 @@ export default class TwitchLobby extends Vue {
 
 	public selectedPlaylists:PlaylistData[] = null;
 
+	public ready:boolean = false;
 	public sendingToChat:boolean = false;
 	public maxPlayers:number = 100;
 	public gamesCount:number = 10;
@@ -85,7 +95,19 @@ export default class TwitchLobby extends Vue {
 		return "SingsNote Join the game with the following command \""+this.command+"\"";
 	}
 
-	public mounted():void {
+	public async mounted():Promise<void> {
+		this.ready = IRCClient.instance.connected;
+		if(!this.ready) {
+			let res
+			try {
+				res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
+			}catch(error) {
+				this.$router.push({name:"twitch/auth"});
+				return;
+			}
+			this.ready = true;
+		}
+		
 		if(!this.playlistids) {
 			this.$router.push({name:"twitch/auth"});
 			return;
@@ -154,7 +176,7 @@ export default class TwitchLobby extends Vue {
 		h1 {
 			margin-bottom: 20px;
 		}
-		
+
 		.playlist {
 			background-color: @mainColor_normal;
 			border-radius: 100px;
