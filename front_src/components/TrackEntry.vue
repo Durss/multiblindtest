@@ -28,6 +28,10 @@
 			<!-- <p class="plus">+</p>
 			<p class="score">{{score}}</p> -->
 		</div>
+
+		<div ref="stars" class="stars">
+			<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
+		</div>
 	</div>
 </template>
 
@@ -35,6 +39,7 @@
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import TrackData from '@/vo/TrackData';
 import ScoreHistory from '../vo/ScoreHistory';
+import gsap from "gsap";
 
 @Component({
 	components:{}
@@ -52,6 +57,9 @@ export default class TrackEntry extends Vue {
 
 	@Prop({default:true})
 	public canReplay:boolean;
+
+	@Prop({default:false})
+	public burstStars:boolean;
 	
 	public playing:boolean = false;
 
@@ -96,6 +104,26 @@ export default class TrackEntry extends Vue {
 	public onClickPlay():void {
 		this.playing = true;
 		this.$emit('play', this.data);
+	}
+
+	@Watch("data.enabled")
+	public onRevealChange():void {
+		if(this.burstStars && this.data.enabled) {
+			this.burstParticles();
+		}
+	}
+
+	public burstParticles():void {
+		let stars = <Element[]>this.$refs.star;
+		let bounds = this.$el.getBoundingClientRect();
+		for (let i = 0; i < stars.length; i++) {
+			const s = stars[i];
+			gsap.killTweensOf(s);
+			let px = Math.random() * bounds.width - 30;
+			let py = Math.random() * bounds.height - 30;
+			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
+			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
+		}
 	}
 
 }
@@ -218,6 +246,20 @@ export default class TrackEntry extends Vue {
 			padding: 5px 10px;
 			border-radius: 20px;
 			background-color: @mainColor_warn;
+		}
+	}
+
+	.stars {
+		position: absolute;
+		top: 0;
+		left: 0;
+		pointer-events: none;
+		img {
+			opacity: 0;
+			position: absolute;
+			width: 30px;
+			height: 30px;
+			transform-origin: center center;
 		}
 	}
 }

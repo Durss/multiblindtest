@@ -48,7 +48,11 @@
 
 			<div class="block params">
 				<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
-					<IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" />
+					<div class="noBg" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
+						<Button type="checkbox" id="noBg" v-model="noBackground" />
+						<label for="noBg" @click="noBackground = !noBackground">Transparent Background</label>
+					</div>
+					<IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" />
 				</GameParams>
 			</div>
 		</div>
@@ -83,10 +87,12 @@ export default class TwitchLobby extends Vue {
 	public selectedPlaylists:PlaylistData[] = null;
 
 	public ready:boolean = false;
+	public noBackground:boolean = false;
 	public sendingToChat:boolean = false;
 	public maxPlayers:number = 100;
 	public gamesCount:number = 10;
 	public tracksCount:number = 4;
+	public gameDuration:number = 120;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
@@ -138,6 +144,8 @@ export default class TwitchLobby extends Vue {
 			return 0;
 		});
 
+		this.noBackground = this.$store.state.hideBackground === true;
+
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 	}
@@ -160,6 +168,15 @@ export default class TwitchLobby extends Vue {
 				if(p["user-id"] == e.tags["user-id"]) return;//Uer already registered
 			}
 			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
+			this.players.push(e.tags);
 		}
 	}
 
@@ -171,7 +188,7 @@ export default class TwitchLobby extends Vue {
 	}
 
 	public startGame():void {
-		this.$store.dispatch("setAllowedTwitchUsers", this.players);
+		this.$store.dispatch("setTwitchAllowedUsers", this.players);
 		let params:any = {
 			playlistids:this.playlistids,
 			tracksCount:this.tracksCount.toString(),
@@ -182,6 +199,11 @@ export default class TwitchLobby extends Vue {
 		}
 		console.log(params);
 		this.$router.push({name:"twitch/play", params})
+	}
+
+	@Watch("noBackground")
+	private onBgChange():void {
+		this.$store.dispatch("setHideBackground", this.noBackground);
 	}
 
 }
@@ -233,6 +255,18 @@ export default class TwitchLobby extends Vue {
 	.params {
 		margin: auto;
 		width: min-content;
+		.noBg {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin-bottom: 5px;
+			label {
+				cursor: pointer;
+				margin: 0;
+				margin-left: 10px;
+				white-space: nowrap;
+			}
+		}
 	}
 
 	.block {
@@ -252,7 +286,7 @@ export default class TwitchLobby extends Vue {
 	.players {
 		margin-left: auto;
 		margin-right: auto;
-		width: 300px;
+		width: 350px;
 		.command {
 			margin-bottom: 10px;
 			text-align: center;
@@ -276,13 +310,18 @@ export default class TwitchLobby extends Vue {
 		}
 
 		.users {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
 			.user {
 				background-color: @mainColor_normal_light;
 				border-radius: 15px;
 				padding: 0 10px;
 				color: @mainColor_dark;
-				width: 100%;
-				margin-bottom: 2px;
+				width: min-content;
+				margin-bottom: 5px;
+				margin-right: 5px;
+				max-width: 50%;
 				box-sizing: border-box;
 
 				.text {
@@ -290,7 +329,7 @@ export default class TwitchLobby extends Vue {
 					overflow: hidden;
 					text-overflow: ellipsis;
 					line-height: 30px;
-					width: 260px;
+					width: 100%;
 					box-sizing: border-box;
 					display: inline-block;
 					text-align: center;

@@ -88,6 +88,7 @@ export default class Labels {
 					params:"Parameters",
 					gamesCount:"Number of games",
 					tracksCount:"Number of tracks",
+					gameDuration:"Game duration (seconds)",
 					handicap:"Handicap (seconds)",
 					handicapInfos:"Musics will start {SECONDS} seconds later than the other players.",
 					expertMode: {

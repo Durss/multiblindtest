@@ -92,12 +92,13 @@ export default class TwitchAuth extends Vue {
 			try {
 				res = await IRCClient.instance.initialize(json.login, this.token);
 			}catch(error) {
+				console.log("FAILED !");
 				this.errorIRC = true;
 				this.loading = false;
 				this.checkingToken = false;
 				return;
 			}
-			console.log('res', res);
+				console.log("Connected to IRC !", res);
 			this.$router.push({name:'playlists', params:{mode:'twitch'}});
 			return true;
 		}

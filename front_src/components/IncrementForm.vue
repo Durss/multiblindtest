@@ -2,6 +2,14 @@
 	<div class="incrementform">
 		<label class="title" :for="inputId" v-if="title">{{title}}</label>
 		<div class="content" @mousewheel="onMouseWheel">
+			<Button :icon="require('@/assets/icons/minus2.svg')"
+				@mousedown.native="startIncrement(-10);"
+				@mouseup.native="stopIncrement($event);"
+				@touchstart.native="startIncrement(-10);"
+				@touchend.native="stopIncrement($event);"
+				class="button"
+				v-if="tenStep"
+			/>
 			<Button :icon="require('@/assets/icons/minus.svg')"
 				@mousedown.native="startIncrement(-1);"
 				@mouseup.native="stopIncrement($event);"
@@ -16,6 +24,14 @@
 				@touchstart.native="startIncrement(1);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
+			/>
+			<Button :icon="require('@/assets/icons/plus2.svg')"
+				@mousedown.native="startIncrement(10);"
+				@mouseup.native="stopIncrement($event);"
+				@touchstart.native="startIncrement(10);"
+				@touchend.native="stopIncrement($event);"
+				class="button"
+				v-if="tenStep"
 			/>
 		</div>
 	</div>
@@ -43,6 +59,9 @@ export default class IncrementForm extends Vue {
 
 	@Prop({default:30})
 	public maxValue:number;
+
+	@Prop({default:false})
+	public tenStep:boolean;
 	
 	public inputId:string = "incrementInput_"+Math.round(Math.random() * 999999);
 	public incInterval:number;

@@ -283,10 +283,10 @@ export default class Button extends Vue {
 	}
 
 	&.highlight {
-		color: @mainColor_normal;
-		background-color: @mainColor_highlight;
+		color: #ffffff;
+		background-color: @mainColor_warn;
 		&.disabled {
-			background-color: fade(@mainColor_highlight,50%);
+			background-color: fade(@mainColor_warn,50%);
 		}
 		.label, .icon {
 			&.hide {
@@ -294,13 +294,13 @@ export default class Button extends Vue {
 			}
 		}
 		&:not(.loading):hover {
-			background-color: @mainColor_highlight_light;
+			background-color: @mainColor_warn_light;
 		}
 		&.loading {
-			background-color: fade(@mainColor_highlight, 50%);
+			background-color: fade(@mainColor_warn, 50%);
 		}
 		&.selected {
-			background-color: @mainColor_highlight_extralight;
+			background-color: @mainColor_warn_extralight;
 		}
 	}
 

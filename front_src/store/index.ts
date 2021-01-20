@@ -28,7 +28,8 @@ export default new Vuex.Store({
 		
 		twitchLogin:null,
 		twitchOAuthToken:null,
-		allowedTwitchUsers:null,
+		twitchAllowedUsers:null,
+		hideBackground:null,//for OBS
 
 		confirm:{
 		  title:null,
@@ -115,8 +116,13 @@ export default new Vuex.Store({
 			Store.set("twitchLogin", state.twitchLogin);
 		},
 
-		setAllowedTwitchUsers(state, payload) {
-			state.allowedTwitchUsers = payload;
+		setTwitchAllowedUsers(state, payload) {
+			state.twitchAllowedUsers = payload;
+			Store.set("twitchAllowedUsers", JSON.stringify(state.twitchAllowedUsers));
+		},
+
+		setHideBackground(state, payload) {
+			state.hideBackground = payload;
 		},
 
 	},
@@ -157,6 +163,8 @@ export default new Vuex.Store({
 			if(twitchToken) state.twitchOAuthToken = twitchToken;
 			let twitchLogin = Store.get("twitchLogin");
 			if(twitchLogin) state.twitchLogin = twitchLogin;
+			let twitchAllowedUsers = Store.get("twitchAllowedUsers");
+			if(twitchAllowedUsers) state.twitchAllowedUsers = JSON.parse(twitchAllowedUsers);
 
 			let volume = Store.get("volume");
 			if(volume != null) {
@@ -213,6 +221,8 @@ export default new Vuex.Store({
 
 		setTwitchLogin({commit}, payload) { commit("setTwitchLogin", payload); },
 
-		setAllowedTwitchUsers({commit}, payload) { commit("setAllowedTwitchUsers", payload); },
+		setTwitchAllowedUsers({commit}, payload) { commit("setTwitchAllowedUsers", payload); },
+
+		setHideBackground({commit}, payload) { commit("setHideBackground", payload); },
 	}
 })

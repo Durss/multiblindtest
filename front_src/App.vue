@@ -1,5 +1,5 @@
 <template>
-	<div class="app">
+	<div :class="classes">
 		<router-view class="content"/>
 		<transition name="slide" appear>
 			<Button class="backHome"
@@ -39,6 +39,12 @@ import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
 export default class App extends Vue {
 
 	private socketConnected:boolean = false;
+
+	public get classes():string[] {
+		let res = ["app"];
+		if(this.$store.state.hideBackground) res.push("noBg");
+		return res;
+	}
 
 	public mounted():void {
 		//This hacks plays an empty sound on first click to avoid "click to play"
@@ -81,6 +87,12 @@ export default class App extends Vue {
 	height: 100%;
 	padding: 20px 0;
 	box-sizing: border-box;
+	background-color: @mainColor_normal_extralight;
+
+	&.noBg {
+		background-color: rgba(0, 0, 0, 0);
+	}
+
 	.content {
 		max-width: 500px;
 		margin: auto;

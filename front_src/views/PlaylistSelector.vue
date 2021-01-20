@@ -7,6 +7,7 @@
 
 		<div class="playlists" v-if="!loading">
 			<div class="header">
+				<img src="@/assets/icons/twitch.svg" alt="Twitch" class="icon" v-if="mode=='twitch'">
 				<h1>{{$t('playlists.title')}}</h1>
 				<p>{{$t('playlists.subtitle')}}</p>
 				<Button :title="$t('playlists.refresh')"
@@ -295,6 +296,9 @@ export default class PlaylistSelector extends Vue {
 	}
 
 	.header {
+		.icon {
+			height: 50px;
+		}
 		h1 {
 			margin-bottom: 10px;
 		}

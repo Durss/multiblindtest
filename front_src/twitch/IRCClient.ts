@@ -53,7 +53,7 @@ export default class IRCClient extends EventDispatcher {
 			});
 	
 			this.client.on("join", (channel, user)=> {
-				if(user == this.login && !this.isConnected) {
+				if(user == this.login) {
 					this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
 					this.isConnected = true;
 					// console.log(reason);
@@ -68,6 +68,10 @@ export default class IRCClient extends EventDispatcher {
 					console.log("IRCClient :: Connection failed");
 					reject();
 				}
+			});
+			this.client.on("disconnected", (message:string)=> {
+				console.log("disconnected from IRC !!");
+				this.isConnected = false;
 			});
 	
 			this.client.on('message', (channel, tags, message, self) => {
