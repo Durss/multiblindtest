@@ -33,7 +33,7 @@ export default class GameParams extends Vue {
 	@Prop({default:4})
 	public tracksCount:number;
 
-	@Prop({default:[]})
+	@Prop({default:null})
 	public expertMode:string[];
 
 	public expertMode_local:string[] = null;

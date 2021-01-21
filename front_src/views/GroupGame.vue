@@ -257,6 +257,7 @@ export default class GroupGame extends Vue {
 		let toPlay:TrackData[] = [];
 		for (let i = 0; i < Math.min(6, Math.max(1, this.room.tracksCount)); i++) {
 			let t = this.allTracks.shift();
+			t.enabled = false;
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;
