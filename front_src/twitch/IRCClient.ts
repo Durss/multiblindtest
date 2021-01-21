@@ -64,13 +64,16 @@ export default class IRCClient extends EventDispatcher {
 			//@ts-ignore dirty system event listener because i foudn no other
 			//way to capture a connexion error...
 			this.client.on("_promiseJoin", (message:string)=> {
-				if(message && message.indexOf("No response") > -1) {
+				if(message && message.toLowerCase().indexOf("no response") > -1) {
 					console.log("IRCClient :: Connection failed");
 					reject();
 				}
 			});
 			this.client.on("disconnected", (message:string)=> {
-				console.log("disconnected from IRC !!");
+				console.log("IRCClient :: Disconnected");
+				if(!this.isConnected) {
+					reject();
+				}
 				this.isConnected = false;
 			});
 	
