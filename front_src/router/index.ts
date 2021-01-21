@@ -95,7 +95,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/twitch/auth',
+		path: '/twitch/auth/:oauthtoken?',
 		name: 'twitch/auth',
 		component: TwitchAuth,
 		props:true,
