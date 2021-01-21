@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<canvas ref="canvas"></canvas>
-		<div class="time" ref="time" :style="timeStyles">{{textDuration}}</div>
+		<div class="time" ref="time" :style="timeStyles" v-if="timerPercent!=1">{{textDuration}}</div>
 	</div>
 </template>
 
@@ -15,7 +15,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 export default class TimerRenderer extends Vue {
 
 	@Prop({default:0})
-	public percent:number;
+	public timerPercent:number;
 
 	@Prop({default:0})
 	public duration:number;
@@ -38,9 +38,9 @@ export default class TimerRenderer extends Vue {
 	public get timeStyles():any {
 		let res:any = {};
 		
-		if(!this.center) return res;
+		if(!this.center || !this.$refs.time) return res;
 
-		let a = Math.PI*2 * this.percent;
+		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
 		let bounds = (<HTMLDivElement>this.$refs.time).getBoundingClientRect();
 		let px = this.center.x + Math.cos(a) * (this.radius+30) - bounds.width/2+"px";
 		let py = this.center.y + Math.sin(a) * (this.radius+30) - bounds.height/2+"px";
@@ -51,7 +51,7 @@ export default class TimerRenderer extends Vue {
 	}
 
 	public get textDuration():string {
-		let d = new Date(Math.ceil(this.duration) * 1000);
+		let d = new Date(Math.ceil(this.duration * (1-this.timerPercent)) * 1000);
 		if((
 			(d.getTime()/1000 < 20 && d.getSeconds()%5 == 0)
 			|| d.getTime()/1000 <= 5
@@ -99,7 +99,7 @@ export default class TimerRenderer extends Vue {
 		this.ctx.strokeStyle = "#ffffff";
 		this.ctx.lineWidth = thickness;
 		this.ctx.lineCap = "round";
-		this.ctx.arc(this.cnv.width*.5, this.cnv.height*.5,this.radius,0, Math.PI*2*this.percent);
+		this.ctx.arc(this.cnv.width*.5, this.cnv.height*.5,this.radius,-Math.PI/2, Math.PI*2*this.timerPercent-Math.PI/2);
 		this.ctx.stroke();
 	}
 
