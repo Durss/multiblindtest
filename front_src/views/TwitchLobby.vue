@@ -193,6 +193,7 @@ export default class TwitchLobby extends Vue {
 			playlistids:this.playlistids,
 			tracksCount:this.tracksCount.toString(),
 			gamesCount:this.gamesCount.toString(),
+			gameDuration:this.gameDuration.toString(),
 		}
 		if(this.expertMode && this.expertMode.length > 0) {
 			params.expertMode = this.expertMode.join(",");

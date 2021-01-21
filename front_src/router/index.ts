@@ -117,7 +117,7 @@ const routes = [
 		component: TwitchLobby
 	},
 	{
-		path: '/twitch/play/:playlistids/:tracksCount/:gamesCount/:expertMode?',
+		path: '/twitch/play/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
 		name: 'twitch/play',
 		props:true,
 		meta: {

@@ -548,8 +548,13 @@ export default class Utils {
 	public static formatDate(dateStr:string, fallback:string="jamais"):string {
 		if(!dateStr) return fallback;
 		let date:Date = new Date(dateStr);
-		function tod(nbr:number):string{ return nbr < 9? "0"+nbr : nbr.toString()}
-		return tod(date.getDate())+"/"+tod(date.getMonth()+1)+"/"+date.getFullYear()+" "+tod(date.getHours())+"h"+tod(date.getMinutes());
+		return this.toDigits(date.getDate())+"/"+this.toDigits(date.getMonth()+1)+"/"+date.getFullYear()+" "+this.toDigits(date.getHours())+"h"+this.toDigits(date.getMinutes());
+	}
+
+	public static toDigits(num:number, digits:number = 2):string {
+		let res = num.toString();
+		while(res.length < digits) res = "0"+res;
+		return res;
 	}
 
 	public static getDemoTracks():TrackData[] {

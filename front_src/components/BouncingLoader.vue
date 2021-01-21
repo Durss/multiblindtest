@@ -25,7 +25,7 @@ export default class BouncingLoader extends Vue {
 	public label:string;
 
 	public mounted():void {
-		gsap.to(this.$refs.icon, {duration: 1, ease:"Elastic.easeIn", scale:1.2, repeat:100}).yoyo(true);
+		gsap.to(this.$refs.icon, {duration: 1, ease:"Elastic.easeIn", scale:1.2, repeat:-1}).yoyo(true);
 	}
 
 	public beforeDestroy():void {

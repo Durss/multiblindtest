@@ -1,14 +1,18 @@
 <template>
 	<div class="twitchoverlay">
-		<img :src="icon" class="logo">
+		<img :src="icon" class="logo" ref="logo">
+		
+		<TimerRenderer :percent="percent" :duration="duration * (1-percent)" class="timer" ref="timer" />
+
 		<div class="tracks">
 			<div v-for="t in tracks" :key="t.id" class="track">
 				<TrackEntry class="actualTrack"
 					:data="t"
-					:forceReveal="false"
-					:canReplay="false"
+					:canReplay="true"
 					:burstStars="true"
 					:scoreHistory="scoreHistory"
+					@play="$emit('play', t)"
+					@stop="$emit('stop', t)"
 				/>
 			</div>
 		</div>
@@ -17,11 +21,14 @@
 
 <script lang="ts">
 import TrackData from "@/vo/TrackData";
+import gsap from "gsap";
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import TimerRenderer from "./TimerRenderer.vue";
 import TrackEntry from "./TrackEntry.vue";
 
 @Component({
 	components:{
+		TimerRenderer,
 		TrackEntry,
 	}
 })
@@ -33,6 +40,16 @@ export default class TwitchOverlay extends Vue {
 	@Prop({default:[]})
 	public scoreHistory:{trackId:string, guesserId:string, score:number}[];
 
+	@Prop({default:0})
+	public duration:number;
+
+	@Prop({default:true})
+	public paused:boolean;
+
+	public percent:number = 0;
+	public timeOffset:number = 0;
+	public disposed:boolean = false
+
 	public get icon():string {
 		if(this.$store.state.hideBackground) {
 			return require('@/assets/icons/home_logo_outlined.svg');
@@ -41,11 +58,30 @@ export default class TwitchOverlay extends Vue {
 	}
 
 	public mounted():void {
-		
+		gsap.to(this.$refs.logo, {duration: 1, ease:"Elastic.easeIn", scale:1.2, repeat:-1}).yoyo(true);
+		this.timeOffset = new Date().getTime();
+		this.renderFrame();
 	}
 
 	public beforeDestroy():void {
-		
+		this.disposed = true;
+		gsap.killTweensOf(this.$refs.logo);
+	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(_=>this.renderFrame());
+		if(this.paused || this.percent == 1) {
+			this.timeOffset = new Date().getTime();
+			return;
+		}
+
+		let ellapsed = new Date().getTime() - this.timeOffset;
+		this.percent = Math.min(1, ellapsed / (this.duration * 1000));
+
+		if(this.percent == 1) {
+			this.$emit("timerComplete");
+		}
 	}
 
 }
@@ -59,10 +95,21 @@ export default class TwitchOverlay extends Vue {
 	transform: translate(-50%, 0);
 
 	.logo {
-		width: 220px;
+		width: 110px;
 		margin: auto;
 		display: block;
-		// margin-bottom: -50px;
+		margin-bottom: 40px;
+		position: absolute;
+		left: 50%;
+		top: 30px;
+		transform: translate(-50%, 0);
+	}
+
+	.timer {
+		width: 200px;
+		height: 200px;
+		margin: auto;
+		z-index: 1;
 	}
 
 	.tracks {

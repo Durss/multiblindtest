@@ -13,7 +13,13 @@
 			label="Connecting to Twitch..." />
 
 		<div v-if="!loading">
-			<TwitchOverlay :tracks="currentTracks" :scoreHistory="scoreHistory" />
+			<TwitchOverlay :tracks="currentTracks"
+				:scoreHistory="scoreHistory"
+				:duration="gameDuration_num"
+				:paused="pause"
+				@timerComplete="onTimerComplete()"
+				@play="playTtrack"
+				@stop="stopTrack" />
 			<CountDown v-if="pause" @complete="pause = false" />
 		</div>
 
@@ -56,6 +62,9 @@ export default class TwitchGame extends Vue {
 	public gamesCount:string;
 
 	@Prop({default:""})
+	public gameDuration:string;
+
+	@Prop({default:""})
 	public expertMode:string;
 
 	public ready:boolean = false;
@@ -71,6 +80,7 @@ export default class TwitchGame extends Vue {
 
 	public get tracksCount_num():number { return parseInt(this.tracksCount); }
 	public get gamesCount_num():number { return parseInt(this.gamesCount); }
+	public get gameDuration_num():number { return parseInt(this.gameDuration); }
 
 	public async mounted():Promise<void> {
 		this.loading = true;
@@ -125,7 +135,6 @@ export default class TwitchGame extends Vue {
 		this.audioPlayer.onLoadError = (id)=> this.onLoadError(id);
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
-			console.warn("Need user interaction...");
 			this.checkComplete();
 			if(!this.complete) {
 				this.$store.dispatch("setNeedUserInteraction", true);
@@ -231,9 +240,9 @@ export default class TwitchGame extends Vue {
 	 * Called when receiving a message from twitch
 	 */
 	public onIrcMessage(e:IRCEvent):void {
-		console.log("IRC MESSAGE");
-		console.log(e.message);
-		this.guessTrack(e.message, e.tags)
+		// console.log("IRC MESSAGE");
+		// console.log(e.message);
+		this.guessTrack(e.message, e.tags);
 	}
 
 	/**
@@ -244,7 +253,6 @@ export default class TwitchGame extends Vue {
 		this.$store.dispatch("setNeedUserInteraction", false);
 
 		if(!this.pause) {
-			console.log("UNPAUSE !");
 			this.audioPlayer.play();
 		}
 		
@@ -308,6 +316,23 @@ export default class TwitchGame extends Vue {
 	public onVolumeChange(a, b):void {
 		if(!this.audioPlayer) return;
 		this.audioPlayer.volume = this.$store.state.volume;
+	}
+
+	public onTimerComplete():void {
+		for (let i = 0; i < this.currentTracks.length; i++) {
+			const t = this.currentTracks[i];
+			t.enabled = true;
+		}
+		this.audioPlayer.stopAll();
+	}
+
+	public playTtrack(track:TrackData):void {
+		this.audioPlayer.unpauseTrack(track);
+	}
+
+	public stopTtrack(track:TrackData):void {
+		this.audioPlayer.stopTrack(track);
+
 	}
 
 }
