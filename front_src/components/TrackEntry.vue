@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt">
 		<div class="icon">
 			<img v-if="(!reveal || !data.guessedBy) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
 			<div v-if="reveal && data.guessedBy && !data.loadFail" class="score">{{score}}</div>
@@ -25,13 +25,13 @@
 
 		<div class="guesser" v-if="data.guessedBy">
 			<p class="pseudo">{{data.guessedBy.name}}</p>
-			<!-- <p class="plus">+</p>
-			<p class="score">{{score}}</p> -->
 		</div>
 
 		<div ref="stars" class="stars">
 			<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
 		</div>
+
+		<Button data-tooltip="Copy JSON to clipboard" v-if="showJSONBt" class="copyJSON small" @click="copyJSON()" title="JSON" :icon="require('@/assets/icons/copy.svg')" />
 	</div>
 </template>
 
@@ -40,9 +40,13 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 import TrackData from '@/vo/TrackData';
 import ScoreHistory from '../vo/ScoreHistory';
 import gsap from "gsap";
+import Utils from "@/utils/Utils";
+import Button from "./Button.vue";
 
 @Component({
-	components:{}
+	components:{
+		Button,
+	}
 })
 export default class TrackEntry extends Vue {
 
@@ -62,6 +66,7 @@ export default class TrackEntry extends Vue {
 	public burstStars:boolean;
 	
 	public playing:boolean = false;
+	public showJSONBt:boolean = false;
 
 	public get classes():string[] {
 		let res = ["trackentry"];
@@ -124,6 +129,10 @@ export default class TrackEntry extends Vue {
 			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
 			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
 		}
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.data));
 	}
 
 }
