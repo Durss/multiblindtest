@@ -84,7 +84,7 @@ export default class App extends Vue {
 <style scoped lang="less">
 @import (reference) 'less/_includes.less';
 .app{
-	height: 100%;
+	min-height: 100%;
 	padding: 20px 0;
 	box-sizing: border-box;
 	background-color: @mainColor_normal_extralight;
