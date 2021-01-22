@@ -34,7 +34,7 @@ export default class SpotifyAPI {
 	/**
 	 * Call a spotify endpoint
 	 */
-	public async call(endpoint: string, params?: any): Promise<any> {
+	public async call(endpoint: string, params?: any, autoAuth:boolean = true): Promise<any> {
 		let url = "https://api.spotify.com/"+endpoint+"?access_token=" + this.access_token;
 
 		if(params) {
@@ -52,7 +52,9 @@ export default class SpotifyAPI {
 		let result = await fetch(url, options);
 		if(result.status == 401) {
 			Store.set("redirect", document.location.href);//will allow to redirect the user to the current page after oauth result
-			this.authenticate();
+			if(autoAuth) {
+				this.authenticate();
+			}
 			return Promise.reject();
 		}
 		if(result.status == 429) {

@@ -30,7 +30,7 @@
 						<div>Type the following command on your chat to join the game:</div>
 						<input type="text" v-model="command" class="dark small">
 						<div class="info">(customize the command as you wish)</div>
-						<Button title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
+						<Button class="sendToChat" title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
 					</div>
 
 					<div class="playersCount">
@@ -168,15 +168,15 @@ export default class TwitchLobby extends Vue {
 				if(p["user-id"] == e.tags["user-id"]) return;//Uer already registered
 			}
 			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
-			this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
+			// this.players.push(e.tags);
 		}
 	}
 
@@ -296,6 +296,9 @@ export default class TwitchLobby extends Vue {
 			}
 			.info {
 				font-size: 14px;
+			}
+			.sendToChat {
+				margin-top: 10px;
 			}
 		}
 

@@ -1,5 +1,11 @@
 <template>
 	<div class="twitchgame">
+		<TwitchControls class="controls"
+			@pause="pause = true"
+			@start="started = true"
+			@next="pickRandomTracks()"
+			:showZone.sync="showZone" />
+
 		<BouncingLoader
 			v-if="loading && ready"
 			class="loader musicLoader"
@@ -12,16 +18,25 @@
 			:icon="require('@/assets/icons/twitch.svg')"
 			label="Connecting to Twitch..." />
 
-		<div v-if="!loading">
-			<TwitchOverlay :tracks="currentTracks"
+		<div v-if="!loading && !showResults" :class="gameClasses">
+			<div class="obsHelp" v-if="showZone">Display this area on your stream by cropping it on OBS</div>
+			<TwitchGameOverlay :tracks="currentTracks"
 				:scoreHistory="scoreHistory"
 				:duration="gameDuration_num"
 				:paused="pause"
+				:gamesCount="gamesCount"
+				:currentStep="currentStep"
+				:stepComplete="stepComplete"
 				@timerComplete="onTimerComplete()"
+				@end="onGameFinished()"
 				@play="playTtrack"
 				@stop="stopTrack" />
-			<CountDown v-if="pause" @complete="pause = false" />
+			<CountDown class="countdown" v-if="countdown" @complete="countdown = pause = false" />
 		</div>
+
+		<TwitchResultsOverlay class="content"
+			v-if="showResults"
+			:scoreHistory="scoreHistory" />
 
 		<VolumeButton />
 	</div>
@@ -32,7 +47,8 @@ import AudioPlayer from "@/components/AudioPlayer";
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import CountDown from "@/components/CountDown.vue";
 import TrackAnswerForm from "@/components/TrackAnswerForm.vue";
-import TwitchOverlay from "@/components/TwitchOverlay.vue";
+import TwitchResultsOverlay from "@/components/twitch/TwitchResultsOverlay.vue";
+import TwitchGameOverlay from "@/components/twitch/TwitchGameOverlay.vue";
 import VolumeButton from "@/components/VolumeButton.vue";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
@@ -41,12 +57,16 @@ import StatsManager from "@/utils/StatsManager";
 import Utils from "@/utils/Utils";
 import TrackData from "@/vo/TrackData";
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import ScoreHistory from "@/vo/ScoreHistory";
+import TwitchControls from "@/components/twitch/TwitchControls.vue";
 
 @Component({
 	components:{
 		CountDown,
 		VolumeButton,
-		TwitchOverlay,
+		TwitchControls,
+		TwitchGameOverlay,
+		TwitchResultsOverlay,
 		BouncingLoader,
 	}
 })
@@ -68,12 +88,18 @@ export default class TwitchGame extends Vue {
 	public expertMode:string;
 
 	public ready:boolean = false;
+	public started:boolean = false;
+	public showZone:boolean = false;
+	public countdown:boolean = false;
 	public pause:boolean = true;
 	public loading:boolean = true;
-	public complete:boolean = true;
+	public stepComplete:boolean = false;
+	public gameComplete:boolean = false;
+	public showResults:boolean = false;//TODO Revert
+	public currentStep:number = 0;
 	public allTracks:TrackData[] = [];
 	public currentTracks:TrackData[] = [];
-    public scoreHistory:{trackId:string, guesserId:string, score:number}[] = [];
+    public scoreHistory:ScoreHistory[] = [];
     public audioPlayer:AudioPlayer;
     public clickHandler:any;
     public ircMessageHandler:any;
@@ -81,11 +107,15 @@ export default class TwitchGame extends Vue {
 	public get tracksCount_num():number { return parseInt(this.tracksCount); }
 	public get gamesCount_num():number { return parseInt(this.gamesCount); }
 	public get gameDuration_num():number { return parseInt(this.gameDuration); }
+	public get gameClasses():string[] {
+		let res:string[] = ["content"];
+		if(this.showZone) res.push("showZone");
+		return res;
+	}
 
 	public async mounted():Promise<void> {
 		this.loading = true;
 		this.pause = true;
-		this.complete = false;
 		this.ready = IRCClient.instance.connected;
 		if(!this.ready) {
 			let res
@@ -136,9 +166,7 @@ export default class TwitchGame extends Vue {
 		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
 		this.audioPlayer.onNeedUserInteraction = _=> {
 			this.checkComplete();
-			if(!this.complete) {
-				this.$store.dispatch("setNeedUserInteraction", true);
-			}
+			this.$store.dispatch("setNeedUserInteraction", true);
 		};
 	}
 
@@ -149,6 +177,7 @@ export default class TwitchGame extends Vue {
 	public onLoadComplete():void {
 		this.loading = false;
 		this.audioPlayer.pause();
+		this.countdown = this.pause;
 	}
 
 	/**
@@ -179,7 +208,9 @@ export default class TwitchGame extends Vue {
 				this.stopTrack(t);
 			}
 		}
-		this.complete = allGood;
+		if(allGood) {
+			this.onTimerComplete();
+		}
 	}
 
 	/**
@@ -208,6 +239,8 @@ export default class TwitchGame extends Vue {
 	}
 
 	public pickRandomTracks():void {
+		this.loading = true;
+		this.currentStep ++;
 		if(!this.allTracks || this.allTracks.length < this.tracksCount_num) {
 			this.generateAllTracksCollection();
 		}
@@ -216,22 +249,11 @@ export default class TwitchGame extends Vue {
 		let toPlay:TrackData[] = [];
 		for (let i = 0; i < Math.min(6, Math.max(1, this.tracksCount_num)); i++) {
 			let t = this.allTracks.shift();
+			t.enabled = false;
 			toPlay.push(t);
 		}
 		this.currentTracks = toPlay;
-		// this.currentTracks[0].enabled = true;
-		// this.currentTracks[0].guessedBy = {
-		// 	name:"Durss",
-		// 	id:"1",
-		// 	offline:false,
-		// 	score:5,
-		// 	handicap:0,
-		// };
-		// this.scoreHistory.push({
-		// 	trackId:this.currentTracks[0].id,
-		// 	guesserId:"1",
-		// 	score:4,
-		// })
+		this.stepComplete = false;
 
 		this.audioPlayer.populate(this.currentTracks);
 	}
@@ -240,8 +262,8 @@ export default class TwitchGame extends Vue {
 	 * Called when receiving a message from twitch
 	 */
 	public onIrcMessage(e:IRCEvent):void {
-		// console.log("IRC MESSAGE");
-		// console.log(e.message);
+		console.log("IRC MESSAGE");
+		console.log(e.tags);
 		this.guessTrack(e.message, e.tags);
 	}
 
@@ -251,19 +273,10 @@ export default class TwitchGame extends Vue {
 	@Watch("pause")
 	public startPlay():void {
 		this.$store.dispatch("setNeedUserInteraction", false);
-
 		if(!this.pause) {
 			this.audioPlayer.play();
-		}
-		
-		//Stops the tracks that have been guessed.
-		//This is usefull for multiplayer mode if a player
-		//refreshes the page and is asked to click to start playing.
-		for (let i = 0; i < this.currentTracks.length; i++) {
-			const t = this.currentTracks[i];
-			if(t.enabled || this.pause) {
-				this.stopTrack(t);
-			}
+		}else{
+			this.audioPlayer.stopAll();
 		}
 	}
 	
@@ -286,7 +299,6 @@ export default class TwitchGame extends Vue {
 			) {
 				t.enabled = true;
 				this.audioPlayer.stopTrack(t);
-				this.$emit("guessed", t);
 				let score = this.currentTracks.length + 1;
 				for (let j = 0; j < this.currentTracks.length; j++) {
 					if(this.currentTracks[j].enabled) score --;
@@ -294,7 +306,7 @@ export default class TwitchGame extends Vue {
 
 				this.scoreHistory.push({
 					trackId:t.id,
-					guesserId:user.id,
+					guesserId:user["user-id"],
 					score,
 				});
 
@@ -323,7 +335,9 @@ export default class TwitchGame extends Vue {
 			const t = this.currentTracks[i];
 			t.enabled = true;
 		}
+		this.stepComplete = true;
 		this.audioPlayer.stopAll();
+		this.gameComplete = this.currentStep == this.gamesCount_num;
 	}
 
 	public playTtrack(track:TrackData):void {
@@ -332,7 +346,10 @@ export default class TwitchGame extends Vue {
 
 	public stopTtrack(track:TrackData):void {
 		this.audioPlayer.stopTrack(track);
+	}
 
+	public onGameFinished():void {
+		this.showResults = true;
 	}
 
 }
@@ -340,11 +357,48 @@ export default class TwitchGame extends Vue {
 
 <style scoped lang="less">
 .twitchgame{
+	max-width: 100% !important;
+	overflow: hidden;
+
 	.loader {
 		.center();
 		position: absolute;
-		top: auto;
-		bottom: 0;
+	}
+
+	.countdown {
+		/deep/ .number {
+			font-size: 260px;
+		}
+	}
+
+	.obsHelp {
+		position: absolute;
+		transform: translateY(-100%);
+		color: @mainColor_alert;
+		padding: 5px;
+		border: 1px dashed rgba(255, 0, 0, .25);
+	}
+
+	.content {
+		position: absolute;
+		bottom: 0px;
+		left: 50%;
+		margin-bottom: 20px;
+		transform: translate(-50%, 0);
+		min-height: 330px;
+		box-sizing: border-box;
+		&.showZone {
+			background-image: url('../assets/icons/dashedBg.svg');
+			background-size: 20px 20px;
+			background-position: center center;
+		}
+	}
+
+	.controls {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
 	}
 }
 </style>

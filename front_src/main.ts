@@ -10,6 +10,8 @@ import Config from './utils/Config';
 import VueI18n from 'vue-i18n';
 import AnswerTester from './utils/AnswerTester';
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
+import gsap from "gsap";
+import { ScrollToPlugin } from 'gsap/all';
 
 Vue.config.productionTip = false;
 Config.init();
@@ -17,6 +19,7 @@ Vue.use(VueI18n);
 let userLang: string = navigator.language || (<any>navigator)['userLanguage'];
 userLang = userLang.substr(0, 2).toLowerCase();
 store.dispatch("setLanguageCode", userLang);
+gsap.registerPlugin(ScrollToPlugin);
 
 if(!Config.IS_PROD) {
 	AnswerTester.instance.run();

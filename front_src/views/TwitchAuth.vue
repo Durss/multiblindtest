@@ -7,14 +7,14 @@
 			label="Connecting to Twitch..." />
 		
 		<div v-if="!loading">
-			<h1>Connect with twitch</h1>
+			<h1 v-if="!needSpotifyAuth">Connect with twitch</h1>
 			<div class="step" v-if="!loggedIn">
 				<div class="head">Please first generate an access token:</div>
 				<Button to="https://twitchapps.com/tmi/"
 					type="link"
 					target="_blank"
 					title="Generate token"
-					:icon="require('@/assets/icons/ext_link.svg')"
+					:icon="require('@/assets/icons/twitch.svg')"
 					@click.native="clickGenerate()" />
 			</div>
 
@@ -33,7 +33,7 @@
 				</form>
 			</div>
 
-			<div class="step" v-if="loggedIn">
+			<div class="step" v-if="loggedIn && url">
 				<div class="head">Configure this URL on OBS:</div>
 				<div class="url" ref="url">
 					<div class="text" @click="selectText">{{url}}</div>
@@ -41,7 +41,13 @@
 				</div>
 
 				<div class="head">Or continue if you already are on OBS:</div>
-				<Button :to="redirect" :title="$t('twitch.auth.continue')" />
+				<Button :to="redirect" :title="$t('twitch.auth.continue')" big />
+			</div>
+			
+			<h1 v-if="needSpotifyAuth">Connect with spotify</h1>
+			<div v-if="needSpotifyAuth">
+				<div>The spotify token has expired, click the button bellow to generate a new one</div>
+				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
 			</div>
 		</div>
 	</div>
@@ -50,8 +56,10 @@
 <script lang="ts">
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
+import Store from "@/store/Store";
 import IRCClient from "@/twitch/IRCClient";
 import TwitchUtils from "@/twitch/TwitchUtils";
+import SpotifyAPI from "@/utils/SpotifyAPI";
 import Utils from "@/utils/Utils";
 import gsap from "gsap";
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
@@ -65,7 +73,9 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 export default class TwitchAuth extends Vue {
 
 	@Prop({default:null})
-	public oauthtoken:string;
+	public twitchOAToken:string;
+	@Prop({default:null})
+	public spotifyOAToken:string;
 
 	public loading:boolean = false;
 	public checkingToken:boolean = false;
@@ -73,14 +83,21 @@ export default class TwitchAuth extends Vue {
 	public error:boolean = false;
 	public errorIRC:boolean = false;
 	public loggedIn:boolean = false;
+	public needSpotifyAuth:boolean = false;
 	public token:string = null;
 	public url:string = null;
 	public redirect:any = {name:'playlists', params:{mode:'twitch'}};
+	public redirect_absolute:any = document.location.origin+this.$router.resolve(this.redirect).href;
+
+	public get authUrl():string {
+		Store.set("redirect", this.redirect_absolute);
+		return SpotifyAPI.instance.getAuthUrl();
+	}
 
 	public async mounted():Promise<void> {
 		let token = this.$store.state.twitchOAuthToken;
-		if(this.oauthtoken) {
-			token =this.oauthtoken;
+		if(this.twitchOAToken) {
+			token =this.twitchOAToken;
 		}
 		if(token) {
 			this.loading = true;
@@ -123,10 +140,18 @@ export default class TwitchAuth extends Vue {
 			console.log("Connected to IRC !", res);
 			this.loggedIn = true;
 			this.loading = false;
-			if(this.oauthtoken) {
+			if(this.twitchOAToken) {
+				//Test if spotify token is valid
+				try {
+					await SpotifyAPI.instance.call("v1/me", null, false);
+				}catch(error) {
+					this.needSpotifyAuth = true;
+					return;
+				}
 				this.$router.push(this.redirect);
 			}else{
-				this.url = document.location.origin+this.$router.resolve({name:'twitch/auth', params:{oauthtoken:this.token}}).href;
+				let route = {name:'twitch/auth', params:{twitchOAToken:this.token, spotifyOAToken:this.$store.state.accessToken}};
+				this.url = document.location.origin+this.$router.resolve(route).href;
 			}
 			return true;
 		}
