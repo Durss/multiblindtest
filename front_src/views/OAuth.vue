@@ -62,6 +62,7 @@ export default class OAuth extends Vue {
 		border-radius: 10px;
 		padding: 10px;
 		background-color: @mainColor_warn;
+		margin-bottom: 20px;
 		.title {
 			font-family: "FuturaExtraBold";
 			text-align: center;

@@ -13,7 +13,7 @@
 			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
-			<div class="twitch">
+			<div class="twitch" v-if="loggedIn">
 				<Button v-if="loggedIn" :title="$t('home.twitch')" :to="{name:'twitch/auth'}" :icon="require('@/assets/icons/twitch.svg')" class="button" big />
 				<div class="beta">BETA!</div>
 			</div>
