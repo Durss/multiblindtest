@@ -45,6 +45,12 @@ if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
 	TwitchExtensionHelper.instance.initialize();
 }
 
+if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
+	// router.push({name:'twitchext'});
+	store.dispatch("setHideBackground", true);
+	TwitchExtensionHelper.instance.initialize();
+}
+
 router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded
 	if (!store.state.initComplete) {

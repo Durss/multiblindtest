@@ -68,8 +68,6 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 			}
 		});
 
-		console.log("INITIALIZE");
-
 		// listen for incoming broadcast message from our EBS
 		this._twitch.listen('broadcast', (target, contentType, message) => {
 			this.log('Received a broadcast message:');
