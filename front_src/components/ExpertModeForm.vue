@@ -1,20 +1,13 @@
 <template>
 	<div class="expertmodeform">
 		<div class="toggle">
-			<Button type="checkbox" id="expertmode" v-model="enabled" />
-			<label for="expertmode" @click="enabled=!enabled">{{$t('group.lobby.expertMode.title')}}</label>
+			<Button type="checkbox" v-model="enabled" :title="$t('group.lobby.expertMode.title')" />
 		</div>
 		<div v-if="enabled" class="form">
 			<p class="infos">{{$t("group.lobby.expertMode.details")}}</p>
 			<div class="checkboxes">
-				<div class="row">
-					<Button type="checkbox" id="expertmode_title" v-model="acceptTitle" />
-					<label @click="acceptTitle=!acceptTitle" for="expertmode_title">{{$t('group.lobby.expertMode.acceptTitle')}}</label>
-				</div>
-				<div class="row">
-					<Button type="checkbox" id="expertmode_artist" v-model="acceptArtist" />
-					<label @click="acceptArtist=!acceptArtist" for="expertmode_artist">{{$t('group.lobby.expertMode.acceptArtist')}}</label>
-				</div>
+				<Button type="checkbox" v-model="acceptTitle" :title="$t('group.lobby.expertMode.acceptTitle')" />
+				<Button type="checkbox" v-model="acceptArtist" :title="$t('group.lobby.expertMode.acceptArtist')" />
 			</div>
 			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{$t('group.lobby.expertMode.selectSomething')}}</div>
 		</div>
@@ -108,24 +101,6 @@ export default class ExpertModeForm extends Vue {
 			font-size: 16px;
 			width: 260px;
 			margin-bottom: 10px;
-		}
-		.checkboxes {
-			.row {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				margin-top: 5px;
-				::v-deep .button {
-					width: 20px;
-					height: 20px;
-				}
-				label {
-					margin: 0;
-					margin-left: 5px;
-					font-size: 16px;
-					cursor: pointer;
-				}
-			}
 		}
 		.selectSomething {
 			margin-top: 10px;

@@ -5,12 +5,15 @@
 	:type="type=='checkbox'? null : type"
 	:target="target"
 	:to="to"
-	:href="type=='link'? to : ''"
+	:href="type=='link'? to : null"
 	:data-selected="selected"
 	@click="onClick($event)"
 	:style="progressStyle">
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
+		<div class="checkmark" v-if="type=='checkbox'">
+			<img :src="require('@/assets/icons/checkmark.svg')" v-if="checked" alt="ico n" class="img">
+		</div>
 		<!--
 			<img v-if="loading &&  white !== false" src="@/assets/loader/loader_light.svg" alt="icon" class="spinner">
 			<img v-if="loading && white === false" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
@@ -81,9 +84,6 @@ export default class Button extends Vue {
 	}
 
 	public get parsedIcon():string {
-		if(this.type == "checkbox" && this.value) {
-			return require("@/assets/icons/checkmark.svg");
-		}
 		if(this.selected !== false && this.iconSelected) {
 			return this.iconSelected;
 		}else{
@@ -190,13 +190,14 @@ export default class Button extends Vue {
 	}
 
 	&.checkbox {
-		background: none;
-		border: 1px solid @mainColor_normal;
-		border-radius: 7px;
-		padding: 0px;
-		width: 25px;
-		height: 25px;
 		cursor: pointer;
+		background: none;
+		padding: 0px;
+		display: flex;
+		flex-direction: row;
+		border-radius: 0;
+		color: @mainColor_normal;
+		margin: 0;
 
 		.checkbox {
 			opacity: .001;
@@ -205,13 +206,41 @@ export default class Button extends Vue {
 			margin: 0;
 			width: 100%;
 			height: 100%;
+			left: 0;
+			top: 0;
+			z-index: 1;
 			cursor: pointer;
 		}
-		.icon {
-			width: 70%;
+
+		.checkmark {
+			border: 1px solid @mainColor_normal;
+			border-radius: 7px;
+			padding: 0;
+			width: 25px;
+			height: 25px;
+			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			.img {
+				width: 20px;
+				height: 20px;
+				margin: 0;
+				padding: 0;
+			}
 		}
+
+		.label {
+			margin-left: 7px;
+			justify-self: flex-start;
+			text-align: left;
+		}
+		
 		&:hover {
-			background-color: fade(@mainColor_normal; 30%);
+			background: none;
+			.checkmark {
+				background-color: fade(@mainColor_normal; 30%);
+			}
 		}
 	}
 
