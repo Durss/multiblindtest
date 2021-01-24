@@ -11,17 +11,18 @@
 	:style="progressStyle">
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
-		<div class="checkmark" v-if="type=='checkbox'">
-			<img :src="require('@/assets/icons/checkmark.svg')" v-if="checked" alt="ico n" class="img">
+
+		<div class="checkboxContent" v-if="type=='checkbox'">
+			<div class="checkmark">
+				<img :src="require('@/assets/icons/checkmark.svg')" v-if="checked" alt="ico n" class="img">
+			</div>
+			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
+			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 		</div>
-		<!--
-			<img v-if="loading &&  white !== false" src="@/assets/loader/loader_light.svg" alt="icon" class="spinner">
-			<img v-if="loading && white === false" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
-		-->
+
 		<img v-if="loading" src="@/assets/loader/loader_white.svg" alt="icon" class="spinner">
-		<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
+		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="$emit('change', $event)" />
-		<input type="checkbox" :name="name" :id="name" class="checkbox" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 	</component>
 </template>
 
@@ -166,7 +167,7 @@ export default class Button extends Vue {
 	// touch-action: none;
 	user-select: none;
 
-	&>*:not(.browse):not(.checkbox) {
+	&>*:not(.browse) {
 		pointer-events: none;
 	}
 
@@ -190,16 +191,14 @@ export default class Button extends Vue {
 	}
 
 	&.checkbox {
-		cursor: pointer;
 		background: none;
 		padding: 0px;
-		display: flex;
-		flex-direction: row;
 		border-radius: 0;
-		color: @mainColor_normal;
 		margin: 0;
+		display: inline-block;
 
-		.checkbox {
+		.checkboxInput {
+			pointer-events: all;
 			opacity: .001;
 			position: absolute;
 			padding: 0;
@@ -208,9 +207,18 @@ export default class Button extends Vue {
 			height: 100%;
 			left: 0;
 			top: 0;
-			z-index: 1;
+			z-index: 1000;
 			cursor: pointer;
 		}
+	}
+
+	.checkboxContent {
+		cursor: pointer;
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		height: 100%;
+		align-items: center;
 
 		.checkmark {
 			border: 1px solid @mainColor_normal;
@@ -231,9 +239,12 @@ export default class Button extends Vue {
 		}
 
 		.label {
+			flex-grow: 1;
 			margin-left: 7px;
 			justify-self: flex-start;
 			text-align: left;
+			width: max-content;
+			color: @mainColor_normal;
 		}
 		
 		&:hover {
