@@ -1,6 +1,6 @@
 <template>
 	<div class="twitchviewer">
-		<TwitchPlaylists v-if="playlists" />
+		<TwitchPlaylists />
 	</div>
 </template>
 
@@ -14,8 +14,6 @@ import { Component, Vue } from "vue-property-decorator";
 	}
 })
 export default class TwitchViewer extends Vue {
-
-	public get playlists():any { return this.$store.state.twitchPlaylists; }
 
 	public mounted():void {
 		

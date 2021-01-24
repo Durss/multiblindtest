@@ -39,7 +39,6 @@ if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
 	localStorage.clear();
 	localStorage.setItem("v", Config.STORAGE_VERSION.toString());
 }
-
 if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
 	// router.push({name:'twitchext'});
 	store.dispatch("setHideBackground", true);

@@ -202,7 +202,7 @@ export default class GroupLobbyUser extends Vue {
 		margin-left: 13px;
 		overflow: hidden;
 		transition: all .25s;
-			padding: 5px 10px;
+		padding: 5px 10px;
 
 		.incForm {
 			::v-deep .button:hover {

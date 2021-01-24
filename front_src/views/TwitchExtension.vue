@@ -42,11 +42,11 @@ export default class TwitchVideoOverlay extends Vue {
 			this.onConnected();
 		}
 		this.messageHandler = (e:TwitchExtensionEvent) => this.onMessage(e);
-		TwitchExtensionHelper.instance.addEventListener(TwitchExtensionEvent.MESSAGE, this.messageHandler)
+		TwitchExtensionHelper.instance.addEventListener(TwitchExtensionEvent.MESSAGE, this.messageHandler);
 	}
 
 	public beforeDestroy():void {
-		
+		TwitchExtensionHelper.instance.removeEventListener(TwitchExtensionEvent.MESSAGE, this.messageHandler);
 	}
 
 	private onConnected():void {

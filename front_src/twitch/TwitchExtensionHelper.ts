@@ -27,7 +27,6 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	static get instance():TwitchExtensionHelper {
 		if(!TwitchExtensionHelper._instance) {
 			TwitchExtensionHelper._instance = new TwitchExtensionHelper();
-			TwitchExtensionHelper._instance.initialize();
 		}
 		return TwitchExtensionHelper._instance;
 	}
@@ -68,6 +67,8 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 				this._onConnect();
 			}
 		});
+
+		console.log("INITIALIZE");
 
 		// listen for incoming broadcast message from our EBS
 		this._twitch.listen('broadcast', (target, contentType, message) => {
