@@ -20,10 +20,9 @@
 				type="button"
 				:icon="require('@/assets/icons/play.svg')"
 				big
-				:disabled="players.length == 0"
 				@click="startGame()" />
 
-			<div class="block players">
+			<!-- <div class="block players">
 				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
 				<div class="content">
 					<div class="command">
@@ -44,15 +43,15 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="block params">
 				<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
-					<div class="noBg" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
+					<div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
 						<Button type="checkbox" id="noBg" v-model="noBackground" />
 						<label for="noBg" @click="noBackground = !noBackground">Transparent Background</label>
 					</div>
-					<IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" />
+					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
 			</div>
 		</div>
@@ -65,11 +64,13 @@ import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import GameParams from "@/components/GameParams.vue";
 import IncrementForm from "@/components/IncrementForm.vue";
-import IRCClient, {IRCTypes} from "@/twitch/IRCClient";
+import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
+import TwitchMessageType from "@/twitch/TwitchMessageType";
+import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
 import PlaylistData from "@/vo/PlaylistData";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -84,6 +85,9 @@ export default class TwitchLobby extends Vue {
 	@Prop({default:""})
 	public playlistids:string;
 
+	@Prop({default:""})
+	public mode:string;
+
 	public selectedPlaylists:PlaylistData[] = null;
 
 	public ready:boolean = false;
@@ -96,7 +100,6 @@ export default class TwitchLobby extends Vue {
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
-
 	public ircMessageHandler:any;
 
 	public get inviteMessage():string {
@@ -115,9 +118,8 @@ export default class TwitchLobby extends Vue {
 	public async mounted():Promise<void> {
 		this.ready = IRCClient.instance.connected;
 		if(!this.ready) {
-			let res
 			try {
-				res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
+				let res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
 			}catch(error) {
 				this.$router.push({name:"twitch/auth"});
 				return;
@@ -129,6 +131,7 @@ export default class TwitchLobby extends Vue {
 			this.$router.push({name:"twitch/auth"});
 			return;
 		}
+
 		let playlists:PlaylistData[] = this.$store.state.playlistsCache;
 		this.selectedPlaylists = [];
 		
@@ -145,6 +148,8 @@ export default class TwitchLobby extends Vue {
 		});
 
 		this.noBackground = this.$store.state.hideBackground === true;
+
+		if(this.mode == "twitchExt") this.broadcastInfosToExtension();
 
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
@@ -168,15 +173,6 @@ export default class TwitchLobby extends Vue {
 				if(p["user-id"] == e.tags["user-id"]) return;//Uer already registered
 			}
 			this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
-			// this.players.push(e.tags);
 		}
 	}
 
@@ -188,12 +184,13 @@ export default class TwitchLobby extends Vue {
 	}
 
 	public startGame():void {
-		this.$store.dispatch("setTwitchAllowedUsers", this.players);
+		// this.$store.dispatch("setTwitchAllowedUsers", this.players);
 		let params:any = {
 			playlistids:this.playlistids,
 			tracksCount:this.tracksCount.toString(),
 			gamesCount:this.gamesCount.toString(),
 			gameDuration:this.gameDuration.toString(),
+			mode:this.mode,
 		}
 		if(this.expertMode && this.expertMode.length > 0) {
 			params.expertMode = this.expertMode.join(",");
@@ -205,6 +202,20 @@ export default class TwitchLobby extends Vue {
 	@Watch("noBackground")
 	private onBgChange():void {
 		this.$store.dispatch("setHideBackground", this.noBackground);
+	}
+
+	private broadcastInfosToExtension():void {
+		
+		let playlists = [];
+		for (let i = 0; i < this.selectedPlaylists.length; i++) {
+			const p = this.selectedPlaylists[i];
+			playlists.push({name:p.name, cover:p.cover})
+		}
+		let message = {
+			type:TwitchMessageType.PLAYLISTS,
+			playlists,
+		}
+		let res = Api.post("twitch/broadcast", {token:this.$store.state.twitchOAuthToken, message:JSON.stringify(message)});
 	}
 
 }

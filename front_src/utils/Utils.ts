@@ -1,5 +1,6 @@
 import store from '@/store';
 import TrackData from '@/vo/TrackData';
+import { Route } from 'vue-router';
 
 /**
  * Created by Durss
@@ -779,5 +780,23 @@ export default class Utils {
 		B = (color) & 0xff;
 		// return (0.299*R + 0.587*G + 0.114*B) / 255;
 		return (0.2126*R + 0.7152*G + 0.0722*B) / 255;
+	}
+
+	/**
+	 * Parse all matched routes from last to first to check
+	 * for a meta prop and return it.
+	 * 
+	 * @param route 
+	 * @param metaKey 
+	 */
+	public static getRouteMetaValue(route:Route, metaKey:string):any {
+		let res = null;
+		for (let i = route.matched.length-1; i >= 0; i--) {
+			const v = route.matched[i].meta[metaKey];
+			if(v === undefined) continue;
+			res = v;
+			break;
+		}
+		return res;
 	}
 }

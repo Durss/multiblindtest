@@ -344,7 +344,7 @@ export default class GroupLobby extends Vue {
 		transform: translate(-50%, -50%);
 	}
 
-	.holder {
+	&>.holder {
 		&>div {
 			box-sizing: border-box;
 		}

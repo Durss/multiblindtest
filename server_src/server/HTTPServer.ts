@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RoomData from "../vo/RoomData";
 import UserData from "../vo/UserData";
 import TrackData from "../vo/TrackData";
+import TwitchEBS from "../controllers/TwitchEBS";
 
 export default class HTTPServer {
 
@@ -76,14 +77,14 @@ export default class HTTPServer {
 			],
 		}));
 		
-		this.doPrepareApp();
+		this.prepareApp();
 	}
 
 	protected initError(error: any): void {
 		Logger.error("Error happened !", error);
 	}
 
-	protected doPrepareApp(): void {
+	protected prepareApp(): void {
 
 		this.app.use(<any>bodyParser.urlencoded({ extended: true }));
 		this.app.use(<any>bodyParser.json({limit: '10mb'}));
@@ -106,6 +107,7 @@ export default class HTTPServer {
 		});
 		
 		this.createEndpoints();
+		TwitchEBS.instance.initialize();
 		
 		let staticHandler:any = express.static( Config.PUBLIC_PATH );
 		this.app.use(Config.SERVER_NAME+"/", staticHandler);//static files
@@ -356,15 +358,25 @@ export default class HTTPServer {
 			res.status(200).send(JSON.stringify({success:true, room}));
 			SocketServer.instance.sendToGroup(roomId, {action:SOCK_ACTIONS.PLAYER_KICKED, data:{room, userId}});
 		});
+
+		/**
+		 * Broadcast to twitch plugin
+		 */
+		this.app.post("/api/twitch/broadcast", async (req, res) => {
+			let message = req.body.message;
+			let token = req.body.token;
+			let infos = await TwitchEBS.instance.validateToken(token);
+			// console.log("Get channel for user ", infos.user_id);
+			// let channel = await TwitchEBS.instance.getChannelInfo(infos.user_id);
+			// console.log(channel);
+			TwitchEBS.instance.broadcast(infos.user_id, message);
+			res.status(200).send(JSON.stringify({success:true}));
+		});
 	}
 
 
 	protected errorHandler(error: any, req: Request, res: Response, next: NextFunction): any {
 		Logger.error("Express error");
 		console.log(error)
-	}
-
-	private onReady(): void {
-		
 	}
 }

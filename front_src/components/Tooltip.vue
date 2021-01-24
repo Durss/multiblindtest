@@ -150,7 +150,7 @@ export default class Tooltip extends Vue {
 	position: fixed;
 	pointer-events: none;
 	z-index: 100;
-	.holder {
+	&>.holder {
 		position: fixed;
 		display: inline;
 		color: #fff;

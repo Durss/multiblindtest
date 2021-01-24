@@ -29,6 +29,9 @@ export default new Vuex.Store({
 		twitchLogin:null,
 		twitchOAuthToken:null,
 		twitchAllowedUsers:null,
+		twitchPlaylists:null,
+		twitchGameRound:null,
+		twitchLeaderboard:null,
 		hideBackground:null,//for OBS
 
 		confirm:{
@@ -121,9 +124,13 @@ export default new Vuex.Store({
 			Store.set("twitchAllowedUsers", JSON.stringify(state.twitchAllowedUsers));
 		},
 
-		setHideBackground(state, payload) {
-			state.hideBackground = payload;
-		},
+		setHideBackground(state, payload) { state.hideBackground = payload; },
+
+		setTwitchPLaylists(state, payload) { state.twitchPlaylists = payload; },
+
+		setTwitchGameRound(state, payload) { state.twitchGameRound = payload; },
+
+		setTwitchLeaderboard(state, payload) { state.twitchLeaderboard = payload; },
 
 	},
 
@@ -224,5 +231,11 @@ export default new Vuex.Store({
 		setTwitchAllowedUsers({commit}, payload) { commit("setTwitchAllowedUsers", payload); },
 
 		setHideBackground({commit}, payload) { commit("setHideBackground", payload); },
+
+		setTwitchPLaylists({commit}, payload) { commit("setTwitchPLaylists", payload); },
+
+		setTwitchGameRound({commit}, payload) { commit("setTwitchGameRound", payload); },
+
+		setTwitchLeaderboard({commit}, payload) { commit("setTwitchLeaderboard", payload); },
 	}
 })

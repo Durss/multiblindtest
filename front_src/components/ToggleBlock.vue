@@ -1,6 +1,10 @@
 <template>
 	<div :class="classes">
-		<h2 @click="showContent = !showContent">{{(showContent? "×":"+")}} {{title}}</h2>
+		<h2 @click="toggle()">
+			<span class="handle" v-if="enabled">{{(showContent? "▼":"►")}}</span>
+			<img :src="icon" v-if="icon" class="icon">
+			<span class="title">{{title}}</span>
+		</h2>
 		<div class="content" v-if="showContent">
 			<slot :close="close"></slot>
 		</div>
@@ -18,8 +22,14 @@ export default class ToggleBlock extends Vue {
 	@Prop()
 	public title:string;
 
+	@Prop()
+	public icon:string;
+
 	@Prop({default:null})
 	public closed:boolean;
+
+	@Prop({default:true})
+	public enabled:boolean;
 
 	@Prop({default:false})
 	public small:boolean;
@@ -28,6 +38,7 @@ export default class ToggleBlock extends Vue {
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
+		if(this.enabled) res.push("enabled");
 		if(this.showContent) res.push("open");
 		if(this.small !== false) res.push("small");
 		return res;
@@ -49,24 +60,41 @@ export default class ToggleBlock extends Vue {
 		this.showContent = false;
 	}
 
+	public toggle():void {
+		if(!this.enabled) return;
+		this.showContent = !this.showContent;
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .toggleblock{
+	&.enabled {
+		h2 {
+			cursor:pointer;
+			&:hover {
+				background-color: darken(@mainColor_light, 2%);
+			}
+		}
+	}
+
 	h2 {
 		margin-bottom: 0px;
-		cursor:pointer;
 		transition: background-color .25s;
 		border-radius: 20px;
-		&:hover {
-			background-color: darken(@mainColor_light, 2%);
+		.handle {
+			margin-right: 10px;
+		}
+		.icon {
+			height: 30px;
+			vertical-align: bottom;
+			margin-right: 10px;
 		}
 	}
 
 	.content {
 		background-color: #ffffff;
-		max-width: 480px;
 		margin: auto;
 		padding: 10px;
 		box-sizing: border-box;

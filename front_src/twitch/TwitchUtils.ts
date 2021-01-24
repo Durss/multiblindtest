@@ -23,4 +23,33 @@ export default class TwitchUtils {
 			});
 		});
 	}
+
+	public static broadcastToExtension(channelId:string, token:string, clientId:string):Promise<boolean> {
+		return new Promise((resolve, reject)=> {
+			let headers:any = {
+				"Authorization":"Bearer "+token,
+				"Client-Id": clientId,
+				"Content-Type": "application/json",
+			};
+			var options = {
+				method: "POST",
+				headers: headers,
+			};
+
+			let body = JSON.stringify({
+				
+			})
+			fetch("https://api.twitch.tv/extensions/message/"+channelId, options)
+			.then((result) => {
+				if(result.status == 200) {
+					result.json().then((json)=> {
+						resolve(json)
+					});
+				}else{
+					resolve(null);
+				}
+			});
+			resolve(true);
+		})
+	}
 }

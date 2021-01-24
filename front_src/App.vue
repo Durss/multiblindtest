@@ -3,7 +3,7 @@
 		<router-view class="content"/>
 		<transition name="slide" appear>
 			<Button class="backHome"
-				v-if="$route.meta.hideHomeBt!==true"
+				v-if="showHomeButton"
 				:to="{name:'home'}"
 				:icon="require('@/assets/icons/home.svg')"
 				big
@@ -26,6 +26,7 @@ import Button from './components/Button.vue';
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
 import SocketEvent from './vo/SocketEvent';
 import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
+import Utils from "./utils/Utils";
 
 @Component({
 	components:{
@@ -44,6 +45,10 @@ export default class App extends Vue {
 		let res = ["app"];
 		if(this.$store.state.hideBackground) res.push("noBg");
 		return res;
+	}
+
+	public get showHomeButton():boolean {
+		return Utils.getRouteMetaValue(this.$route, "hideHomeBt") !== true;
 	}
 
 	public mounted():void {

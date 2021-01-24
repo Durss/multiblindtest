@@ -239,10 +239,10 @@ export default class PlaylistSelector extends Vue {
 			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
 			this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
 			
-		}else if(this.mode == "twitch") {
+		}else if(this.mode == "twitchExt" || this.mode == "twitchObs") {
 			let ids = this.selectedPlaylists.map(p => p.id);
 			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
-			this.$router.push({name:"twitch/lobby", params:{playlistids:ids.join(","), trackscounts}});
+			this.$router.push({name:"twitch/lobby", params:{playlistids:ids.join(","), trackscounts, mode:this.mode}});
 
 		}else{
 			let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
