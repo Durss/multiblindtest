@@ -1,0 +1,122 @@
+{
+  "allowHttpBackend": false,
+  "backendCommand": "",
+  "backendFolderName": "",
+  "certificateExceptions": [],
+  "extensionViews": [
+    {
+      "channelId": "29961813",
+      "configurationAnchor": "video_overlay",
+      "displayChannelName": "durss",
+      "features": {
+        "isBitsEnabled": false,
+        "isChatEnabled": false,
+        "isSubscriptionStatusAvailable": false
+      },
+      "frameSize": {
+        "width": 852,
+        "height": 480
+      },
+      "id": "1",
+      "isPopout": false,
+      "label": "",
+      "linked": false,
+      "linkedUserId": "",
+      "orientation": "Portrait",
+      "type": "video_overlay",
+      "viewerType": "Broadcaster"
+    },
+    {
+      "channelId": "29961813",
+      "configurationAnchor": "video_overlay",
+      "displayChannelName": "durss",
+      "features": {
+        "isBitsEnabled": false,
+        "isChatEnabled": false,
+        "isSubscriptionStatusAvailable": false
+      },
+      "frameSize": {
+        "width": 852,
+        "height": 480
+      },
+      "id": "2",
+      "isPopout": false,
+      "label": "",
+      "linked": false,
+      "linkedUserId": "",
+      "orientation": "Portrait",
+      "type": "video_overlay",
+      "viewerType": "Logged-In Viewer"
+    }
+  ],
+  "manifest": {
+    "anchor": "video_overlay",
+    "assetUrls": [],
+    "authorName": "Durss",
+    "bitsEnabled": false,
+    "canInstall": true,
+    "configUrl": "http://localhost:8081/twitchextension",
+    "configurationLocation": "none",
+    "description": "This extension allows your audience to join a game session for the Multi Blindtest.\nhttps://www.multiblindtest.com\n\n(description to complete once i understand how this works)",
+    "eulaTosUrl": "",
+    "hasChatSupport": true,
+    "iconUrl": "https://extensions-discovery-images.twitch.tv/u4auavhba5b6brrtvjyjeqzhyz841b/0.0.1/logo6621f363-4be9-4ec1-8348-87fd75a1ddda",
+    "iconUrls": {
+      "100x100": "https://extensions-discovery-images.twitch.tv/u4auavhba5b6brrtvjyjeqzhyz841b/0.0.1/logo6621f363-4be9-4ec1-8348-87fd75a1ddda",
+      "24x24": "https://extensions-discovery-images.twitch.tv/u4auavhba5b6brrtvjyjeqzhyz841b/0.0.1/taskbar831ec458-972f-4b2a-8eac-b570a5bc862d",
+      "300x200": "https://extensions-discovery-images.twitch.tv/u4auavhba5b6brrtvjyjeqzhyz841b/0.0.1/discoveryc5d4097d-d65d-47d5-a2fc-51f980b0b83d"
+    },
+    "id": "u4auavhba5b6brrtvjyjeqzhyz841b",
+    "installationCount": -42,
+    "liveConfigUrl": "http://localhost:8081/twitchextension",
+    "name": "MultiBlindTest",
+    "panelHeight": 0,
+    "privacyPolicyUrl": "",
+    "requestIdentityLink": false,
+    "requiredBroadcasterAbilities": [],
+    "screenshotUrls": [
+      "https://extensions-discovery-images.twitch.tv/u4auavhba5b6brrtvjyjeqzhyz841b/0.0.1/screenshotd8ba3ca2-0128-48fd-85e2-ecac9bfaaa5f"
+    ],
+    "sku": "",
+    "state": "Testing",
+    "subscriptionsSupportLevel": "none",
+    "summary": "Allow your audience to join a Multi Blindtest session from twitch",
+    "supportEmail": "francois.dursus@gmail.com",
+    "vendorCode": "",
+    "version": "0.0.1",
+    "viewerSummary": "",
+    "viewerUrl": "",
+    "viewerUrls": {
+      "videoOverlay": "http://localhost:8081/twitchextension"
+    },
+    "views": {
+      "videoOverlay": {
+        "viewerUrl": "http://localhost:8081/twitchextension",
+        "canLinkExternalContent": false
+      },
+      "config": {
+        "viewerUrl": "http://localhost:8081/twitchextension",
+        "canLinkExternalContent": true
+      },
+      "liveConfig": {
+        "viewerUrl": "http://localhost:8081/twitchextension",
+        "canLinkExternalContent": true
+      }
+    },
+    "whitelistedConfigUrls": [
+      "localhost",
+      "multiblindtest.com",
+      "multiblindtest.fr"
+    ],
+    "whitelistedPanelUrls": [
+      "localhost",
+      "multiblindtest.com",
+      "multiblindtest.fr"
+    ]
+  },
+  "frontendCommand": "",
+  "frontendFolderName": "",
+  "name": "MultiBlindTest",
+  "usingRandomFrontendHostingPort": false,
+  "version": 3
+}

@@ -10,7 +10,10 @@ import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
 import TwitchAuth from '@/views/TwitchAuth.vue';
 import TwitchGame from '@/views/TwitchGame.vue';
+import TwitchExtension from '@/views/TwitchExtension.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
+import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
+import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
 
@@ -95,54 +98,6 @@ const routes = [
 		}
 	},
 	{
-		path: '/twitch/auth/:twitchOAToken?/:spotifyOAToken?',
-		name: 'twitch/auth',
-		component: TwitchAuth,
-		props:true,
-		meta: {
-			needAuth:false,
-		}
-	},
-	{
-		path: '/twitch/lobby/:playlistids',
-		name: 'twitch/lobby',
-		props:true,
-		meta: {
-			needGroupAuth:true,
-			tag:{
-				path:"/twitch",
-				title:"twitch lobby"
-			}
-		},
-		component: TwitchLobby
-	},
-	{
-		path: '/twitch/play/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
-		name: 'twitch/play',
-		props:true,
-		meta: {
-			needGroupAuth:true,
-			tag:{
-				path:"/twitch",
-				title:"twitch play"
-			}
-		},
-		component: TwitchGame
-	},
-	{
-		path: '/playlists/:mode',
-		name: 'playlists',
-		props:true,
-		meta: {
-			needAuth:true,
-			tag:{
-				path:"/playlists",
-				title:"Playlist selector"
-			}
-		},
-		component: PlaylistSelector
-	},
-	{
 		path: '/create',
 		name: 'create',
 		meta: {
@@ -214,6 +169,89 @@ const routes = [
 		path: "*",
 		redirect:{name:"home"},
 	},
+
+
+
+
+
+	{
+		path: '/twitch/auth/:twitchOAToken?/:spotifyOAToken?',
+		name: 'twitch/auth',
+		component: TwitchAuth,
+		props:true,
+		meta: {
+			needAuth:false,
+		}
+	},
+	{
+		path: '/playlists/:mode',
+		name: 'playlists',
+		props:true,
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/playlists",
+				title:"Playlist selector"
+			}
+		},
+		component: PlaylistSelector
+	},
+	{
+		path: '/twitch/lobby/:mode/:playlistids',
+		name: 'twitch/lobby',
+		props:true,
+		meta: {
+			tag:{
+				path:"/twitch",
+				title:"twitch lobby"
+			}
+		},
+		component: TwitchLobby
+	},
+	{
+		path: '/twitch/play/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		name: 'twitch/play',
+		props:true,
+		meta: {
+			tag:{
+				path:"/twitch",
+				title:"twitch play"
+			}
+		},
+		component: TwitchGame
+	},
+	{
+		path: '/twitchextension',
+		name: 'twitchext',
+		meta: {
+			hideHomeBt:true,
+			hideBackground:true,
+		},
+		component: TwitchExtension,
+		children: [
+			{
+				path: "broadcaster",
+				name: "twitchext/broadcaster",
+				props:true,
+				components: {
+					twitch:TwitchBroadcaster
+				},
+			},
+			{
+				path: "viewer",
+				name: "twitchext/viewer",
+				props:true,
+				components: {
+					twitch:TwitchViewer
+				},
+			},
+		]
+	},
+
+
+
+
+	
 	{
 		path: '/redirect',
 		name: 'redirect',

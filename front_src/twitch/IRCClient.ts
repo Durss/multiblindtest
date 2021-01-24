@@ -11,8 +11,9 @@ export default class IRCClient extends EventDispatcher {
 	private client:tmi.Client;
 	private login:string;
 	private token:string;
-	private channel:string;
 	private isConnected:boolean = false;
+
+	private channel:string;
 	
 	constructor() {
 		super();
@@ -52,7 +53,8 @@ export default class IRCClient extends EventDispatcher {
 				},
 			});
 	
-			this.client.on("join", (channel, user)=> {
+			this.client.on("join", (channel, user, test)=> {
+				this.channel = channel;
 				if(user == this.login) {
 					this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
 					this.isConnected = true;

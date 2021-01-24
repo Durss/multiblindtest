@@ -1,5 +1,6 @@
 <template>
 	<div class="changelog">
+		{{url}}
 		<h1 class="header">{{$t('changelog.title')}}</h1>
 		<div v-for="(log, index) in $t('changelog.logs')" :key="'l_'+index" class="log">
 			<div class="date">{{log.date}}</div>
@@ -17,6 +18,8 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 	components:{}
 })
 export default class ChangeLog extends Vue {
+
+	public get url():string{ return document.location.href; }
 
 	public mounted():void {
 		let logs = this.$t("changelog");

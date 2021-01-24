@@ -12,6 +12,8 @@ import AnswerTester from './utils/AnswerTester';
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
 import gsap from "gsap";
 import { ScrollToPlugin } from 'gsap/all';
+import Utils from './utils/Utils';
+import TwitchExtensionHelper from './twitch/TwitchExtensionHelper';
 
 Vue.config.productionTip = false;
 Config.init();
@@ -36,6 +38,12 @@ const i18n = new VueI18n({
 if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
 	localStorage.clear();
 	localStorage.setItem("v", Config.STORAGE_VERSION.toString());
+}
+
+if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
+	// router.push({name:'twitchext'});
+	store.dispatch("setHideBackground", true);
+	TwitchExtensionHelper.instance.initialize();
 }
 
 router.beforeEach(async (to:Route, from:Route, next:Function) => {

@@ -149,6 +149,9 @@ export default class Labels {
 				game: {
 					index:"Step",
 					results:"Results",
+				},
+				viewer: {
+					selectedPlaylists:"Selected playlist | Selected playlists"
 				}
 			},
 			game: {

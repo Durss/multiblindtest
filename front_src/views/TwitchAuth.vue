@@ -7,7 +7,9 @@
 			label="Connecting to Twitch..." />
 		
 		<div v-if="!loading">
-			<h1 v-if="!needSpotifyAuth">Connect with twitch</h1>
+			<h1 v-if="!needSpotifyAuth && !loggedIn">Connect with twitch</h1>
+			<h1 v-if="!needSpotifyAuth && loggedIn">Embed to your stream</h1>
+
 			<div class="step" v-if="!loggedIn">
 				<div class="head">Please first generate an access token:</div>
 				<Button to="https://twitchapps.com/tmi/"
@@ -34,14 +36,25 @@
 			</div>
 
 			<div class="step" v-if="loggedIn && url">
-				<div class="head">Configure this URL on OBS:</div>
-				<div class="url" ref="url">
-					<div class="text" @click="selectText">{{url}}</div>
-					<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
-				</div>
+				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Embed with OBS">
+					TODO
+					<!-- <div>Configure this URL in the OBS browser params:</div>
+					<div class="url">
+						<div class="text" @click="selectText">{{url}}</div>
+						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
+					</div> -->
+					<!-- <div class="head">Or continue if you already are on OBS:</div>
+					<Button :to="redirect" :title="$t('twitch.auth.continue')" big /> -->
+					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" />
+				</ToggleBlock>
 
-				<div class="head">Or continue if you already are on OBS:</div>
-				<Button :to="redirect" :title="$t('twitch.auth.continue')" big />
+				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/twitch.svg')" title="Use the Twitch extension">
+					<div class="twitchExt">
+						<div>Install the <a :href="twitchExtUrl" target="_blank">Twitch Extension</a> and start a twitch session:</div>
+						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
+						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start Twitch session" :icon="require('@/assets/icons/play.svg')" />
+					</div>
+				</ToggleBlock>
 			</div>
 			
 			<h1 v-if="needSpotifyAuth">Connect with spotify</h1>
@@ -56,9 +69,11 @@
 <script lang="ts">
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 import Store from "@/store/Store";
 import IRCClient from "@/twitch/IRCClient";
 import TwitchUtils from "@/twitch/TwitchUtils";
+import Config from "@/utils/Config";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import Utils from "@/utils/Utils";
 import gsap from "gsap";
@@ -67,6 +82,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 @Component({
 	components:{
 		Button,
+		ToggleBlock,
 		BouncingLoader,
 	}
 })
@@ -86,13 +102,13 @@ export default class TwitchAuth extends Vue {
 	public needSpotifyAuth:boolean = false;
 	public token:string = null;
 	public url:string = null;
-	public redirect:any = {name:'playlists', params:{mode:'twitch'}};
-	public redirect_absolute:any = document.location.origin+this.$router.resolve(this.redirect).href;
 
 	public get authUrl():string {
-		Store.set("redirect", this.redirect_absolute);
+		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch.auth'}).href);
 		return SpotifyAPI.instance.getAuthUrl();
 	}
+
+	public get twitchExtUrl():string { return Config.TWITCH_EXT_URL; }
 
 	public async mounted():Promise<void> {
 		let token = this.$store.state.twitchOAuthToken;
@@ -230,32 +246,45 @@ export default class TwitchAuth extends Vue {
 			}
 		}
 
-		.url {
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			margin-top: 10px;
-			.text {
-				color: #ffffff;
-				padding: 5px 10px;
-				display: inline-block;
-				border-radius: 20px;
-				background-color: @mainColor_normal;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				width: 300px;
-				&:hover {
-					word-wrap: break-word;
-					overflow: visible;
-					white-space: normal;
+		.block {
+			margin-bottom: 20px;
+
+			.twitchExt {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				&>*:not(:last-child) {
+					margin-bottom: 5px;
 				}
 			}
-			.button {
-				padding: 5px 10px 5px 5px;
-				/deep/ .icon {
-					margin-left: 0px;
-					margin-right: 0px;
+
+			.url {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				margin-top: 10px;
+				.text {
+					color: #ffffff;
+					padding: 5px 10px;
+					display: inline-block;
+					border-radius: 20px;
+					background-color: @mainColor_normal;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					width: 300px;
+					&:hover {
+						word-wrap: break-word;
+						overflow: visible;
+						white-space: normal;
+					}
+				}
+				.button {
+					padding: 5px 10px 5px 5px;
+					/deep/ .icon {
+						margin-left: 0px;
+						margin-right: 0px;
+					}
 				}
 			}
 		}

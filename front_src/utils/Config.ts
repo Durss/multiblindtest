@@ -8,6 +8,7 @@ export default class Config {
 
 	public static MAX_TRACK_COUNT:number = 6;
 	public static STORAGE_VERSION:number = 1;
+	public static TWITCH_EXT_URL:string = "https://dashboard.twitch.tv/extensions/u4auavhba5b6brrtvjyjeqzhyz841b-0.0.1";
 
 	public static init():void {
 		let prod = document.location.port == "";

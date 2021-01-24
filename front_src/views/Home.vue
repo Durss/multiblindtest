@@ -75,7 +75,7 @@ export default class Home extends Vue {
 	flex-direction: column;
 	min-height: 100%;
 	height: 100%;
-	.holder {
+	&>.holder {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
@@ -162,7 +162,7 @@ export default class Home extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.home{
-		.holder {
+		&>.holder {
 			width: 90vw;
 			.head {
 				.subtitle {
