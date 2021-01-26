@@ -13,10 +13,10 @@
 			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
-			<div class="twitch" v-if="loggedIn">
+			<!-- <div class="twitch" v-if="loggedIn">
 				<Button v-if="loggedIn" :title="$t('home.twitch')" :to="{name:'twitch/auth'}" :icon="require('@/assets/icons/twitch.svg')" class="button" big />
 				<div class="beta">BETA!</div>
-			</div>
+			</div> -->
 			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/playlist.svg')" class="button" big />
 		</div>
 		<div class="footer">
@@ -27,11 +27,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import Button from '@/components/Button.vue';
-import SpotifyAPI from '@/utils/SpotifyAPI';
-import Config from '@/utils/Config';
 import Store from "@/store/Store";
+import Config from '@/utils/Config';
+import SpotifyAPI from '@/utils/SpotifyAPI';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{

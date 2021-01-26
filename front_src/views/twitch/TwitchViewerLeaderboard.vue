@@ -3,12 +3,12 @@
 		<div class="scrollable" ref="scrollable">
 			<div class="page podium">
 				<div class="user" :data-index="index" v-for="(u,index) in podium" :key="u.name+''+index">
-					<div class="background" v-if="u.name">
-						<div class="score">{{u.score}}<span class="exp">pts</span></div>
+					<div class="background">
+						<div class="score" v-if="u.score>0">{{u.score}}<span class="exp">pts</span></div>
 						<div class="name">{{u.name}}</div>
 					</div>
-					<div class="foreground" v-if="u.name">
-						<div class="score">{{u.score}}<span class="exp">pts</span></div>
+					<div class="foreground">
+						<div class="score" v-if="u.score>0">{{u.score}}<span class="exp">pts</span></div>
 						<div class="name">{{u.name}}</div>
 					</div>
 					<div class="step">#{{[2,1,3][index]}}</div>
@@ -70,10 +70,13 @@ export default class TwitchViewerLeaderboard extends Vue {
 		let history:ScoreHistory[] = data.history;
 
 		for (let i = 0; i < history.length; i++) {
-			this.users.push({name:history[i].guesserName, score:history[i].score});
-		}
-		for (let i = 0; i < 100; i++) {
-			this.users.push(this.users[0]);
+			let u = this.users.find(u => u.name == history[i].guesserName);
+			if(!u) {
+				u = {name:history[i].guesserName, score:history[i].score};
+				this.users.push(u);
+			}else{
+				u.score += history[i].score;
+			}
 		}
 
 		this.users.sort((a,b)=> {
@@ -83,7 +86,10 @@ export default class TwitchViewerLeaderboard extends Vue {
 		});
 
 		//Make sure there are at least 3 "users"
-		while(this.users.length < 3) this.users.push({name:"", score:0});
+		while(this.users.length < 3) this.users.push({name:"x", score:-1});
+		for (let i = 0; i < 100; i++) {
+			this.users.push(this.users[0]);
+		}
 
 		//Set N°1 in the middle
 		this.podium = this.users.splice(0,3);

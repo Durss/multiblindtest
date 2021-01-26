@@ -77,6 +77,7 @@ export default class TwitchViewerGame extends Vue {
 		};
 		document.addEventListener("click", this.clickHandler);
 		this.renderFrame();
+		this.onGameStateChange();
 	}
 
 	public beforeDestroy():void {

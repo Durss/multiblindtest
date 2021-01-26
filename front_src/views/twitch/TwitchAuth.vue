@@ -11,7 +11,7 @@
 			<h1 v-if="!needSpotifyAuth && loggedIn">Embed to your stream</h1>
 
 			<div class="step" v-if="!loggedIn">
-				<div class="head">Please first generate an access token:</div>
+				<div class="head">Please first generate an access token</div>
 				<Button to="https://twitchapps.com/tmi/"
 					type="link"
 					target="_blank"
@@ -47,7 +47,7 @@
 					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" />
 				</ToggleBlock> -->
 
-				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/twitch.svg')" title="Use the Twitch extension">
+				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/twitch.svg')" title="Use the Twitch extension">
 					<div class="twitchExt">
 						<div>Install the <strong>Twitch Extension</strong> and start a twitch session:</div>
 						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
@@ -69,9 +69,10 @@
 				</ToggleBlock>
 			</div>
 			
-			<h1 v-if="needSpotifyAuth">Connect with spotify</h1>
-			<div v-if="needSpotifyAuth">
-				<div>The spotify token has expired, click the button bellow to generate a new one</div>
+			<div v-if="needSpotifyAuth" class="spotifyConnect">
+				<h1>Connect with spotify</h1>
+				<div v-if="spotifyExpired">The spotify token has expired, click the button bellow to generate a new one</div>
+				<div v-if="!spotifyExpired">You now need to connect with spotify so the app can access your playlists and load songs</div>
 				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
 			</div>
 		</div>
@@ -112,11 +113,12 @@ export default class TwitchAuth extends Vue {
 	public errorIRC:boolean = false;
 	public loggedIn:boolean = false;
 	public needSpotifyAuth:boolean = false;
+	public spotifyExpired:boolean = false;
 	public token:string = null;
 	public url:string = null;
 
 	public get authUrl():string {
-		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch.auth'}).href);
+		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch/auth'}).href);
 		return SpotifyAPI.instance.getAuthUrl();
 	}
 
@@ -173,10 +175,14 @@ export default class TwitchAuth extends Vue {
 				try {
 					await SpotifyAPI.instance.call("v1/me", null, false);
 				}catch(error) {
+					this.spotifyExpired = true;
 					this.needSpotifyAuth = true;
 					return;
 				}
 				// this.$router.push(this.redirect);
+			}else if(!SpotifyAPI.instance.hasAccessToken){
+				this.spotifyExpired = false;
+				this.needSpotifyAuth = true;
 			}else{
 				let route = {name:'twitch/auth', params:{twitchOAToken:this.token, spotifyOAToken:this.$store.state.accessToken}};
 				this.url = document.location.origin+this.$router.resolve(route).href;
@@ -187,11 +193,13 @@ export default class TwitchAuth extends Vue {
 		return false;
 	}
 
-	private clickGenerate():void {
-		this.showForm = true;
+	public clickGenerate():void {
+		setTimeout(_=> {
+			this.showForm = true;
+		}, 1000)
 	}
 
-	private selectText(e:Event):void {
+	public selectText(e:Event):void {
 		let div = <HTMLDivElement>e.target;
 		var selection = window.getSelection();
 		var range = document.createRange();
@@ -201,7 +209,7 @@ export default class TwitchAuth extends Vue {
 
 	}
 
-	private copyURL():void {
+	public copyURL():void {
 		Utils.copyToClipboard(this.url);
 		gsap.set(this.$refs.url, {filter:"brightness(100%)"})
 		gsap.from(this.$refs.url, {duration:.5, filter:"brightness(200%)"})
@@ -222,12 +230,13 @@ export default class TwitchAuth extends Vue {
 	.step {
 		margin-top: 20px;
 
+		&:not(:first-of-type) {
+			margin-top: 40px;
+		}
+
 		.head {
 			font-size: 20px;
-			margin-bottom: 5px;
-			&:not(:first-of-type) {
-				margin-top: 20px;
-			}
+			margin-bottom: 20px;
 		}
 
 		form {
@@ -299,6 +308,12 @@ export default class TwitchAuth extends Vue {
 					}
 				}
 			}
+		}
+	}
+
+	.spotifyConnect {
+		&>* {
+			margin-bottom: 20px;
 		}
 	}
 

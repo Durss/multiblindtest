@@ -85,7 +85,7 @@ export default class IRCClient extends EventDispatcher {
 				// console.log(tags);
 				// console.log(message);
 				// console.log(self);
-				// console.log(`${tags['display-name']}: ${message}`);
+				// console.log(`${tags.username}: ${message}`);
 				// if(!self) {
 					// this.client.say(channel, "Yoooo");
 				// }

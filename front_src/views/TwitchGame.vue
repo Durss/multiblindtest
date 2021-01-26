@@ -311,7 +311,7 @@ export default class TwitchGame extends Vue {
 				});
 
 				t.guessedBy = {
-					name:user["display-name"],
+					name:user.username,
 					id:user.id,
 					offline:false,
 					score:0,

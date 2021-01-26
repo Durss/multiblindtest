@@ -5,11 +5,11 @@
 				<div class="user" :data-index="index" v-for="(u,index) in podium" :key="u.user.id+''+index">
 					<div class="background">
 						<div class="score">{{u.score}}<span class="exp">pts</span></div>
-						<div class="name">{{u.user["display-name"]}}</div>
+						<div class="name">{{u.user.username}}</div>
 					</div>
 					<div class="foreground">
 						<div class="score">{{u.score}}<span class="exp">pts</span></div>
-						<div class="name">{{u.user["display-name"]}}</div>
+						<div class="name">{{u.user.username}}</div>
 					</div>
 					<div class="step">#{{[2,1,3][index]}}</div>
 				</div>
@@ -18,7 +18,7 @@
 			<div class="page otherPlayers" ref="otherPlayers">
 				<div class="user" v-for="(u,index) in users" :key="u.user.id+''+index" :style="getRowStyle(u)">
 					<div class="pos">#{{index+4}}</div>
-					<div class="name">{{u.user["display-name"]}}</div>
+					<div class="name">{{u.user.username}}</div>
 					<div class="score">{{u.score}}<span class="exp">pts</span></div>
 				</div>
 			</div>

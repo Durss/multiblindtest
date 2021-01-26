@@ -24,10 +24,11 @@ export default class TwitchViewer extends Vue {
 	public iwannaplay:boolean = false;
 
 	public get section():string {
-		if(this.$store.state.twitchLeaderboard) return "leaderboard";
-		if(this.$store.state.twitchGameState) return "game";
-		if(this.$store.state.twitchPlaylists) return "playlists";
-		return null;
+		let section = null;
+		if(this.$store.state.twitchLeaderboard) section = "leaderboard";
+		else if(this.$store.state.twitchGameState) section = "game";
+		else if(this.$store.state.twitchPlaylists) section = "playlists";
+		return section;
 	}
 
 	public mounted():void {

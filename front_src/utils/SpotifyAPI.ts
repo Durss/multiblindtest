@@ -26,6 +26,10 @@ export default class SpotifyAPI {
 		return this._instance;
 	}
 
+	public get hasAccessToken():boolean {
+		return this.access_token != null;
+	}
+
 
 
 	/******************

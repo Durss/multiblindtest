@@ -39,7 +39,7 @@
 
 					<div class="users">
 						<div v-for="u in players" :key="u.id" class="user" :style="getUserClasses(u)">
-							<span class="text">{{u['display-name']}}</span>
+							<span class="text">{{u.username}}</span>
 						</div>
 					</div>
 				</div>

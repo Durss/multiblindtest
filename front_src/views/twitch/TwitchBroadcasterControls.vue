@@ -62,7 +62,6 @@ export default class TwitchBroadcasterControls extends Vue {
 	public expertMode:string;
 
 	public loading:boolean = true;
-	public pause:boolean = true;
 	public ready:boolean = false;
 	public disposed:boolean = false;
 	public roundComplete:boolean = false;
@@ -83,7 +82,6 @@ export default class TwitchBroadcasterControls extends Vue {
 
 	public async mounted():Promise<void> {
 		this.loading = true;
-		this.pause = true;
 		this.ready = IRCClient.instance.connected;
 		if(!this.ready) {
 			let res;
@@ -101,7 +99,7 @@ export default class TwitchBroadcasterControls extends Vue {
 
 		//Load test if chat is spammed
 		// let u:any = []
-		// u["display-name"] = "Durss";
+		// u.username = "Durss";
 		// u["user-id"] = "56413023";
 		// setInterval(_=> {
 		// 	for (let i = 0; i < 150; i++) {
@@ -115,6 +113,7 @@ export default class TwitchBroadcasterControls extends Vue {
 
 	public beforeDestroy():void {
 		this.disposed = true;
+		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 	}
 
 	private renderFrame():void {
@@ -186,9 +185,69 @@ export default class TwitchBroadcasterControls extends Vue {
 	 * Called when receiving a message from twitch
 	 */
 	public onIrcMessage(e:IRCEvent):void {
+		if(e.tags.badges && e.tags.badges.broadcaster === "1") {
+			if(this.parseBroadcasterCommands(e)) return;
+		}
+
 		if(this.roundComplete) return;
 
 		this.guessTrack(e.message, e.tags);
+	}
+
+	/**
+	 * Parses for specific commands only allowed by the broadcaster.
+	 * This allow to skip a game, start the next one or show the results
+	 * without looking at the multiblindtest page.
+	 */
+	private parseBroadcasterCommands(e:IRCEvent):boolean {
+		console.log(e.message.toLowerCase());
+		switch(e.message.toLowerCase()) {
+			// case "!start":
+			// case "!go":
+			// 	if(state.twitchPlaylists) {
+			// 		this
+			// 		return true;
+			// 	}
+			// 	break;
+
+			case "!skip":
+			case "!pass":
+			case "!passer":
+				console.log("ok", this.roundComplete);
+				if(!this.roundComplete) {
+					this.endRound();
+					return true;
+				}
+				break;
+
+			case "!next":
+			case "!suite":
+			case "!continue":
+				if(this.roundComplete && !this.gameComplete) {
+					this.nextRound();
+					return true;
+				}
+				break;
+
+			case "!res":
+			case "!result":
+			case "!results":
+				if(this.gameComplete) {
+					this.onShowResults();
+					return true;
+				}
+				break;
+
+			case "!restart":
+			case "!replay":
+			case "!results":
+				if(this.gameComplete) {
+					this.restartGame();
+					return true;
+				}
+				break;
+		}
+		return false;
 	}
 	
 	/**
@@ -222,7 +281,7 @@ export default class TwitchBroadcasterControls extends Vue {
 				});
 
 				t.guessedBy = {
-					name:user["display-name"],
+					name:user.username,
 					id:user.id,
 					offline:false,
 					score:0,
@@ -235,7 +294,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		}
 
 		//Add player to global players collection
-		if(!this.players.find(u=> u["display-name"] == user["display-name"])) {
+		if(!this.players.find(u=> u.username == user.username)) {
 			this.players.push(user);
 		}
 
@@ -278,7 +337,7 @@ export default class TwitchBroadcasterControls extends Vue {
 				if(h.guesserId) {
 					let player = this.players.find(p => p["user-id"] == h.guesserId);
 					if(player) {
-						h.guesserName = player["display-name"];
+						h.guesserName = player.username;
 					}
 				}
 			}
@@ -335,6 +394,16 @@ export default class TwitchBroadcasterControls extends Vue {
 	public onShowResults():void {
 		this.showResults = true;
 		this.broadcastCurrentState();
+	}
+
+	/**
+	 * Called when clicking "show results" button
+	 */
+	public restartGame():void {
+		this.gameComplete = false;
+		this.roundComplete = false;
+		this.roundIndex = 0;
+		this.pickRandomTracks();
 	}
 
 }

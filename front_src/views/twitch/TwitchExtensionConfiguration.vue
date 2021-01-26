@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
 		<h1>No configuration needed</h1>
 		<div>Just head over multiblindtest.com and start a game session from it:</div>
-		<Button type="link" target="_blank" to="https://multiblindtest.com" :icon="require('@/assets/icons/ext_link.svg')" title="Open Multiblindtest" />
+		<Button type="link" target="_blank" :to="url" :icon="require('@/assets/icons/ext_link.svg')" title="Start a game" />
 	</div>
 </template>
 
@@ -17,6 +17,10 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 	}
 })
 export default class TwitchExtensionConfiguration extends Vue {
+
+	public get url():string {
+		return document.location.origin+this.$router.resolve({name:"twitch"}).href;
+	}
 
 	public mounted():void {
 		

@@ -8,7 +8,8 @@ import TwitchLobby from '@/views/TwitchLobby.vue';
 import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
-import TwitchAuth from '@/views/TwitchAuth.vue';
+import TwitchIntro from '@/views/twitch/TwitchIntro.vue';
+import TwitchAuth from '@/views/twitch/TwitchAuth.vue';
 import TwitchGame from '@/views/TwitchGame.vue';
 import TwitchExtension from '@/views/TwitchExtension.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
@@ -112,6 +113,19 @@ const routes = [
 		component: MixCreator
 	},
 	{
+		path: '/playlists/:mode',
+		name: 'playlists',
+		props:true,
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/playlists",
+				title:"Playlist selector"
+			}
+		},
+		component: PlaylistSelector
+	},
+	{
 		path: '/group/:id?',
 		name: 'group',
 		props:true,
@@ -177,6 +191,15 @@ const routes = [
 
 
 	{
+		path: '/twitch',
+		name: 'twitch',
+		props:true,
+		meta: {
+			hideHomeBt:false,
+		},
+		component: TwitchIntro
+	},
+	{
 		path: '/twitch/auth/:twitchOAToken?/:spotifyOAToken?',
 		name: 'twitch/auth',
 		component: TwitchAuth,
@@ -184,19 +207,6 @@ const routes = [
 		meta: {
 			needAuth:false,
 		}
-	},
-	{
-		path: '/playlists/:mode',
-		name: 'playlists',
-		props:true,
-		meta: {
-			needAuth:true,
-			tag:{
-				path:"/playlists",
-				title:"Playlist selector"
-			}
-		},
-		component: PlaylistSelector
 	},
 	{
 		path: '/twitch/lobby/:mode/:playlistids',

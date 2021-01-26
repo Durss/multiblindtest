@@ -20,6 +20,8 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	private _onConnect:any;
 	private _lastdata:any;
 	private _broadcastInterval:any;
+	private _initialized:boolean = false;
+	private _verbose:boolean = true;//Enable/disable logs
 	
 	constructor() {
 		super();
@@ -46,6 +48,8 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	public initialize():void {
+		if(this._initialized) return;
+		this._initialized = true;
 		//@ts-ignore
 		this._twitch = window.Twitch.ext;
 
@@ -55,7 +59,7 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 			this.log('TEH : onContext()');
 			this.log(context);
 			this._context = context;
-			this.dispatchEvent(new TwitchExtensionEvent(TwitchExtensionEvent.MESSAGE, context));
+			this.dispatchEvent(new TwitchExtensionEvent(TwitchExtensionEvent.CONTEXT, context));
 		});
 
 		this._twitch.onAuthorized((auth) => {
@@ -90,11 +94,13 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	}
 
 	public log(message:string):void {
+		if(!this._verbose) return;
 		if(this._twitch && this._twitch.rig) {
 			this._twitch.rig.log(message);
 		}else{
 			console.log(message);
 		}
+		console.log(message);
 	}
 	
 	public onConnect():Promise<void> {
