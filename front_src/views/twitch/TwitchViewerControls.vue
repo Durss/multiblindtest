@@ -109,6 +109,7 @@ export default class TwitchViewerControls extends Vue {
 	@Watch("$store.state.twitchGameState", { immediate: true, deep: true })
 	public onGameStateChange():void {
 		let gameState = this.$store.state.twitchGameState;
+		if(!gameState) return;
 		this.roundComplete = gameState.roundComplete
 		this.gameComplete = gameState.gameComplete
 

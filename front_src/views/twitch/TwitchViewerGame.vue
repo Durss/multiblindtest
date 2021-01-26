@@ -4,6 +4,8 @@
 			<h1>{{$t('twitch.game.index')}}</h1>
 			<div class="count">{{currentRound}}/{{gamesCount}}</div>
 		</div>
+
+		<VolumeButton twitchMode />
 		
 		<TimerRenderer class="timer" ref="timer"
 			:timerPercent="timerPercent"
@@ -32,6 +34,7 @@ import AudioPlayer from "@/components/AudioPlayer";
 import CountDown from "@/components/CountDown.vue";
 import TimerRenderer from "@/components/TimerRenderer.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
+import VolumeButton from "@/components/VolumeButton.vue";
 import ScoreHistory from "@/vo/ScoreHistory";
 import TrackData from "@/vo/TrackData";
 import { Component, Vue, Watch } from "vue-property-decorator";
@@ -40,6 +43,7 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 	components:{
 		CountDown,
 		TrackEntry,
+		VolumeButton,
 		TimerRenderer,
 	}
 })
@@ -55,6 +59,7 @@ export default class TwitchViewerGame extends Vue {
 	public scoreHistory:ScoreHistory[] = [];
     public countDownComplete:boolean = false;
     public roundComplete:boolean = false;
+    public gameComplete:boolean = false;
     public disposed:boolean = false;
     public currentTrackIds:string;
     public audioPlayer:AudioPlayer;
@@ -72,7 +77,10 @@ export default class TwitchViewerGame extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => {
 			if(this.$store.state.needUserInteraction) {
-				this.startPlay();
+				this.$store.dispatch("setNeedUserInteraction", false);
+				if(this.countDownComplete && !this.roundComplete && !this.gameComplete) {
+					this.startPlay();
+				}
 			}
 		};
 		document.addEventListener("click", this.clickHandler);
@@ -93,7 +101,6 @@ export default class TwitchViewerGame extends Vue {
 	 */
 	@Watch("pause")
 	public startPlay():void {
-		this.$store.dispatch("setNeedUserInteraction", false);
 		this.audioPlayer.play();
 	}
 
@@ -118,7 +125,9 @@ export default class TwitchViewerGame extends Vue {
 	 * Check for all complete to start playing
 	 */
 	public onLoadComplete():void {
-		this.audioPlayer.pause();
+		if(!this.countDownComplete || this.roundComplete || this.gameComplete) {
+			this.audioPlayer.pause();
+		}
 	}
 
 	/**
@@ -187,6 +196,7 @@ export default class TwitchViewerGame extends Vue {
 		this.gamesCount = state.games;
 		this.currentRound = state.round;
 		this.duration = state.duration;
+		this.gameComplete = state.gameComplete;
 
 		let prevEnableStates = this.tracks? this.tracks.map(t=>t.enabled) : null;
 
@@ -233,7 +243,10 @@ export default class TwitchViewerGame extends Vue {
 			this.timerPercent = 0;
 		}
 		// console.log(this.tracks);
-		if(state.roundComplete || state.gameComplete) this.timerPercent = 1;
+		if(state.roundComplete || state.gameComplete) {
+			this.timerPercent = 1;
+			this.countDownComplete = true;
+		}
 	}
 
 	@Watch("$store.state.volume", {immediate: true, deep:true})
