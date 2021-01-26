@@ -372,6 +372,26 @@ export default class HTTPServer {
 			TwitchEBS.instance.broadcast(infos.user_id, message);
 			res.status(200).send(JSON.stringify({success:true}));
 		});
+
+		/**
+		 * Send message to chat
+		 */
+		this.app.post("/api/twitch/sendToChat", async (req, res) => {
+			let message = req.body.message;
+			let channel = req.body.channel;
+			let token = req.body.token;
+			TwitchEBS.instance.sendToChat(channel, message, token);
+			res.status(200).send(JSON.stringify({success:true}));
+		});
+
+		/**
+		 * Gets a user infos from its token
+		 */
+		this.app.post("/api/twitch/user", async (req, res) => {
+			let token = req.body.token;
+			let user = await TwitchEBS.instance.validateToken(token);
+			res.status(200).send(JSON.stringify({success:true, user}));
+		});
 	}
 
 

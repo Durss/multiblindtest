@@ -46,7 +46,7 @@
 			</div> -->
 
 			<div class="block params">
-				<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
+				<GameParams :gamesCount.sync="gamesCount" :gameDuration.sync="gameDuration" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
 					<div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
 						<Button type="checkbox" v-model="noBackground" title="Transparent Background" />
 					</div>
@@ -63,6 +63,7 @@ import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import GameParams from "@/components/GameParams.vue";
 import IncrementForm from "@/components/IncrementForm.vue";
+import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
 import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
@@ -70,6 +71,7 @@ import TwitchMessageType from "@/twitch/TwitchMessageType";
 import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
 import PlaylistData from "@/vo/PlaylistData";
+import SocketEvent from "@/vo/SocketEvent";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
@@ -102,6 +104,7 @@ export default class TwitchLobby extends Vue {
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
 	public ircMessageHandler:any;
+	public socketMessageHandler:any;
 
 	public get inviteMessage():string {
 		return "SingsNote Join the game with the following command \""+this.command+"\"";
@@ -154,14 +157,32 @@ export default class TwitchLobby extends Vue {
 
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
+
+		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
+		console.log(res.user);
+		SockController.instance.connect();
+		SockController.instance.user = {
+											name:"controler",//TwitchExtensionHelper.instance.auth.token,
+											id:res.user.user_id+"_ctrl",
+											offline:false,
+											score:0,
+											handicap:0,
+										};
+		this.socketMessageHandler = (e:SocketEvent) => this.onSocketMessage(e);
+		SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, this.socketMessageHandler);
 	}
 
 	public beforeDestroy():void {
 		this.disposed = true;
 		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.SEND_TO_UID, this.socketMessageHandler);
 	}
 
+	/**
+	 * Called when receiving a message from IRC
+	 */
 	public onIrcMessage(e:IRCEvent):void {
+		console.log(e.message)
 		if(e.tags["message-type"] == "action" && e.message == this.inviteMessage) {
 			this.sendingToChat = false;
 		}
@@ -178,6 +199,20 @@ export default class TwitchLobby extends Vue {
 		}
 	}
 
+	/**
+	 * Called when receiving a message via socket
+	 * This is used when the broadcaster uses the embeded controls
+	 * on his/her stream extension
+	 */
+	public onSocketMessage(e:SocketEvent):void {
+		if(e.data == "!start") {
+			this.startGame();
+		}
+	}
+
+	/**
+	 * Sends a message to IRC
+	 */
 	public sendToChat():void {
 		this.sendingToChat = true;
 		setTimeout(() => {
@@ -185,6 +220,9 @@ export default class TwitchLobby extends Vue {
 		}, 250);
 	}
 
+	/**
+	 * Starts the game
+	 */
 	public startGame():void {
 		// this.$store.dispatch("setTwitchAllowedUsers", this.players);
 		let params:any = {
@@ -211,6 +249,9 @@ export default class TwitchLobby extends Vue {
 		this.broadcastInfosToExtension();
 	}
 
+	/**
+	 * Broadcast current config infos to clients
+	 */
 	private broadcastInfosToExtension():void {
 		let playlists = [];
 		for (let i = 0; i < this.selectedPlaylists.length; i++) {

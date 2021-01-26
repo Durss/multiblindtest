@@ -233,6 +233,7 @@ export default class TwitchViewerGame extends Vue {
 			this.timerPercent = 0;
 		}
 		// console.log(this.tracks);
+		if(state.roundComplete || state.gameComplete) this.timerPercent = 1;
 	}
 
 	@Watch("$store.state.volume", {immediate: true, deep:true})

@@ -37,7 +37,7 @@ export default class TimerRenderer extends Vue {
 
 	public get timeStyles():any {
 		let res:any = {};
-		
+		return res;
 		if(!this.center || !this.$refs.time) return res;
 
 		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
@@ -101,6 +101,18 @@ export default class TimerRenderer extends Vue {
 		this.ctx.lineCap = "round";
 		this.ctx.arc(this.cnv.width*.5, this.cnv.height*.5,this.radius,-Math.PI/2, Math.PI*2*this.timerPercent-Math.PI/2);
 		this.ctx.stroke();
+		
+		let res:any = {};
+		
+		if(!this.$refs.time) return;
+
+		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
+		let div = <HTMLDivElement>this.$refs.time;
+		let bounds = div.getBoundingClientRect();
+		let px = ((this.center.x + Math.cos(a) * (this.radius+20) - bounds.width/2).toFixed(1))+"px";
+		let py = ((this.center.y + Math.sin(a) * (this.radius+20) - bounds.height/2).toFixed(1))+"px";
+		div.style.transform = 'translate3d('+px+', '+py+', 0)';
+		return res;
 	}
 
 }
@@ -131,8 +143,10 @@ export default class TimerRenderer extends Vue {
 		font-family: Futura;
 		font-weight: bold;
 		font-size: 18px;
-		transition: background-color 1s;
 		z-index: 1;
+		top: 0;
+		left: 0;
+		transition: background-color 1s, transform 0.001s linear;//Force text to render at a subpixel level
 	}
 }
 </style>

@@ -11,9 +11,10 @@ export default class TwitchEBS {
 	private static _instance: TwitchEBS;
 
 	private SECRET: string;
-	private SECRETEXT: string;
+	private EXTSECRET: string;
 	private OWNERID: string;
 	private CLIENTID: string;
+	private EXTVERSION: string;
 
 	constructor() {
 
@@ -40,7 +41,7 @@ export default class TwitchEBS {
 
 
 	public broadcast(channelId: string, message:string):void {
-		console.log("Broadcast \" "+message+"\" to channel "+channelId);
+		// console.log("Broadcast \" "+message+"\" to channel "+channelId);
 		// Set the HTTP headers required by the Twitch API.
 		const headers = {
 			'Client-Id': this.CLIENTID,
@@ -64,10 +65,7 @@ export default class TwitchEBS {
 		fetch("https://api.twitch.tv/extensions/message/" + channelId, options)
 		.then((result) => {
 			if (result.status == 204) {
-				Logger.info("Broadcast done to channel "+channelId);
-				// result.text().then((t) => {
-				// 	console.log(">",t);
-				// })
+				// Logger.info("Broadcast done to channel "+channelId);
 			} else {
 				Logger.error("ERROR");
 				result.text().then((t) => {
@@ -122,6 +120,24 @@ export default class TwitchEBS {
 		});
 	}
 
+	public async sendToChat(channelId:string, message:string, token:string):Promise<void> {
+		let headers:any = {
+			"Client-Id":this.CLIENTID,
+			"Content-Type":"application/json",
+			'Authorization': "Bearer " + token,
+		};
+		let options = {
+			method: "POST",
+			headers,
+			body:JSON.stringify({text:message})
+		};
+		let url = "https://api.twitch.tv/extensions/"+this.CLIENTID+"/"+this.EXTVERSION+"/channels/"+channelId+"/chat";
+		let result = await fetch(url, options);
+		console.log("SEND TOT CHAT RESULT !");
+		console.log(result.status);
+		console.log(await result.text());
+	}
+
 
 
 	/*******************
@@ -150,7 +166,7 @@ export default class TwitchEBS {
 			Logger.error("MISSING FILE \"credentials.conf\" contianing Twitch credentials");
 			Logger.error("The file has been created, please fill the missing keys");
 			fs.writeFileSync("credentials.conf", `SECRET;xxx
-SECRETEXT;xxx
+EXTSECRET;xxx
 CLIENTID;xxx
 OWNERID;xxx`);
 		}
@@ -163,11 +179,10 @@ OWNERID;xxx`);
 			user_id: this.OWNERID,
 			role: 'external',
 			pubsub_perms: {
-				send: ['*'],
+				send: ['broadcast'],
 			},
 		};
-		console.log(this.OWNERID);
-		return jsonwebtoken.sign(payload, Buffer.from(this.SECRETEXT, "base64"), { algorithm: 'HS256' });
+		return jsonwebtoken.sign(payload, Buffer.from(this.EXTSECRET, "base64"), { algorithm: 'HS256' });
 	}
 
 	private getClientCredentialToken(scope:string="channel:read:redemptions+channel:moderate+channel_subscriptions+bits:read"):Promise<string> {

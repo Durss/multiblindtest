@@ -27,13 +27,16 @@
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
+import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
 import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
 import TwitchMessageType from "@/twitch/TwitchMessageType";
 import AnswerTester from "@/utils/AnswerTester";
+import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
+import SocketEvent from "@/vo/SocketEvent";
 import TrackData from "@/vo/TrackData";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
@@ -75,6 +78,7 @@ export default class TwitchBroadcasterControls extends Vue {
     public startTime:number = 0;
     public timeLeft:string = "";
     public ircMessageHandler:any;
+    public socketMessageHandler:any;
 
 	public get tracksCount_num():number { return parseInt(this.tracksCount); }
 	public get gamesCount_num():number { return parseInt(this.gamesCount); }
@@ -109,11 +113,33 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.pickRandomTracks();
 		this.broadcastCurrentState();
 		this.renderFrame();
+
+		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
+		SockController.instance.connect();
+		SockController.instance.user = {
+											name:"controler",//TwitchExtensionHelper.instance.auth.token,
+											id:IRCClient.instance.channel+"_ctrl",
+											offline:false,
+											score:0,
+											handicap:0,
+										};
+		this.socketMessageHandler = (e:SocketEvent) => this.onSocketMessage(e);
+		SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, this.socketMessageHandler);
 	}
 
 	public beforeDestroy():void {
 		this.disposed = true;
 		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.SEND_TO_UID, this.socketMessageHandler);
+	}
+
+	/**
+	 * Called when receiving a message via socket
+	 * This is used when the broadcaster uses the embeded controls
+	 * on his/her stream extension
+	 */
+	public onSocketMessage(e:SocketEvent):void {
+		this.parseBroadcasterCommands(e.data);
 	}
 
 	private renderFrame():void {
@@ -174,7 +200,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		}
 		this.currentTracks = toPlay;
 		this.roundComplete = false;
-		console.log(this.currentTracks.map(v=>v.artist + " :: "+v.name).join("\n"));
+		// console.log(this.currentTracks.map(v=>v.artist + " :: "+v.name).join("\n"));
 
 		//Add 4 seconds, 1 second for websocket message to be sent
 		//and 3 seconds for countdown
@@ -186,7 +212,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	 */
 	public onIrcMessage(e:IRCEvent):void {
 		if(e.tags.badges && e.tags.badges.broadcaster === "1") {
-			if(this.parseBroadcasterCommands(e)) return;
+			if(this.parseBroadcasterCommands(e.message)) return;
 		}
 
 		if(this.roundComplete) return;
@@ -199,9 +225,8 @@ export default class TwitchBroadcasterControls extends Vue {
 	 * This allow to skip a game, start the next one or show the results
 	 * without looking at the multiblindtest page.
 	 */
-	private parseBroadcasterCommands(e:IRCEvent):boolean {
-		console.log(e.message.toLowerCase());
-		switch(e.message.toLowerCase()) {
+	private parseBroadcasterCommands(message:string):boolean {
+		switch(message.toLowerCase()) {
 			// case "!start":
 			// case "!go":
 			// 	if(state.twitchPlaylists) {
@@ -213,7 +238,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			case "!skip":
 			case "!pass":
 			case "!passer":
-				console.log("ok", this.roundComplete);
+			case "⏹️":
 				if(!this.roundComplete) {
 					this.endRound();
 					return true;
@@ -223,6 +248,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			case "!next":
 			case "!suite":
 			case "!continue":
+			case "⏭️":
 				if(this.roundComplete && !this.gameComplete) {
 					this.nextRound();
 					return true;
@@ -232,6 +258,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			case "!res":
 			case "!result":
 			case "!results":
+			case "🏆":
 				if(this.gameComplete) {
 					this.onShowResults();
 					return true;
@@ -240,7 +267,9 @@ export default class TwitchBroadcasterControls extends Vue {
 
 			case "!restart":
 			case "!replay":
-			case "!results":
+			case "!rejouer":
+			case "!game":
+			case "🔁":
 				if(this.gameComplete) {
 					this.restartGame();
 					return true;
@@ -313,6 +342,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		data.games = this.gamesCount_num;
 		data.duration = this.gameDuration_num;
 		data.roundComplete = this.roundComplete;
+		data.gameComplete = this.gameComplete;
 		if(!this.showResults) {
 			//Game data
 			let tracks = [];
@@ -402,8 +432,10 @@ export default class TwitchBroadcasterControls extends Vue {
 	public restartGame():void {
 		this.gameComplete = false;
 		this.roundComplete = false;
-		this.roundIndex = 0;
+		this.showResults = false;
+		this.roundIndex = 1;
 		this.pickRandomTracks();
+		this.broadcastCurrentState();
 	}
 
 }

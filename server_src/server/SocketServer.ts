@@ -79,13 +79,26 @@ export default class SocketServer {
 	}
 
 	/**
-	 * Sends a message to one specific user
+	 * Sends a message to one specific user instance
 	 */
 	public sendTo(user:UserData, msg:{action:string, data?:any}):void {
+		if(!user) return;
 		let conn = this._uidToConnection[user.id.toString()];
-		// console.log("send to ", user.name, msg);
 		if(!conn) {
 			Logger.error("Actually nope... connexion not found for ", user.name, ":(");
+			return;
+		}
+		conn.write(JSON.stringify(msg));
+	}
+
+	/**
+	 * Sends a message to one specific user ID
+	 */
+	public sendToUID(uid:string, msg:{action:string, data?:any}):void {
+		if(!uid) return;
+		let conn = this._uidToConnection[uid];
+		if (!conn) {
+			Logger.error("Actually nope... connexion not found for user ID ", uid, ":(");
 			return;
 		}
 		conn.write(JSON.stringify(msg));
@@ -180,11 +193,19 @@ export default class SocketServer {
 
 
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
-				Logger.warn("Sock Register", json.data.name);
+				Logger.warn("Sock Register", json.data.name, json.data.id);
 				//Associate socket connection to user
 				this._uidToConnection[json.data.id] = conn;
 				this._connectionToUid[conn.id] = json.data.id;
 				return;
+
+
+			}else if(json.action == SOCK_ACTIONS.SEND_TO_UID) {
+				Logger.warn("Send to specific user", json.data.target);
+				this.sendToUID(json.data.target, json.data.data);
+				return;
+
+
 			}else{
 				if(this._DISABLED) return;
 				let uid = this._connectionToUid[ conn.id ];
@@ -269,4 +290,5 @@ export enum SOCK_ACTIONS {
 	UPDATE_HANDICAP="UPDATE_HANDICAP",
 	UPDATE_USERNAME="UPDATE_USERNAME",
 	CHAT_MESSAGE="CHAT_MESSAGE",
+	SEND_TO_UID="SEND_TO_UID",
 };

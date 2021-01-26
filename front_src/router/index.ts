@@ -214,6 +214,7 @@ const routes = [
 		props:true,
 		meta: {
 			hideHomeBt:false,
+			needSocket:true,
 		},
 		component: TwitchLobby
 	},
@@ -230,6 +231,7 @@ const routes = [
 		name: 'twitch/controls',
 		props:true,
 		meta: {
+			needSocket:true,
 		},
 		component: TwitchBroadcasterControls
 	},
@@ -250,6 +252,7 @@ const routes = [
 			hideHomeBt:true,
 			hideBackground:true,
 			needsTwitchHelper:true,
+			needSocket:true,
 		},
 		component: TwitchExtension,
 		children: [
@@ -257,24 +260,13 @@ const routes = [
 				path: "broadcaster",
 				name: "twitchext/broadcaster",
 				props:true,
-				meta: {
-					hideHomeBt:false,
-				},
 				components: {
 					twitch:TwitchBroadcaster
 				},
 			},
 			{
-				path: "viewer",
+				path: "viewer/:isBroadcaster?",
 				name: "twitchext/viewer",
-				props:true,
-				components: {
-					twitch:TwitchViewer
-				},
-			},
-			{
-				path: "play",
-				name: "twitchext/play",
 				props:true,
 				components: {
 					twitch:TwitchViewer

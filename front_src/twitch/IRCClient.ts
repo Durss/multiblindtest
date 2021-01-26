@@ -10,10 +10,10 @@ export default class IRCClient extends EventDispatcher {
 	private static _instance:IRCClient;
 	private client:tmi.Client;
 	private login:string;
-	private token:string;
 	private isConnected:boolean = false;
-
-	private channel:string;
+	
+	public token:string;
+	public channel:string;
 	
 	constructor() {
 		super();
@@ -79,6 +79,11 @@ export default class IRCClient extends EventDispatcher {
 				this.isConnected = false;
 			});
 	
+			// this.client.on('raw_message', (messageCloned, message) => {
+			// 	console.log("################## ON RAW ##################");
+			// 	console.log(messageCloned);
+			// 	console.log(message);
+			// })
 			this.client.on('message', (channel, tags, message, self) => {
 				// console.log("################## ON MESSAGE ##################");
 				// console.log(channel);

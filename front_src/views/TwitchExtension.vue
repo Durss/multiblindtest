@@ -25,6 +25,7 @@ export default class TwitchVideoOverlay extends Vue {
 
 	public isBroadcaster:boolean = false;
 	public ready:boolean = false;
+	public gameStarted:boolean = false;
 	private messageHandler:any;
 
 	public get url():string {
@@ -53,10 +54,15 @@ export default class TwitchVideoOverlay extends Vue {
 		
 		if(this.$route.name != "twitchext") return;
 
-		if(TwitchExtensionHelper.instance.isBroadcaster) {
+		this.redirect();
+	}
+
+	private redirect():void {
+		let isBroadcaster = TwitchExtensionHelper.instance.isBroadcaster;
+		if(isBroadcaster && !this.gameStarted) {
 			this.$router.push({name:"twitchext/broadcaster"});
 		}else{
-			this.$router.push({name:"twitchext/viewer"});
+			this.$router.push({name:"twitchext/viewer", params:{isBroadcaster:isBroadcaster?"1":"0"}});
 		}
 	}
 
@@ -69,22 +75,32 @@ export default class TwitchVideoOverlay extends Vue {
 				this.$store.dispatch("setTwitchExpertMode", e.data.expert);
 				this.$store.dispatch("setTwitchGameState", null);
 				this.$store.dispatch("setTwitchLeaderboard", null);
+				this.gameStarted = true;
 				break;
 			case TwitchMessageType.ROUND_STATE:
 				this.$store.dispatch("setTwitchPlaylists", null);
 				this.$store.dispatch("setTwitchExpertMode", null);
 				this.$store.dispatch("setTwitchGameState", e.data.state);
 				this.$store.dispatch("setTwitchLeaderboard", null);
+				this.gameStarted = true;
 				break;
 			case TwitchMessageType.LEADERBOARD:
 				this.$store.dispatch("setTwitchPlaylists", null);
 				this.$store.dispatch("setTwitchExpertMode", null);
 				this.$store.dispatch("setTwitchGameState", null);
 				this.$store.dispatch("setTwitchLeaderboard", e.data.state);
+				this.gameStarted = true;
+				break;
+			case TwitchMessageType.BROADCASTER_CONTROL:
+				console.log("BROADCASTER_CONTROL");
 				break;
 			default:
 				console.error("Received a broadcast message with no \"type\" value");
 				console.log(e.data);
+		}
+
+		if(this.$route.name == "twitchext/broadcaster") {
+			this.redirect();
 		}
 	}
 

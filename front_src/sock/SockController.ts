@@ -58,9 +58,9 @@ export default class SockController extends EventDispatcher {
 	 ******************/
 
 	public connect() {
-		if(this._verbose) console.log("SC :: connect...");
 		this._enabled = true;
 		if(this.connected) return;
+		if(this._verbose) console.log("SC :: connect...");
 		
 		clearTimeout(this._timeout);
 
@@ -202,4 +202,5 @@ export enum SOCK_ACTIONS {
 	UPDATE_USERNAME="UPDATE_USERNAME",
 	CHAT_MESSAGE="CHAT_MESSAGE",
 	RESTART_GROUP_GAME="RESTART_GROUP_GAME",
+	SEND_TO_UID="SEND_TO_UID",
 };

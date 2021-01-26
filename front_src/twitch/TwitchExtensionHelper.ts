@@ -21,7 +21,7 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	private _lastdata:any;
 	private _broadcastInterval:any;
 	private _initialized:boolean = false;
-	private _verbose:boolean = true;//Enable/disable logs
+	private _verbose:boolean = false;//Enable/disable logs
 	
 	constructor() {
 		super();
@@ -39,8 +39,8 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 
 	public get connected():boolean { return this._connected; }
 	public get isBroadcaster():boolean { return this._isBroadcaster; }
-	public get context():boolean { return this._context; }
-	public get auth():boolean { return this._auth; }
+	public get context():any { return this._context; }
+	public get auth():any { return this._auth; }
 	
 	
 	
@@ -81,7 +81,6 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 		// listen for incoming broadcast message from our EBS
 		this._twitch.listen('broadcast', (target, contentType, message) => {
 			this.log('TEH : broadcast message received');
-			this.log(message);
 			let json;
 			try {
 				json = JSON.parse(message);
@@ -103,6 +102,9 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 		console.log(message);
 	}
 	
+	/**
+	 * Called when connected to twitch
+	 */
 	public onConnect():Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.log("TEH : onConnect "+ this.connected);
@@ -134,6 +136,13 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 		//Regularly broadcast the last message so new users are un sync
 		clearInterval(this._broadcastInterval);
 		this._broadcastInterval = setInterval(_=> this.broadcastLastMessage(), 5000);
+	}
+	
+	/**
+	 * Called when connected to twitch
+	 */
+	public send(type:string, data:any):void {
+		this._twitch.send("broadcast", "application/json", JSON.stringify({type, noReplay:true, message:data}));
 	}
 	
 	

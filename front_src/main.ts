@@ -87,7 +87,7 @@ function nextStep(next:Function, to:Route):void {
 		if(!SockController.instance.connected) {
 			SockController.instance.connect();
 		}
-	}else{
+	}else  if(Utils.getRouteMetaValue(to, "needSocket") !== true){
 		if(SockController.instance.connected) {
 			//If user leaves multiplayer game, tell the server s·he left the room
 			let u = store.state.userGroupData;
