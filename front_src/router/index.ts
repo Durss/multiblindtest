@@ -15,6 +15,7 @@ import PlaylistSelector from '@/views/PlaylistSelector.vue';
 import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
 import TwitchBroadcasterControls from '@/views/twitch/TwitchBroadcasterControls.vue';
 import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
+import TwitchExtensionConfiguration from '@/views/twitch/TwitchExtensionConfiguration.vue';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
 
@@ -221,6 +222,16 @@ const routes = [
 		meta: {
 		},
 		component: TwitchBroadcasterControls
+	},
+	{
+		path: "/twitch/config",
+		name: "twitch/config",
+		props:true,
+		meta: {
+			hideHomeBt:true,
+			hideBackground:true,
+		},
+		component: TwitchExtensionConfiguration
 	},
 	{
 		path: '/twitchextension',
