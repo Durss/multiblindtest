@@ -1,6 +1,7 @@
 <template>
 	<div :class="classes">
 		<router-view class="content"/>
+		
 		<transition name="slide" appear>
 			<Button class="backHome"
 				v-if="showHomeButton"
@@ -18,15 +19,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Tooltip from "./components/Tooltip.vue";
-import Confirm from "./views/Confirm.vue";
-import Alert from "./views/AlertView.vue";
+import { Component, Vue } from "vue-property-decorator";
 import Button from './components/Button.vue';
-import SockController, { SOCK_ACTIONS } from './sock/SockController';
-import SocketEvent from './vo/SocketEvent';
 import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
+import Tooltip from "./components/Tooltip.vue";
+import SockController, { SOCK_ACTIONS } from './sock/SockController';
 import Utils from "./utils/Utils";
+import Alert from "./views/AlertView.vue";
+import Confirm from "./views/Confirm.vue";
+import SocketEvent from './vo/SocketEvent';
 
 @Component({
 	components:{
@@ -48,6 +49,7 @@ export default class App extends Vue {
 	}
 
 	public get showHomeButton():boolean {
+		if(this.$route.name == null) return false;
 		return Utils.getRouteMetaValue(this.$route, "hideHomeBt") !== true;
 	}
 

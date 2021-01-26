@@ -48,8 +48,7 @@
 			<div class="block params">
 				<GameParams :gamesCount.sync="gamesCount" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
 					<div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
-						<Button type="checkbox" id="noBg" v-model="noBackground" />
-						<label for="noBg" @click="noBackground = !noBackground">Transparent Background</label>
+						<Button type="checkbox" v-model="noBackground" title="Transparent Background" />
 					</div>
 					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
@@ -66,6 +65,7 @@ import GameParams from "@/components/GameParams.vue";
 import IncrementForm from "@/components/IncrementForm.vue";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
+import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
 import TwitchMessageType from "@/twitch/TwitchMessageType";
 import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
@@ -91,6 +91,7 @@ export default class TwitchLobby extends Vue {
 	public selectedPlaylists:PlaylistData[] = null;
 
 	public ready:boolean = false;
+	public disposed:boolean = false;
 	public noBackground:boolean = false;
 	public sendingToChat:boolean = false;
 	public maxPlayers:number = 100;
@@ -156,6 +157,7 @@ export default class TwitchLobby extends Vue {
 	}
 
 	public beforeDestroy():void {
+		this.disposed = true;
 		IRCClient.instance.removeEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 	}
 
@@ -195,28 +197,33 @@ export default class TwitchLobby extends Vue {
 		if(this.expertMode && this.expertMode.length > 0) {
 			params.expertMode = this.expertMode.join(",");
 		}
-		console.log(params);
-		this.$router.push({name:"twitch/play", params})
+		
+		this.$router.push({name:"twitch/controls", params});
 	}
 
 	@Watch("noBackground")
-	private onBgChange():void {
+	public onBgChange():void {
 		this.$store.dispatch("setHideBackground", this.noBackground);
 	}
 
+	@Watch("expertMode")
+	public onExpertModeChange():void {
+		this.broadcastInfosToExtension();
+	}
+
 	private broadcastInfosToExtension():void {
-		
 		let playlists = [];
 		for (let i = 0; i < this.selectedPlaylists.length; i++) {
 			const p = this.selectedPlaylists[i];
-			playlists.push({name:p.name, cover:p.cover})
+			playlists.push({name:p.name, cover:p.cover, id:p.id})
 		}
-		let message = {
-			type:TwitchMessageType.PLAYLISTS,
+		let data = {
 			playlists,
+			expert:this.expertMode && this.expertMode.length > 0,
 		}
-		let res = Api.post("twitch/broadcast", {token:this.$store.state.twitchOAuthToken, message:JSON.stringify(message)});
+		TwitchExtensionHelper.instance.broadcast(TwitchMessageType.PLAYLISTS, data);
 	}
+	
 
 }
 </script>
@@ -242,7 +249,7 @@ export default class TwitchLobby extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			padding: 5px 20px;
+			padding: 5px 10px 5px 5px;
 			box-sizing: border-box;
 			width: min-content;
 			white-space: nowrap;
@@ -250,15 +257,14 @@ export default class TwitchLobby extends Vue {
 			margin-bottom: 5px;
 			.label {
 				color: #fff;
-				margin-left: 20px;
+				margin-left: 5px;
 				overflow: hidden;
-				line-height: 30px;
 				text-overflow: ellipsis;
 			}
 			.cover {
 				width: 30px;
 				height: 30px;
-				border-radius: 10px;
+				border-radius: 50%;
 				object-fit: cover;
 			}
 		}

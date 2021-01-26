@@ -36,11 +36,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import TrackData from '@/vo/TrackData';
-import ScoreHistory from '../vo/ScoreHistory';
-import gsap from "gsap";
 import Utils from "@/utils/Utils";
+import TrackData from '@/vo/TrackData';
+import gsap from "gsap";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import ScoreHistory from '../vo/ScoreHistory';
 import Button from "./Button.vue";
 
 @Component({
@@ -59,6 +59,9 @@ export default class TrackEntry extends Vue {
 	@Prop({default:false})
 	public forceReveal:boolean;
 
+	@Prop({default:false})
+	public small:boolean;
+
 	@Prop({default:true})
 	public canReplay:boolean;
 
@@ -70,6 +73,7 @@ export default class TrackEntry extends Vue {
 
 	public get classes():string[] {
 		let res = ["trackentry"];
+		if(this.small !== false) res.push("small");
 		if(this.reveal) res.push("enabled");
 		if(this.data.loadFail) res.push("error");
 		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
@@ -225,6 +229,47 @@ export default class TrackEntry extends Vue {
 		background-color: #c00;
 	}
 
+	&.small {
+		&>.icon {
+			width: 30px;
+			height: 30px;
+		}
+
+		.trackInfos {
+			font-size: 16px;
+			.name {
+				font-size: 14px;
+			}
+			.artist {
+				margin-bottom: 1px;
+			}
+		}
+
+		.placeholder {
+			font-size: 20px;
+		}
+
+		.score {
+			font-size: 23px;
+			width: 45px;
+			height: 45px;
+			padding: 13px 0;
+		}
+
+		.guesser {
+			transform: translate(10px, 50%);
+			.pseudo {
+				font-size: 13px;
+			}
+		}
+
+		.stop {
+			width: 30px;
+			height: 30px;
+			min-width: 30px;
+		}
+	}
+
 	.trackInfos {
 		font-size: 20px;
 		flex-grow: 1;
@@ -273,8 +318,9 @@ export default class TrackEntry extends Vue {
 	}
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 50px) {
 	.trackentry {
+		background-color: red;
 
 		padding: 7px;
 		&>.icon {

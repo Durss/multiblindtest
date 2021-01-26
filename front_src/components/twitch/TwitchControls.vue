@@ -2,13 +2,11 @@
 	<div class="twitchcontrols">
 		<ToggleBlock class="block" title="OBS params">
 			<div class="cb showZone">
-				<Button type="checkbox" id="noBg" v-model="showZone_local" />
-				<label for="noBg" @click="showZone_local = !showZone_local">Show capture area</label>
+				<Button type="checkbox" v-model="showZone_local" title="Show capture area" />
 			</div>
 
 			<div class="cb noBg">
-				<Button type="checkbox" id="noBg" v-model="noBackground" />
-				<label for="noBg" @click="noBackground = !noBackground">Transparent Background</label>
+				<Button type="checkbox"  v-model="noBackground" title="Transparent Background" />
 			</div>
 		</ToggleBlock>
 

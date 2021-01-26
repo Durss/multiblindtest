@@ -1,8 +1,15 @@
 <template>
-	<div class="twitchplaylists">
+	<div class="TwitchGameStatus">
 		<transition name="fadeIn">
-			<h1 v-if="playlists.length > 0">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</h1>
+			<div class="title" v-if="playlists.length > 0">
+				<h1>Game will start soon</h1>
+				<div v-if="expertMode">💪🏻 expert mode</div>
+			</div>
 		</transition>
+		
+		<Button v-if="playlists.length > 0" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big />
+
+		<div class="playlistsTitle">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
 		<transition-group tag="div" class="playlists"
 		v-bind:css="false"
 		v-on:before-enter="beforeEnter"
@@ -18,25 +25,34 @@
 
 <script lang="ts">
 import gsap from "gsap";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import Button from "../Button.vue";
 
 @Component({
-	components:{}
+	components:{
+		Button,
+	}
 })
-export default class TwitchPlaylists extends Vue {
+export default class TwitchGameStatus extends Vue {
+
+	public iwannaplay:boolean = false;
+
+	public get expertMode():boolean {
+		return this.$store.state.twitchExpertMode;
+	}
 
 	public get playlists():{name:string,cover:string}[] {
 		let list:any[] = JSON.parse(JSON.stringify(this.$store.state.twitchPlaylists));
 		if(!list) return [];
-		list.forEach(v=>v.id = Math.random());
 		return list;
 	}
 
 	public mounted():void {
-		}
+		this.onPlayChange();
+	}
 
 	public beforeDestroy():void {
-		}
+	}
 
 	public beforeEnter(el:HTMLDivElement):void {
 		gsap.set(el, {opacity:1});
@@ -47,15 +63,20 @@ export default class TwitchPlaylists extends Vue {
 		gsap.from(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
 	}
 
-	public leave(el):void {
+	public leave(el:HTMLDivElement):void {
 		let index = parseInt(el.dataset.index);
 		gsap.to(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
+	}
+
+	@Watch("iwannaplay")
+	public onPlayChange():void {
+		this.$store.dispatch("setVolume", this.iwannaplay? .5 : 0);
 	}
 }
 </script>
 
 <style scoped lang="less">
-.twitchplaylists{
+.TwitchGameStatus{
 	
 	.fadeIn-enter-active, .fadeIn-leave-active {
 		opacity: 1;
@@ -65,8 +86,14 @@ export default class TwitchPlaylists extends Vue {
 		opacity: 0;
 	}
 
-	h1 {
+	.title {
+		text-align: center;
 		margin-bottom: 20px;
+	}
+
+	.playlistsTitle {
+		font-size: 20px;
+		margin-top: 20px;
 	}
 	
 	.playlists {
@@ -81,24 +108,26 @@ export default class TwitchPlaylists extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			padding: 5px 20px;
+			padding: 2px 10px 2px 2px;
 			box-sizing: border-box;
 			width: min-content;
 			white-space: nowrap;
 			max-width: 100%;
 			margin-bottom: 5px;
-			margin-right: 5px;
+			&:not(:last-child) {
+				margin-right: 5px;
+			}
 			.label {
 				color: #fff;
-				margin-left: 20px;
+				margin-left: 5px;
+				font-size: 14px;
 				overflow: hidden;
-				line-height: 30px;
 				text-overflow: ellipsis;
 			}
 			.cover {
-				width: 30px;
-				height: 30px;
-				border-radius: 10px;
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
 				object-fit: cover;
 			}
 		}

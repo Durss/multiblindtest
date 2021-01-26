@@ -13,6 +13,7 @@ import TwitchGame from '@/views/TwitchGame.vue';
 import TwitchExtension from '@/views/TwitchExtension.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
+import TwitchBroadcasterControls from '@/views/twitch/TwitchBroadcasterControls.vue';
 import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
@@ -201,10 +202,7 @@ const routes = [
 		name: 'twitch/lobby',
 		props:true,
 		meta: {
-			tag:{
-				path:"/twitch",
-				title:"twitch lobby"
-			}
+			hideHomeBt:false,
 		},
 		component: TwitchLobby
 	},
@@ -213,12 +211,16 @@ const routes = [
 		name: 'twitch/play',
 		props:true,
 		meta: {
-			tag:{
-				path:"/twitch",
-				title:"twitch play"
-			}
 		},
 		component: TwitchGame
+	},
+	{
+		path: '/twitch/controls/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		name: 'twitch/controls',
+		props:true,
+		meta: {
+		},
+		component: TwitchBroadcasterControls
 	},
 	{
 		path: '/twitchextension',
@@ -226,6 +228,7 @@ const routes = [
 		meta: {
 			hideHomeBt:true,
 			hideBackground:true,
+			needsTwitchHelper:true,
 		},
 		component: TwitchExtension,
 		children: [
@@ -233,6 +236,9 @@ const routes = [
 				path: "broadcaster",
 				name: "twitchext/broadcaster",
 				props:true,
+				meta: {
+					hideHomeBt:false,
+				},
 				components: {
 					twitch:TwitchBroadcaster
 				},
@@ -240,6 +246,14 @@ const routes = [
 			{
 				path: "viewer",
 				name: "twitchext/viewer",
+				props:true,
+				components: {
+					twitch:TwitchViewer
+				},
+			},
+			{
+				path: "play",
+				name: "twitchext/play",
 				props:true,
 				components: {
 					twitch:TwitchViewer

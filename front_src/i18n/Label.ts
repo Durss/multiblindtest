@@ -147,7 +147,7 @@ export default class Labels {
 					maxPlayers:"Max players",
 				},
 				game: {
-					index:"Step",
+					index:"Round",
 					results:"Results",
 				},
 				viewer: {

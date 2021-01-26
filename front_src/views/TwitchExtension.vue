@@ -13,8 +13,7 @@ import Button from "@/components/Button.vue";
 import TwitchExtensionEvent from "@/twitch/TwitchExtensionEvent";
 import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
 import TwitchMessageType from "@/twitch/TwitchMessageType";
-import Api from "@/utils/Api";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -62,18 +61,26 @@ export default class TwitchVideoOverlay extends Vue {
 	}
 
 	public onMessage(e:TwitchExtensionEvent):void {
-		if(typeof e.data != "string") return;
-
-		let data = JSON.parse(e.data);
-		switch(data.type) {
+		if(typeof e.data != "object") return;
+		
+		switch(e.data.type) {
 			case TwitchMessageType.PLAYLISTS:
-				this.$store.dispatch("setTwitchPLaylists", data.playlists);
+				this.$store.dispatch("setTwitchPlaylists", e.data.playlists);
+				this.$store.dispatch("setTwitchExpertMode", e.data.expert);
+				this.$store.dispatch("setTwitchGameState", null);
+				this.$store.dispatch("setTwitchLeaderboard", null);
 				break;
-			case TwitchMessageType.ROUND_DATA:
-				this.$store.dispatch("setTwitchGameRound", data.game);
+			case TwitchMessageType.ROUND_STATE:
+				this.$store.dispatch("setTwitchPlaylists", null);
+				this.$store.dispatch("setTwitchExpertMode", null);
+				this.$store.dispatch("setTwitchGameState", e.data.state);
+				this.$store.dispatch("setTwitchLeaderboard", null);
 				break;
 			case TwitchMessageType.LEADERBOARD:
-				this.$store.dispatch("setTwitchLeaderboard", data.leaderboard);
+				this.$store.dispatch("setTwitchPlaylists", null);
+				this.$store.dispatch("setTwitchExpertMode", null);
+				this.$store.dispatch("setTwitchGameState", null);
+				this.$store.dispatch("setTwitchLeaderboard", e.data.state);
 				break;
 			default:
 				console.error("Received a broadcast message with no \"type\" value");

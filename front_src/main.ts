@@ -45,12 +45,6 @@ if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
 	TwitchExtensionHelper.instance.initialize();
 }
 
-if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
-	// router.push({name:'twitchext'});
-	store.dispatch("setHideBackground", true);
-	TwitchExtensionHelper.instance.initialize();
-}
-
 router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded
 	if (!store.state.initComplete) {
@@ -79,6 +73,10 @@ function nextStep(next:Function, to:Route):void {
 	let tag = Utils.getRouteMetaValue(to, "tag");
 	if(tag) {
 		StatsManager.instance.pageView(tag.path, tag.title);
+	}
+	let needsTwitchHelper = Utils.getRouteMetaValue(to, "needsTwitchHelper");
+	if(needsTwitchHelper) {
+		TwitchExtensionHelper.instance.initialize();
 	}
 
 	if(Utils.getRouteMetaValue(to, "needGroupAuth") == true){

@@ -363,7 +363,7 @@ export default class GroupLobby extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				padding: 5px 20px;
+				padding: 5px 10px 5px 5px;
 				box-sizing: border-box;
 				width: min-content;
 				white-space: nowrap;
@@ -371,15 +371,14 @@ export default class GroupLobby extends Vue {
 				margin-bottom: 5px;
 				.label {
 					color: #fff;
-					margin-left: 20px;
+					margin-left: 5px;
 					overflow: hidden;
-					line-height: 30px;
 					text-overflow: ellipsis;
 				}
 				.cover {
 					width: 30px;
 					height: 30px;
-					border-radius: 10px;
+					border-radius: 50%;
 					object-fit: cover;
 				}
 			}

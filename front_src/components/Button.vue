@@ -231,8 +231,7 @@ export default class Button extends Vue {
 			align-items: center;
 			justify-content: center;
 			.img {
-				width: 20px;
-				height: 20px;
+				width: 80%;
 				margin: 0;
 				padding: 0;
 			}
@@ -245,6 +244,7 @@ export default class Button extends Vue {
 			text-align: left;
 			width: max-content;
 			color: @mainColor_normal;
+			overflow: visible;
 		}
 		
 		&:hover {
@@ -319,6 +319,16 @@ export default class Button extends Vue {
 		.icon {
 			min-width: 30px;
 			min-height: 30px;
+		}
+		&.checkbox {
+			padding: 0;
+			.checkboxContent {
+				.checkmark {
+					border-radius: 13px;
+					width: 40px;
+					height: 40px;
+				}
+			}
 		}
 	}
 

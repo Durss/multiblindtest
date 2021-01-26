@@ -42,11 +42,11 @@ export default class TimerRenderer extends Vue {
 
 		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
 		let bounds = (<HTMLDivElement>this.$refs.time).getBoundingClientRect();
-		let px = this.center.x + Math.cos(a) * (this.radius+30) - bounds.width/2+"px";
-		let py = this.center.y + Math.sin(a) * (this.radius+30) - bounds.height/2+"px";
+		let px = ((this.center.x + Math.cos(a) * (this.radius+30) - bounds.width/2).toFixed(1))+"px";
+		let py = ((this.center.y + Math.sin(a) * (this.radius+30) - bounds.height/2).toFixed(1))+"px";
 		res.top = 0;
 		res.left = 0;
-		res.transform = 'translate('+px+', '+py+') translateZ(0)';
+		res.transform = 'translate3d('+px+', '+py+', 0)';
 		return res;
 	}
 
@@ -84,7 +84,7 @@ export default class TimerRenderer extends Vue {
 
 		this.ctx.clearRect(0,0,this.cnv.width,this.cnv.height);
 
-		let thickness = 10;
+		let thickness = 5;
 		this.center = {x:this.cnv.width/2, y:this.cnv.height/2};
 		this.radius = Math.min(this.cnv.width, this.cnv.height) / 2 - thickness / 2;
 
@@ -122,18 +122,17 @@ export default class TimerRenderer extends Vue {
 	}
 
 	.time {
+		position: absolute;
 		color: #ffffff;
 		background-color: @mainColor_normal;
-		border: 5px solid #ffffff;
-		padding: 20px;
+		border: 2px solid #ffffff;
+		padding: 10px;
 		border-radius: 50px;
-		position: absolute;
 		font-family: Futura;
 		font-weight: bold;
-		font-size: 20px;
-		backface-visibility: hidden;
-		-webkit-font-smoothing:none;
+		font-size: 18px;
 		transition: background-color 1s;
+		z-index: 1;
 	}
 }
 </style>

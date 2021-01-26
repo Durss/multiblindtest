@@ -30,8 +30,10 @@ export default new Vuex.Store({
 		twitchOAuthToken:null,
 		twitchAllowedUsers:null,
 		twitchPlaylists:null,
-		twitchGameRound:null,
+		twitchExpertMode:false,
+		twitchGameState:null,
 		twitchLeaderboard:null,
+		twitchJoin:null,
 		hideBackground:null,//for OBS
 
 		confirm:{
@@ -126,11 +128,15 @@ export default new Vuex.Store({
 
 		setHideBackground(state, payload) { state.hideBackground = payload; },
 
-		setTwitchPLaylists(state, payload) { state.twitchPlaylists = payload; },
+		setTwitchPlaylists(state, payload) { state.twitchPlaylists = payload; },
 
-		setTwitchGameRound(state, payload) { state.twitchGameRound = payload; },
+		setTwitchExpertMode(state, payload) { state.twitchExpertMode = payload; },
+
+		setTwitchGameState(state, payload) { state.twitchGameState = payload; },
 
 		setTwitchLeaderboard(state, payload) { state.twitchLeaderboard = payload; },
+
+		setTwitchJoin(state, payload) { state.twitchJoin = payload; },
 
 	},
 
@@ -232,10 +238,14 @@ export default new Vuex.Store({
 
 		setHideBackground({commit}, payload) { commit("setHideBackground", payload); },
 
-		setTwitchPLaylists({commit}, payload) { commit("setTwitchPLaylists", payload); },
+		setTwitchPlaylists({commit}, payload) { commit("setTwitchPlaylists", payload); },
 
-		setTwitchGameRound({commit}, payload) { commit("setTwitchGameRound", payload); },
+		setTwitchExpertMode({commit}, payload) { commit("setTwitchExpertMode", payload); },
+
+		setTwitchGameState({commit}, payload) { commit("setTwitchGameState", payload); },
 
 		setTwitchLeaderboard({commit}, payload) { commit("setTwitchLeaderboard", payload); },
+
+		setTwitchJoin({commit}, payload) { commit("setTwitchJoin", payload); },
 	}
 })
