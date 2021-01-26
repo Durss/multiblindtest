@@ -41,6 +41,7 @@ export default class ToggleBlock extends Vue {
 		if(this.enabled) res.push("enabled");
 		if(this.showContent) res.push("open");
 		if(this.small !== false) res.push("small");
+		if(!this.enabled && this.closed) res.push("disabled");
 		return res;
 	}
 
@@ -129,6 +130,10 @@ export default class ToggleBlock extends Vue {
 		.content {
 			padding: 0;
 		}
+	}
+
+	&.disabled {
+		opacity: .5;
 	}
 }
 </style>

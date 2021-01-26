@@ -36,26 +36,26 @@
 			</div>
 
 			<div class="step" v-if="loggedIn && url">
-				<!-- <ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Embed with OBS">
-					<div>Configure this URL in the OBS browser params:</div>
+				<ToggleBlock class="block" :enabled="false" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS (soon)">
+					<!-- <div>Configure this URL in the OBS browser params:</div>
 					<div class="url">
 						<div class="text" @click="selectText">{{url}}</div>
 						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
 					</div>
 					<div class="head">Or continue if you already are on OBS:</div>
 					<Button :to="redirect" :title="$t('twitch.auth.continue')" big />
-					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" />
-				</ToggleBlock> -->
+					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" /> -->
+				</ToggleBlock>
 
-				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/twitch.svg')" title="Use the Twitch extension">
+				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/twitch.svg')" title="Play with Twitch extension">
 					<div class="twitchExt">
-						<div>Install the <strong>Twitch Extension</strong> and start a twitch session:</div>
+						<div>Install the <strong>Twitch Extension</strong> and start a game:</div>
 						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
-						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start Twitch session" :icon="require('@/assets/icons/play.svg')" />
+						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" />
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/dmca.svg')" title="What about DMCA?">
+				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/dmca.svg')" title="What about DMCA strike?">
 					<div class="dmca">
 						<div>The music won't be played on your stream but from within the extension so it will be undetectable by any live DMCA detection and your VOD won't have any trace of the audio.</div>
 						<!-- <div>
@@ -167,7 +167,7 @@ export default class TwitchAuth extends Vue {
 				this.checkingToken = false;
 				return;
 			}
-			console.log("Connected to IRC !", res);
+			// console.log("Connected to IRC !", res);
 			this.loggedIn = true;
 			this.loading = false;
 			if(this.twitchOAToken) {

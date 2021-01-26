@@ -244,7 +244,7 @@ export default class Button extends Vue {
 			text-align: left;
 			width: max-content;
 			color: @mainColor_normal;
-			overflow: visible;
+			// overflow: visible;
 		}
 		
 		&:hover {
@@ -273,7 +273,7 @@ export default class Button extends Vue {
 	.label {
 		flex-grow: 1;
 		white-space: nowrap;
-		overflow: hidden;
+		// overflow: hidden;
 	}
 
 	.label, .icon {
