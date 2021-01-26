@@ -24,7 +24,7 @@
 			</div>
 		</div>
 
-		<div class="nav">
+		<div class="nav" v-if="users.length > 0">
 			<Button :title="expandResults? '▲' : '▼'" @click="toggleResults()" />
 		</div>
 	</div>
