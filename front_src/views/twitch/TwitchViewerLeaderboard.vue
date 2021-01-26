@@ -15,11 +15,13 @@
 				</div>
 			</div>
 
-			<div class="page otherPlayers" ref="otherPlayers">
-				<div class="user" v-for="(u,index) in users" :key="u.name+''+index" :style="getRowStyle(u)">
-					<div class="pos">#{{index+4}}</div>
-					<div class="name">{{u.name}}</div>
-					<div class="score">{{u.score}}<span class="exp">pts</span></div>
+			<div class="page otherPlayers">
+				<div class="scrollable" ref="otherPlayers">
+					<div class="user" v-for="(u,index) in users" :key="u.name+''+index" :style="getRowStyle(u)">
+						<div class="pos">#{{index+4}}</div>
+						<div class="name">{{u.name}}</div>
+						<div class="score">{{u.score}}<span class="exp">pts</span></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -32,7 +34,6 @@
 
 <script lang="ts">
 import Button from "@/components/Button.vue";
-import { IRCTypes } from "@/twitch/IRCClient";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import gsap from "gsap";
@@ -54,6 +55,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 	public getRowStyle(u:any):any {
 		let res:any = {};
+		return res;
 		// let color = "#"+((Math.random()*0x99 + 0x66)<<16 | (Math.random()*0x99 + 0x66)<<8 | (Math.random()*0x99 + 0x66)).toString(16);
 		let color = u.user.color;
 		res["background-color"] = color;
@@ -69,6 +71,9 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 		for (let i = 0; i < history.length; i++) {
 			this.users.push({name:history[i].guesserName, score:history[i].score});
+		}
+		for (let i = 0; i < 100; i++) {
+			this.users.push(this.users[0]);
 		}
 
 		this.users.sort((a,b)=> {
@@ -190,48 +195,58 @@ export default class TwitchViewerLeaderboard extends Vue {
 			margin-top: 20px;
 			margin-bottom: 20px;
 			height: 310px;
-			.user {
-				text-align: center;
-				display: flex;
-				flex-direction: row;
+			background-color: rgba(255,255,255,1);
+			border-radius: 20px;
+			overflow: hidden;
+			.scrollable {
+				overflow: auto;
+				padding: 10px;
+				height: 100%;
 				width: 100%;
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				margin-bottom: 3px;
-				padding: 2px 5px;
-				border-radius: 20px;
 				box-sizing: border-box;
-				color: @mainColor_dark;
-				align-items: center;
-
-				.name {
-					flex-grow: 1;
+				.user {
 					text-align: center;
-					font-family: "Futura";
-					font-size: 25px;
-					margin-right: 10px;
-				}
-				.score {
-					font-family: "Futura";
-					font-size: 30px;
-					margin-right: 10px;
-					min-width: 40px;
-					text-align:left;
-					font-weight: bold;
-					.exp {
-						font-family: "Futura";
-						font-size: 14px;
-						vertical-align: top;
-					}
-				}
+					display: flex;
+					flex-direction: row;
+					width: 100%;
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					margin-bottom: 3px;
+					padding: 2px 5px;
+					border-radius: 20px;
+					box-sizing: border-box;
+					color: @mainColor_dark;
+					align-items: center;
 	
-				.pos {
-					font-size: 20px;
-					font-family: "Futura";
-					text-align:left;
-					margin-right: 10px;
-					min-width: 40px;
+					.name {
+						flex-grow: 1;
+						text-align: center;
+						font-family: "Futura";
+						font-size: 25px;
+						margin-right: 10px;
+					}
+					.score {
+						font-family: "Futura";
+						font-size: 30px;
+						margin-right: 10px;
+						min-width: 40px;
+						text-align:left;
+						font-weight: bold;
+						.exp {
+							font-family: "Futura";
+							font-size: 14px;
+							vertical-align: top;
+						}
+					}
+		
+					.pos {
+						font-size: 20px;
+						font-family: "Futura";
+						text-align:left;
+						margin-right: 10px;
+						min-width: 40px;
+					}
 				}
 			}
 		}
