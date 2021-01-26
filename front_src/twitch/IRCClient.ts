@@ -56,7 +56,7 @@ export default class IRCClient extends EventDispatcher {
 			this.client.on("join", (channel, user, test)=> {
 				this.channel = channel;
 				if(user == this.login) {
-					this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
+					// this.client.action(this.login, "SingsNote MultiBlindtest connected");//TODO localize
 					this.isConnected = true;
 					// console.log(reason);
 					resolve();
