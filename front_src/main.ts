@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import {initRouter} from './router'
 import store from './store'
 import './less/index.less';
 import StatsManager from './utils/StatsManager';
-import { Route } from 'vue-router';
+import { Route, RouterMode } from 'vue-router';
 import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
 import VueI18n from 'vue-i18n';
@@ -18,6 +18,7 @@ import TwitchExtensionHelper from './twitch/TwitchExtensionHelper';
 Vue.config.productionTip = false;
 Config.init();
 Vue.use(VueI18n);
+let routerMode:RouterMode = "history";
 let userLang: string = navigator.language || (<any>navigator)['userLanguage'];
 userLang = userLang.substr(0, 2).toLowerCase();
 store.dispatch("setLanguageCode", userLang);
@@ -39,11 +40,17 @@ if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
 	localStorage.clear();
 	localStorage.setItem("v", Config.STORAGE_VERSION.toString());
 }
-if(Utils.getQueryParameterByName('anchor') == "video_overlay") {
+
+if(Utils.getQueryParameterByName('anchor') == "video_overlay"
+|| document.location.href.indexOf("twitchextension") > -1
+|| document.location.href.indexOf("twitch/config") > -1) {
 	// router.push({name:'twitchext'});
 	store.dispatch("setHideBackground", true);
 	TwitchExtensionHelper.instance.initialize();
+	routerMode = "hash";
 }
+
+let router = initRouter(routerMode);
 
 router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded

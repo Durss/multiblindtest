@@ -118,7 +118,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		SockController.instance.connect();
 		SockController.instance.user = {
 											name:"controler",//TwitchExtensionHelper.instance.auth.token,
-											id:IRCClient.instance.channel+"_ctrl",
+											id:res.user.user_id+"_ctrl",
 											offline:false,
 											score:0,
 											handicap:0,

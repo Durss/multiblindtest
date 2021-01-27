@@ -29,7 +29,7 @@ export default class TwitchVideoOverlay extends Vue {
 	private messageHandler:any;
 
 	public get url():string {
-		return this.$router.resolve({name:"twitch/auth"}).href;
+		return this.$router.resolve({name:"twitch/auth"}).href.replace("#", "");
 	}
 
 	public async mounted():Promise<void> {

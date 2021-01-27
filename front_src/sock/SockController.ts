@@ -1,4 +1,4 @@
-import router from '@/router';
+import getRouter from '@/router';
 import { EventDispatcher } from '@/utils/EventDispatcher';
 import UserData from '@/vo/UserData';
 import * as SockJS from "sockjs-client";
@@ -71,6 +71,7 @@ export default class SockController extends EventDispatcher {
 			this._sockjs.onopen = null;
 		}
 
+		console.log("INIT SOCK ON PATH ", Config.SOCKET_PATH);
 		this._sockjs = new SockJS(Config.SOCKET_PATH);
 		this._sockjs.onopen = ()=> this.onConnect();
 		this._sockjs.onclose = (e)=> this.onClose(e);
@@ -135,7 +136,7 @@ export default class SockController extends EventDispatcher {
 	private registerCurrentUser():void {
 		if(this._verbose) console.log("SC :: REGISTER USER");
 		this.sendMessage({action:SOCK_ACTIONS.DEFINE_UID, data:this._user});
-		if(router.currentRoute.meta.needGroupAuth) {
+		if(getRouter().currentRoute.meta.needGroupAuth) {
 			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:{user:this._user}});
 		}
 	}

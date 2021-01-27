@@ -4,21 +4,21 @@ import DemoConfig from '@/views/DemoConfig.vue';
 import GameView from '@/views/GameView.vue';
 import GroupGame from '@/views/GroupGame.vue';
 import GroupLobby from '@/views/GroupLobby.vue';
-import TwitchLobby from '@/views/TwitchLobby.vue';
 import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
-import TwitchIntro from '@/views/twitch/TwitchIntro.vue';
-import TwitchAuth from '@/views/twitch/TwitchAuth.vue';
-import TwitchGame from '@/views/TwitchGame.vue';
-import TwitchExtension from '@/views/TwitchExtension.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
+import TwitchAuth from '@/views/twitch/TwitchAuth.vue';
 import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
 import TwitchBroadcasterControls from '@/views/twitch/TwitchBroadcasterControls.vue';
-import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
 import TwitchExtensionConfiguration from '@/views/twitch/TwitchExtensionConfiguration.vue';
+import TwitchIntro from '@/views/twitch/TwitchIntro.vue';
+import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
+import TwitchExtension from '@/views/TwitchExtension.vue';
+import TwitchGame from '@/views/TwitchGame.vue';
+import TwitchLobby from '@/views/TwitchLobby.vue';
 import Vue from 'vue';
-import VueRouter, { Route } from 'vue-router';
+import VueRouter, { Route, RouterMode } from 'vue-router';
 
 Vue.use(VueRouter)
 
@@ -289,9 +289,15 @@ const routes = [
 	},
 ]
 
-const router = new VueRouter({
-	mode: "history",
-	routes
-})
+let router;
+export function initRouter(mode:RouterMode):VueRouter {
+	router = new VueRouter({
+		mode:mode,
+		routes:routes
+	});
+	return router;
+}
 
-export default router
+export default function getRouter():VueRouter {
+	return router;
+}

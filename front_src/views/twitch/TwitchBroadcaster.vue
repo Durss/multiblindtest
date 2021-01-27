@@ -13,7 +13,8 @@
 
 <script lang="ts">
 import Button from "@/components/Button.vue";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import Config from "@/utils/Config";
+import { Component, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -23,7 +24,7 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 export default class TwitchBroadcaster extends Vue {
 
 	public get url():string {
-		return document.location.origin+this.$router.resolve({name:"twitch"}).href;
+		return Config.BASE_URL+this.$router.resolve({name:"twitch"}).href.replace("#", "");
 	}
 
 	public mounted():void {

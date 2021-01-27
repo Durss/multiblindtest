@@ -159,7 +159,6 @@ export default class TwitchLobby extends Vue {
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
-		console.log(res.user);
 		SockController.instance.connect();
 		SockController.instance.user = {
 											name:"controler",//TwitchExtensionHelper.instance.auth.token,

@@ -2,7 +2,8 @@
 	<div class="TwitchGameStatus">
 		<transition name="fadeIn">
 			<div class="title" v-if="playlists.length > 0">
-				<h1>Game will start soon</h1>
+				<!-- <h1>Game will start soon</h1> -->
+				<img src="@/assets/icons/home_logo_outlined.svg" alt="logo" class="logo">
 				<div v-if="expertMode">💪🏻 expert mode</div>
 			</div>
 		</transition>
@@ -89,6 +90,10 @@ export default class TwitchGameStatus extends Vue {
 	.title {
 		text-align: center;
 		margin-bottom: 20px;
+	}
+
+	.logo {
+		height: 100px;
 	}
 
 	.playlistsTitle {

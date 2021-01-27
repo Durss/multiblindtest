@@ -8,7 +8,7 @@ export default class Config {
 
 	public static MAX_TRACK_COUNT:number = 6;
 	public static STORAGE_VERSION:number = 1;
-	public static TWITCH_EXT_URL:string = "https://dashboard.twitch.tv/extensions/u4auavhba5b6brrtvjyjeqzhyz841b-0.0.1";
+	public static TWITCH_EXT_URL:string = "https://dashboard.twitch.tv/extensions/u4auavhba5b6brrtvjyjeqzhyz841b-1.0.0";
 
 	public static init():void {
 		let prod = document.location.port == "";
@@ -29,7 +29,9 @@ export default class Config {
 	}
 	
 	public static get SOCKET_PATH():string{
-		if(this.IS_PROD) {
+		if(document.location.href.indexOf("twitch") > -1){
+			return "https://multiblindtest.com/sock";
+		}else if(this.IS_PROD) {
 			return "/sock";
 		}else{
 			return window.location.origin.replace(/(.*):[0-9]+/gi, "$1")+":"+this.SERVER_PORT+"/sock";
@@ -54,6 +56,13 @@ export default class Config {
 		return this.getEnvData({
 			dev: "http://localhost:"+this.SERVER_PORT+"/api",
 			prod:"/api",
+		});
+	}
+	
+	public static get BASE_URL(): string {
+		return this.getEnvData({
+			dev: document.location.origin,
+			prod:"https://multiblindtest.com",
 		});
 	}
 	

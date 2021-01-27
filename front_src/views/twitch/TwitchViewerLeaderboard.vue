@@ -87,9 +87,9 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 		//Make sure there are at least 3 "users"
 		while(this.users.length < 3) this.users.push({name:"x", score:-1});
-		for (let i = 0; i < 100; i++) {
-			this.users.push(this.users[0]);
-		}
+		// for (let i = 0; i < 100; i++) {
+		// 	this.users.push(this.users[0]);
+		// }
 
 		//Set N°1 in the middle
 		this.podium = this.users.splice(0,3);

@@ -76,6 +76,7 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 			if(this._onConnect) {
 				this._onConnect();
 			}
+			this.log(document.location.toString())
 		});
 
 		// listen for incoming broadcast message from our EBS

@@ -1,5 +1,7 @@
 const htmlwp = require('html-webpack-plugin');
 module.exports = {
+	//Uncomment this line before compiling twitch extension
+	// publicPath: './',
 
 	//MPA definitions
 	// pages: {
