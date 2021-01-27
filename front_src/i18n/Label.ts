@@ -90,7 +90,7 @@ export default class Labels {
 					params:"Parameters",
 					gamesCount:"Number of games",
 					tracksCount:"Number of tracks",
-					gameDuration:"Game duration (seconds)",
+					gameDuration:"Round duration (seconds)",
 					handicap:"Handicap (seconds)",
 					handicapInfos:"Musics will start {SECONDS} seconds later than the other players.",
 					expertMode: {
@@ -176,6 +176,13 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"01/27/2021",
+						updates: [
+							"Adding timer on multiplayer mode",
+							"A twitch extension has been created, low chances it gets validated by twitch but i can add anyone as tester in the meantime. <a href=\"https://www.durss.ninja/#about\" target=\"_blank\">Contact me</a> if you're interested !",
+						]
+					},
 					{
 						date:"11/18/2020",
 						updates: [
@@ -334,6 +341,7 @@ export default class Labels {
 					params:"Paramètres",
 					gamesCount:"Nombre de manches",
 					tracksCount:"Nombre de morceaux",
+					gameDuration:"Durée d'une manche (secondes)",
 					handicap:"Handicap (secondes)",
 					handicapInfos:"Ses musiques commenceront {SECONDS} secondes après les autres.",
 					expertMode: {
@@ -364,7 +372,7 @@ export default class Labels {
 						description:"Veux-tu éjecter cette personne de la partie ?",
 					},
 					notEnoughPlayers:"Il n'y a plus assez de joueur·se dans la partie :(",
-					serverReboot:"Oups 😬<br />Le serveur vient de redémarrer du coup la partie en cours a rejoint le paradis des Multi Blindtest prématurément...<br />✝ RIP ✝",
+					serverReboot:"Oups 😬<br />Le serveur vient de redémarrer. La partie en cours a ainsi rejoint le paradis des Multi Blindtest prématurément...<br />✝ RIP ✝",
 					giveupConfirm: {
 						title: "Passer ton tour ?",
 						description: "Si la majorité des joueurs passent, la manche sera terminée et les réponses affichées.",
@@ -399,6 +407,13 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"01/27/2021",
+						updates: [
+							"Ajout d'un timer au mode multi joueur",
+							"Une extension Twitch a été créée, peu de chances que Twitch la valide mais je peux ajouter n'importe qui à la liste des testeurs. <a href=\"https://www.durss.ninja/#about\" target=\"_blank\">Contactez moi</a> si ça vous intéresse !",
+						]
+					},
 					{
 						date:"18/11/2020",
 						updates: [

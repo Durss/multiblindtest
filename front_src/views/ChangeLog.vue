@@ -1,11 +1,10 @@
 <template>
 	<div class="changelog">
-		{{url}}
 		<h1 class="header">{{$t('changelog.title')}}</h1>
 		<div v-for="(log, index) in $t('changelog.logs')" :key="'l_'+index" class="log">
 			<div class="date">{{log.date}}</div>
 			<ul>
-				<li v-for="(update, index) in log.updates" :key="'u_'+index">{{update}}</li>
+				<li v-for="(update, index) in log.updates" :key="'u_'+index" v-html="update"></li>
 			</ul>
 		</div>
 	</div>
@@ -19,10 +18,8 @@ import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-propert
 })
 export default class ChangeLog extends Vue {
 
-	public get url():string{ return document.location.href; }
-
 	public mounted():void {
-		let logs = this.$t("changelog");
+		
 	}
 
 	public beforeDestroy():void {
@@ -44,6 +41,18 @@ export default class ChangeLog extends Vue {
 			list-style: disc;
 			li {
 				margin-bottom: 5px;
+
+				::v-deep a > {
+					background-color: fade(@mainColor_highlight, 10%);
+					padding: 0 5px;
+					border-radius: 5px;
+					line-height: 22px;
+					transition: all .25s;
+					&:hover {
+						color: @mainColor_warn;
+						background-color: fade(#fff, 10%);
+					}
+				}
 			}
 		}
 	}

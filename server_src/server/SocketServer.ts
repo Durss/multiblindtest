@@ -256,6 +256,7 @@ export default class SocketServer {
 	}
 
 	private removeUserFromGroup(uid:string, groupId?:string):void {
+		Logger.warn("SocketServer :: removeUserFromGroup("+uid+", "+groupId+")");
 		delete this._uidToConnection[uid];
 		if(!groupId) groupId = this._userIdToGroupId[uid];
 		let userList = this._groupIdToUsers[groupId];

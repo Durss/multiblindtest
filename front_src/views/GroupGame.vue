@@ -3,11 +3,12 @@
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
 		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked && !serverReboot && !notEnoughPlayers">
-			<CountDown v-if="pause && !gameStepComplete && !gameComplete && !fullMe.pass" @complete="pause = false" :seconds="4 + me.handicap" />
+			<CountDown v-if="pause && !roundComplete && !gameComplete && !fullMe.pass" @complete="onCountDownComplete()" :seconds="4 + me.handicap" />
 
-			<div class="header">
-				<h1>{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</h1>
-				<ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" />
+			<div class="countDown">
+				<div class="label">{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</div>
+				<!-- <ExpertModeState v-if="room.expertMode && room.expertMode.length > 0" class="expertMode" :data="room.expertMode" /> -->
+				<TimerRenderer :timerPercent="timerPercent" :duration="room.gameDuration" class="timer" />
 			</div>
 
 			<GameView
@@ -16,7 +17,7 @@
 				:trackscounts="tracksToPlay.length"
 				:expertMode="room.expertMode"
 				:scoreHistory="room.scoreHistory"
-				:forceReveal="fullMe.pass || gameStepComplete"
+				:forceReveal="fullMe.pass || roundComplete"
 				:pause="pause"
 				:canGuess="!gaveUp"
 				@guessed="onTrackFound"
@@ -34,10 +35,10 @@
 				@click="onGiveUp()"
 				:loading="loadingSkip"
 				:disabled="pause"
-				v-if="!fullMe.pass && !gameStepComplete && !gameComplete"
+				v-if="!fullMe.pass && !roundComplete && !gameComplete"
 			/>
 
-			<div v-if="gameStepComplete" class="complete">
+			<div v-if="roundComplete" class="complete">
 				<div class="title" v-if="gameComplete">{{$t('group.game.complete')}}</div>
 				<div v-if="isHost" class="content">
 					<Button class="button next" :title="$t('group.game.next')" @click="pickRandomTracks()" v-if="!gameComplete" />
@@ -93,6 +94,7 @@ import GroupUserList from '../components/GroupUserList.vue';
 import CountDown from '../components/CountDown.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import ChatWindow from '../components/ChatWindow.vue';
+import TimerRenderer from "@/components/TimerRenderer.vue";
 
 @Component({
 	components:{
@@ -102,6 +104,7 @@ import ChatWindow from '../components/ChatWindow.vue';
 		ChatWindow,
 		SimpleLoader,
 		GroupUserList,
+		TimerRenderer,
 		ExpertModeState,
 	}
 })
@@ -119,10 +122,13 @@ export default class GroupGame extends Vue {
 	public loading:boolean = true;
 	public serverReboot:boolean = false;
 	public loadingSkip:boolean = false;
-	public gameStepComplete:boolean = false;
+	public roundComplete:boolean = false;
 	public notEnoughPlayers:boolean = false;
+	public disposed:boolean = false;
 	public me:UserData = null;
 	public allTracks:TrackData[] = null;
+	public timerPercent:number = 0;
+	public timeOffset:number = 0;
 
 	public tracksDataHandler:any;
 	public playerSkipHandler:any;
@@ -155,7 +161,7 @@ export default class GroupGame extends Vue {
 	}
 
 	public get gameComplete():boolean {
-		return this.gameStepComplete && this.room.gamesCount == this.room.gameStepIndex;
+		return this.roundComplete && this.room.gamesCount == this.room.gameStepIndex;
 	}
 
 	public get fullMe():UserData {
@@ -203,9 +209,11 @@ export default class GroupGame extends Vue {
 		}else if(this.room.creator == this.me.id) {
 			this.pickRandomTracks();
 		}
+		this.renderFrame();
 	}
 
 	public beforeDestroy():void {
+		this.disposed = true;
 		SockController.instance.removeEventListener(SOCK_ACTIONS.TRACKS_DATA, this.tracksDataHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.GUESSED_TRACK, this.guessedTrackHandler);
 		SockController.instance.removeEventListener(SOCK_ACTIONS.PLAYER_PASS, this.playerSkipHandler);
@@ -258,6 +266,7 @@ export default class GroupGame extends Vue {
 		for (let i = 0; i < Math.min(6, Math.max(1, this.room.tracksCount)); i++) {
 			let t = this.allTracks.shift();
 			t.enabled = false;
+			t.guessedBy = null;
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;
@@ -294,7 +303,6 @@ export default class GroupGame extends Vue {
 			for (let i = 0; i < this.room.users.length; i++) {
 				const u = this.room.users[i];
 				if(u.id == this.me.id) this.me = u;
-				
 			}
 		}
 	}
@@ -324,13 +332,16 @@ export default class GroupGame extends Vue {
 		this.loading = false;
 		this.gaveUp = false;
 		this.room = event.data;
-		this.gameStepComplete = false;
+		this.roundComplete = false;
 		this.tracksToPlay = this.room.currentTracks;
 		//Reset pass states
 		for (let i = 0; i < this.room.users.length; i++) {
 			this.room.users[i].pass = false;
 		}
 		this.pause = true;
+		if(this.gameComplete) this.timerPercent = 1;
+		else this.timerPercent = 0;
+		console.log("ofkdofdkfd");
 	}
 
 	/**
@@ -353,7 +364,7 @@ export default class GroupGame extends Vue {
 				allGuessed = false;
 			}
 		}
-		this.gameStepComplete = allGuessed;
+		this.roundComplete = allGuessed;
 		Vue.set(this.room, "users", room.users);
 		Vue.set(this.room, "scoreHistory", room.scoreHistory);
 	}
@@ -421,7 +432,9 @@ export default class GroupGame extends Vue {
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			if(!this.tracksToPlay[i].enabled) complete = false;
 		}
-		this.gameStepComplete = complete;
+		this.roundComplete = complete;
+		if(this.gameComplete) this.timerPercent = 1;
+		else this.timerPercent = 0;
 	}
 
 	/**
@@ -461,11 +474,18 @@ export default class GroupGame extends Vue {
 			}
 		}
 		if(majorityPassed) {
-			this.gameStepComplete = true;
-			for (let i = 0; i < this.tracksToPlay.length; i++) {
-				const t = this.tracksToPlay[i];
-				t.enabled = true;
-			}
+			this.endRound();
+		}
+	}
+
+	/**
+	 * Forces end of current round
+	 */
+	private endRound():void {
+		this.roundComplete = true;
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			const t = this.tracksToPlay[i];
+			t.enabled = true;
 		}
 	}
 
@@ -476,21 +496,61 @@ export default class GroupGame extends Vue {
 		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
 	}
 
+	/**
+	 * Computes the timer
+	 */
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(_=>this.renderFrame());
+		if(this.pause || this.roundComplete || this.timerPercent == 1) {
+			this.timeOffset = new Date().getTime();
+			return;
+		}
+
+		let ellapsed = new Date().getTime() - this.timeOffset;
+		this.timerPercent = Math.min(1, ellapsed / (this.room.gameDuration * 1000));
+
+		if(this.timerPercent == 1) {
+			this.endRound();
+		}
+	}
+
+	/**
+	 * Called when start countdown completes
+	 */
+	public onCountDownComplete():void{
+		this.timerPercent = 0;
+		this.pause = false
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .groupgame{
-	.header {
-		margin-bottom: 30px;
-		h1 {
-			display: block;
-			width: min-content;
-			white-space: nowrap;
-			margin: auto;
-		}
+	.countDown {
+		position: relative;
+		margin: auto;
+		display: block;
+		width: 130px;
+		height: 130px;
+		z-index: 2;
+		margin-top: 20px;
+		margin-bottom: 40px;
 		.expertMode {
 			margin-top: 10px;
+		}
+		.timer {
+			width: 100%;
+			height: 100%;
+		}
+		.label {
+			.center();
+			position: absolute;
+			text-align: center;
+			font-family: "Futura";
+			font-weight: bold;
+			font-size: 30px;
 		}
 	}
 

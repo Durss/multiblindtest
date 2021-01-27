@@ -295,6 +295,7 @@ export default class TrackEntry extends Vue {
 		flex-direction: row;
 		align-items: center;
 		font-family: "Futura";
+		z-index: 1;
 
 		.pseudo {
 			padding: 5px 10px;

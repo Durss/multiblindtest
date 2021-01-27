@@ -10,6 +10,7 @@ export default interface RoomData {
     playlists:PlaylistData[];
     tracksCount:number;
     gamesCount:number;
+    gameDuration:number;
     gameStepIndex:number;
     currentTracks?:TrackData[];
     expertMode:string[];

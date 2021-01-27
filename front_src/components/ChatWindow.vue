@@ -76,8 +76,10 @@ export default class ChatWindow extends Vue {
 
 	.close {
 		position: absolute;
-		top: -20px;
-		left: -20px;
+		top: -15px;
+		left: -15px;
+		width: 30px;
+		height: 30px;
 	}
 
 	.list {

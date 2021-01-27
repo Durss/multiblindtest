@@ -3,7 +3,7 @@
 		<h2>{{$t('group.lobby.params')}}</h2>
 		<div class="content">
 			<slot></slot>
-			<IncrementForm class="increment" :title="$t('group.lobby.gameDuration')" v-model="gameDuration_local" maxValue="300" minValue="10" :tenStep="true"/>
+			<IncrementForm class="increment" :title="$t('group.lobby.gameDuration')" v-model="gameDuration_local" maxValue="900" minValue="10" :tenStep="true"/>
 			<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount_local" maxValue="99" />
 			<IncrementForm class="increment" :title="$t('group.lobby.tracksCount')" v-model="tracksCount_local" maxValue="6" />
 			<ExpertModeForm v-model="expertMode_local" />

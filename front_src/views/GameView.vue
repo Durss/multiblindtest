@@ -19,6 +19,7 @@
 						ref="track"
 						@play="playTrack"
 						@stop="stopTrack"
+						small
 					/>
 				</div>
 
@@ -554,6 +555,7 @@ export default class GameView extends Vue {
 		flex-direction: column;
 		margin: auto;
 		margin-bottom: 30px;
+		max-width: ~"calc(100% - 40px)";
 
 		.list {
 			margin-bottom: 30px;

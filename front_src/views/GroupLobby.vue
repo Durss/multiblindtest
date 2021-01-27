@@ -48,14 +48,13 @@
 				</div>
 			</div>
 
-			<div v-if="isHost" class="params">
-				<h2>{{$t('group.lobby.params')}}</h2>
-				<div class="content">
-					<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount" maxValue="99" />
-					<IncrementForm class="increment" :title="$t('group.lobby.tracksCount')" v-model="tracksCount" maxValue="6" />
-					<ExpertModeForm v-model="expertMode" />
-				</div>
-			</div>
+
+			<GameParams v-if="isHost" class="params"
+				:gamesCount.sync="gamesCount"
+				:gameDuration.sync="gameDuration"
+				:tracksCount.sync="tracksCount"
+				:expertMode.sync="expertMode">
+			</GameParams>
 
 			<SimpleLoader theme="mainColor_normal"
 				v-if="!isHost && room.users.length > 0"
@@ -86,10 +85,12 @@ import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import ExpertModeForm from '../components/ExpertModeForm.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import GroupLobbyUser from '../components/GroupLobbyUser.vue';
+import GameParams from "@/components/GameParams.vue";
 
 @Component({
 	components:{
 		Button,
+		GameParams,
 		SimpleLoader,
 		IncrementForm,
 		ExpertModeForm,
@@ -104,6 +105,7 @@ export default class GroupLobby extends Vue {
 
 	public gamesCount:number = 5;
 	public tracksCount:number = 4;
+	public gameDuration:number = 120;
 	public expertMode:string[] = null;
 	public showCopied:boolean = false;
 	public loading:boolean = true;
@@ -198,7 +200,7 @@ export default class GroupLobby extends Vue {
 	}
 
 	/**
-	 * Called when subitting form
+	 * Called when subitting username form
 	 */
 	public async onSubmit():Promise<void> {
 		this.joining = true;
@@ -305,6 +307,7 @@ export default class GroupLobby extends Vue {
 	public startGame():void {
 		this.room.tracksCount = this.tracksCount;
 		this.room.gamesCount = this.gamesCount;
+		this.room.gameDuration = this.gameDuration;
 		this.room.expertMode = this.expertMode;
 		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
