@@ -28,6 +28,9 @@ export default class VolumeButton extends Vue {
 	@Prop({default:.5})
 	public value:number;
 
+	@Prop({default:false})
+	public twitchMode:boolean;
+
 	public expand:boolean = false;
 	public dragging:boolean = false;
 	public isMouseOver:boolean = false;
@@ -44,6 +47,7 @@ export default class VolumeButton extends Vue {
 	public get classes():string[]{
 		let res = ["volumebutton"];
 		if(this.expand) res.push("expand");
+		if(this.twitchMode !== false) res.push("twitchMode");
 		return res;
 	}
 
@@ -109,13 +113,13 @@ export default class VolumeButton extends Vue {
 	}
 
 	@Watch("isMouseOver")
-	private onMouseOverChange():void {
+	public onMouseOverChange():void {
 		if(!this.isMouseOver && !this.dragging) this.expand = false;
 		if(this.isMouseOver) this.expand = true;
 	}
 
 	@Watch("volume")
-	private onVolumeChange():void {
+	public onVolumeChange():void {
 		this.$store.dispatch("setVolume", this.volume);
 	}
 
@@ -139,6 +143,30 @@ export default class VolumeButton extends Vue {
 		height: 270px;
 		.percent, .content {
 			opacity: 1;
+		}
+	}
+
+	&.twitchMode {
+		top: 50%;
+		transform: translate(0, -50%);
+		width: 40px;
+		height: 40px;
+		border-radius: 20px;
+		border-bottom-right-radius: 0;
+		border-top-right-radius: 0;
+		.icon {
+			width:20px;
+			height:25px;
+			padding: 8px;
+		}
+
+		&.expand {
+			height: 200px;
+		}
+
+		.content {
+			width: 100%;
+			height: 120px;
 		}
 	}
 

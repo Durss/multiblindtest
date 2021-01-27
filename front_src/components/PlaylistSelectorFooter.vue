@@ -35,7 +35,7 @@ import Config from '../utils/Config';
 })
 export default class PlaylistSelectorFooter extends Vue {
 
-	@Prop({default:[]})
+	@Prop({default:null})
 	public playlists:PlaylistData[];
 	@Prop()
 	public mode:string;

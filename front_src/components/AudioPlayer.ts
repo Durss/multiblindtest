@@ -68,7 +68,6 @@ export default class AudioPlayer {
 	public unpauseTrack(track:TrackData):void {
 		let index = this.trackIdToIndex[track.id];
 		if(index == null || index == undefined) return;
-		// if(this.trackToPauseState[track.id] !== true) return;
 		this.audioObjects[ index ].play().catch(error=> {
 			//Autoplay failed, show play button
 			if(this.onNeedUserInteraction) {

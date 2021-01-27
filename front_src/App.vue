@@ -1,9 +1,10 @@
 <template>
-	<div class="app">
+	<div :class="classes">
 		<router-view class="content"/>
+		
 		<transition name="slide" appear>
 			<Button class="backHome"
-				v-if="$route.meta.hideHomeBt!==true"
+				v-if="showHomeButton"
 				:to="{name:'home'}"
 				:icon="require('@/assets/icons/home.svg')"
 				big
@@ -18,14 +19,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Tooltip from "./components/Tooltip.vue";
-import Confirm from "./views/Confirm.vue";
-import Alert from "./views/AlertView.vue";
+import { Component, Vue } from "vue-property-decorator";
 import Button from './components/Button.vue';
-import SockController, { SOCK_ACTIONS } from './sock/SockController';
-import SocketEvent from './vo/SocketEvent';
 import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
+import Tooltip from "./components/Tooltip.vue";
+import SockController, { SOCK_ACTIONS } from './sock/SockController';
+import Utils from "./utils/Utils";
+import Alert from "./views/AlertView.vue";
+import Confirm from "./views/Confirm.vue";
+import SocketEvent from './vo/SocketEvent';
 
 @Component({
 	components:{
@@ -39,6 +41,17 @@ import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
 export default class App extends Vue {
 
 	private socketConnected:boolean = false;
+
+	public get classes():string[] {
+		let res = ["app"];
+		if(this.$store.state.hideBackground) res.push("noBg");
+		return res;
+	}
+
+	public get showHomeButton():boolean {
+		if(this.$route.name == null) return false;
+		return Utils.getRouteMetaValue(this.$route, "hideHomeBt") !== true;
+	}
 
 	public mounted():void {
 		//This hacks plays an empty sound on first click to avoid "click to play"
@@ -78,9 +91,15 @@ export default class App extends Vue {
 <style scoped lang="less">
 @import (reference) 'less/_includes.less';
 .app{
-	height: 100%;
+	min-height: 100%;
 	padding: 20px 0;
 	box-sizing: border-box;
+	background-color: @mainColor_normal_extralight;
+
+	&.noBg {
+		background-color: rgba(0, 0, 0, 0);
+	}
+
 	.content {
 		max-width: 500px;
 		margin: auto;

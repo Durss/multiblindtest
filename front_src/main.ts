@@ -1,22 +1,28 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import {initRouter} from './router'
 import store from './store'
 import './less/index.less';
 import StatsManager from './utils/StatsManager';
-import { Route } from 'vue-router';
+import { Route, RouterMode } from 'vue-router';
 import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
 import VueI18n from 'vue-i18n';
 import AnswerTester from './utils/AnswerTester';
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
+import gsap from "gsap";
+import { ScrollToPlugin } from 'gsap/all';
+import Utils from './utils/Utils';
+import TwitchExtensionHelper from './twitch/TwitchExtensionHelper';
 
 Vue.config.productionTip = false;
 Config.init();
 Vue.use(VueI18n);
+let routerMode:RouterMode = "history";
 let userLang: string = navigator.language || (<any>navigator)['userLanguage'];
 userLang = userLang.substr(0, 2).toLowerCase();
 store.dispatch("setLanguageCode", userLang);
+gsap.registerPlugin(ScrollToPlugin);
 
 if(!Config.IS_PROD) {
 	AnswerTester.instance.run();
@@ -35,13 +41,24 @@ if(localStorage.getItem("v") != Config.STORAGE_VERSION.toString()) {
 	localStorage.setItem("v", Config.STORAGE_VERSION.toString());
 }
 
+if(Utils.getQueryParameterByName('anchor') == "video_overlay"
+|| document.location.href.indexOf("twitchextension") > -1
+|| document.location.href.indexOf("twitch/config") > -1) {
+	// router.push({name:'twitchext'});
+	store.dispatch("setHideBackground", true);
+	TwitchExtensionHelper.instance.initialize();
+	routerMode = "hash";
+}
+
+let router = initRouter(routerMode);
+
 router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	//If first route, wait for data to be loaded
 	if (!store.state.initComplete) {
 		store.dispatch("startApp", { route: to, i18n:i18n }).then(_ => {
 			//If user tries to access a page that needs to be authenticated via Spotify,
 			//redirect her/him to the homepage
-			if(!store.state.loggedin && to.matched[0].meta.needAuth === true) {
+			if(!store.state.loggedin && Utils.getRouteMetaValue(to, "needAuth") === true) {
 				router.push({name:"home", params:{from:document.location.href}});
 			}else{
 				//otherwise...keep going !
@@ -51,7 +68,7 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 	}else{
 		//If needs spotify auth to access this page, check if a valid token is
 		//loaded. If not, the user will be redirected to oAuth process.
-		if(to.matched[0].meta.needAuth === true) {
+		if(Utils.getRouteMetaValue(to, "needAuth") === true) {
 			await SpotifyAPI.instance.refreshTokenIfNecessary(to);
 		}
 		nextStep(next, to);
@@ -60,12 +77,16 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 
 let disconnectTimeout = null;
 function nextStep(next:Function, to:Route):void {
-	let meta = to.matched? to.matched[0].meta : null;
-	if(meta && meta.tag) {
-		StatsManager.instance.pageView(meta.tag.path, meta.tag.title);
+	let tag = Utils.getRouteMetaValue(to, "tag");
+	if(tag) {
+		StatsManager.instance.pageView(tag.path, tag.title);
+	}
+	let needsTwitchHelper = Utils.getRouteMetaValue(to, "needsTwitchHelper");
+	if(needsTwitchHelper) {
+		TwitchExtensionHelper.instance.initialize();
 	}
 
-	if(to.matched[0].meta.needGroupAuth == true){
+	if(Utils.getRouteMetaValue(to, "needGroupAuth") == true){
 		if(disconnectTimeout) {
 			disconnectTimeout = null;
 			clearTimeout(disconnectTimeout);
@@ -73,7 +94,7 @@ function nextStep(next:Function, to:Route):void {
 		if(!SockController.instance.connected) {
 			SockController.instance.connect();
 		}
-	}else{
+	}else  if(Utils.getRouteMetaValue(to, "needSocket") !== true){
 		if(SockController.instance.connected) {
 			//If user leaves multiplayer game, tell the server s·he left the room
 			let u = store.state.userGroupData;

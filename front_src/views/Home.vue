@@ -13,6 +13,10 @@
 			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
+			<!-- <div class="twitch" v-if="loggedIn">
+				<Button v-if="loggedIn" :title="$t('home.twitch')" :to="{name:'twitch/auth'}" :icon="require('@/assets/icons/twitch.svg')" class="button" big />
+				<div class="beta">BETA!</div>
+			</div> -->
 			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/playlist.svg')" class="button" big />
 		</div>
 		<div class="footer">
@@ -23,10 +27,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import Button from '@/components/Button.vue';
-import SpotifyAPI from '@/utils/SpotifyAPI';
+import Store from "@/store/Store";
 import Config from '@/utils/Config';
+import SpotifyAPI from '@/utils/SpotifyAPI';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -44,7 +49,7 @@ export default class Home extends Vue {
 
 	public get authUrl():string {
 		if(this.from) {
-			localStorage.setItem("redirect", this.from);
+			Store.set("redirect", this.from);
 		}
 		return SpotifyAPI.instance.getAuthUrl();
 	}
@@ -70,7 +75,7 @@ export default class Home extends Vue {
 	flex-direction: column;
 	min-height: 100%;
 	height: 100%;
-	.holder {
+	&>.holder {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
@@ -100,6 +105,23 @@ export default class Home extends Vue {
 		.button {
 			margin-bottom: 10px;
 		}
+
+		.twitch {
+			position: relative;
+			.beta {
+				background-color: #8D24A9;
+				padding: 5px 10px;
+				position: absolute;
+				top: -5px;
+				right: -15px;
+				border-radius: 5px;
+				transform: rotate(20deg);
+				color: #fff;
+				font-family: Futura;
+				pointer-events: none;
+			}
+		}
+
 
 		.or {
 			margin: 10px 0;
@@ -140,7 +162,7 @@ export default class Home extends Vue {
 
 @media only screen and (max-width: 500px) {
 	.home{
-		.holder {
+		&>.holder {
 			width: 90vw;
 			.head {
 				.subtitle {

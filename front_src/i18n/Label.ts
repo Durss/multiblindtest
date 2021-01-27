@@ -11,6 +11,7 @@ export default class Labels {
 				noResult:"No result",
 				back:"Back",
 				playback:"Click anywhere to enable audio playback",
+				copy: "Copy",
 			},
 			oAuth: {
 				title:"You must grant access to your playlists to play Multi Blindtest",
@@ -24,6 +25,7 @@ export default class Labels {
 				demo : "Demo",
 				solo : "Play solo",
 				multi : "Multiplayer",
+				twitch : "Play from Twitch",
 				create : "Create from tracks",
 				changelog : "See latest updates",
 				footer : `
@@ -88,6 +90,7 @@ export default class Labels {
 					params:"Parameters",
 					gamesCount:"Number of games",
 					tracksCount:"Number of tracks",
+					gameDuration:"Game duration (seconds)",
 					handicap:"Handicap (seconds)",
 					handicapInfos:"Musics will start {SECONDS} seconds later than the other players.",
 					expertMode: {
@@ -135,6 +138,22 @@ export default class Labels {
 					},
 				}
 			},
+			twitch: {
+				auth: {
+					continue:"Continue",
+					spotifyConnect:"Connect",
+				},
+				lobby: {
+					maxPlayers:"Max players",
+				},
+				game: {
+					index:"Round",
+					results:"Results",
+				},
+				viewer: {
+					selectedPlaylists:"Selected playlist | Selected playlists"
+				}
+			},
 			game: {
 				hidden: "???",
 				guess: "Guess a track :",
@@ -148,7 +167,7 @@ export default class Labels {
 					chat: "<center>Send chat message.<br /><i>(CTRL+Enter)</i></center>",
 				},
 				newDemo:"New demo",
-				newGame:"New Multi Blindtest",
+				newGame:"Play again",
 				createGame:"Create a Multi Blindtest",
 				noPlaylists:"The requested playlist(s) haven't been found, you may have deleted them ?",
 			},
@@ -240,7 +259,7 @@ export default class Labels {
 			},
 			oAuth: {
 				title:"Pour jouer au Multi Blindtest vous devez autoriser l'accès à vos playlists",
-				subtitle:"Pas d'inquiétude, <strong>Multi Blindtest</strong> n'a besoin que d'une permission de <strong>lecture</strong>et ne pourra jamais modifier quoi que ce soit sur votre compte Spotify. Aucune donnée personnelle ne sera stockée.",
+				subtitle:"Pas d'inquiétude, <strong>Multi Blindtest</strong> n'a besoin que d'une permission de <strong>lecture</strong> et ne pourra jamais modifier quoi que ce soit sur votre compte Spotify. Aucune donnée personnelle ne sera stockée.",
 			},
 			home : {
 				title : "Multi Blindtest",
@@ -250,6 +269,7 @@ export default class Labels {
 				demo : "Demo",
 				solo : "Partie solo",
 				multi : "Multijoueur",
+				twitch : "Jouer depuis Twitch",
 				create : "Créer un mix",
 				changelog : "Voir les dernières mises à jour",
 				footer : `
@@ -371,7 +391,7 @@ export default class Labels {
 					chat: "Envoyer toutes les réponses dans le chat.<br />Si désactivé, <i>CTRL+Entrée</i> permet tout de même d'envoyer votre message dans le chat",
 				},
 				newDemo:"Nouvelle demo",
-				newGame:"Nouveau Multi Blindtest",
+				newGame:"Rejouer",
 				createGame:"Créer un Multi Blindtest",
 				noPlaylists:"Aucune des playlists demandées n'a été trouvée. Peut-être les as-tu supprimées entre temps ?",
 			},

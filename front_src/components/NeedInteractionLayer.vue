@@ -22,7 +22,7 @@ export default class NeedInteractionLayer extends Vue {
 
 	public mounted():void {
 		this.$nextTick().then(()=>{
-			gsap.from(this.$refs.icon, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:100}).yoyo(true);
+			gsap.from(this.$refs.icon, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:-1}).yoyo(true);
 		})
 	}
 

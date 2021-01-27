@@ -14,6 +14,15 @@
 				</div>
 			</div>
 
+			<Button :title="$t('group.lobby.start')"
+				class="start"
+				type="button"
+				:icon="require('@/assets/icons/play.svg')"
+				big
+				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
+				v-if="isHost"
+				@click="startGame()" />
+
 			<div class="users">
 				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
 				<div class="content">
@@ -47,15 +56,6 @@
 					<ExpertModeForm v-model="expertMode" />
 				</div>
 			</div>
-
-			<Button :title="$t('group.lobby.start')"
-				class="start"
-				type="button"
-				:icon="require('@/assets/icons/play.svg')"
-				big
-				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
-				v-if="isHost"
-				@click="startGame()" />
 
 			<SimpleLoader theme="mainColor_normal"
 				v-if="!isHost && room.users.length > 0"
@@ -344,7 +344,7 @@ export default class GroupLobby extends Vue {
 		transform: translate(-50%, -50%);
 	}
 
-	.holder {
+	&>.holder {
 		&>div {
 			box-sizing: border-box;
 		}
@@ -363,7 +363,7 @@ export default class GroupLobby extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				padding: 5px 20px;
+				padding: 5px 10px 5px 5px;
 				box-sizing: border-box;
 				width: min-content;
 				white-space: nowrap;
@@ -371,15 +371,14 @@ export default class GroupLobby extends Vue {
 				margin-bottom: 5px;
 				.label {
 					color: #fff;
-					margin-left: 20px;
+					margin-left: 5px;
 					overflow: hidden;
-					line-height: 30px;
 					text-overflow: ellipsis;
 				}
 				.cover {
 					width: 30px;
 					height: 30px;
-					border-radius: 10px;
+					border-radius: 50%;
 					object-fit: cover;
 				}
 			}
@@ -389,6 +388,7 @@ export default class GroupLobby extends Vue {
 			display: flex;
 			margin: auto;
 			margin-top: 25px;
+			margin-bottom: 25px;
 		}
 	
 		.users {

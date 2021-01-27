@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt">
 		<div class="icon">
 			<img v-if="(!reveal || !data.guessedBy) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
 			<div v-if="reveal && data.guessedBy && !data.loadFail" class="score">{{score}}</div>
@@ -25,19 +25,28 @@
 
 		<div class="guesser" v-if="data.guessedBy">
 			<p class="pseudo">{{data.guessedBy.name}}</p>
-			<!-- <p class="plus">+</p>
-			<p class="score">{{score}}</p> -->
 		</div>
+
+		<div ref="stars" class="stars">
+			<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
+		</div>
+
+		<Button data-tooltip="Copy JSON to clipboard" v-if="showJSONBt" class="copyJSON small" @click="copyJSON()" title="JSON" :icon="require('@/assets/icons/copy.svg')" />
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import Utils from "@/utils/Utils";
 import TrackData from '@/vo/TrackData';
+import gsap from "gsap";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScoreHistory from '../vo/ScoreHistory';
+import Button from "./Button.vue";
 
 @Component({
-	components:{}
+	components:{
+		Button,
+	}
 })
 export default class TrackEntry extends Vue {
 
@@ -50,13 +59,21 @@ export default class TrackEntry extends Vue {
 	@Prop({default:false})
 	public forceReveal:boolean;
 
+	@Prop({default:false})
+	public small:boolean;
+
 	@Prop({default:true})
 	public canReplay:boolean;
+
+	@Prop({default:false})
+	public burstStars:boolean;
 	
 	public playing:boolean = false;
+	public showJSONBt:boolean = false;
 
 	public get classes():string[] {
 		let res = ["trackentry"];
+		if(this.small !== false) res.push("small");
 		if(this.reveal) res.push("enabled");
 		if(this.data.loadFail) res.push("error");
 		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
@@ -96,6 +113,30 @@ export default class TrackEntry extends Vue {
 	public onClickPlay():void {
 		this.playing = true;
 		this.$emit('play', this.data);
+	}
+
+	@Watch("data.enabled")
+	public onRevealChange():void {
+		if(this.burstStars && this.data.enabled) {
+			this.burstParticles();
+		}
+	}
+
+	public burstParticles():void {
+		let stars = <Element[]>this.$refs.star;
+		let bounds = this.$el.getBoundingClientRect();
+		for (let i = 0; i < stars.length; i++) {
+			const s = stars[i];
+			gsap.killTweensOf(s);
+			let px = Math.random() * bounds.width - 30;
+			let py = Math.random() * bounds.height - 30;
+			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
+			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
+		}
+	}
+
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.data));
 	}
 
 }
@@ -188,6 +229,47 @@ export default class TrackEntry extends Vue {
 		background-color: #c00;
 	}
 
+	&.small {
+		&>.icon {
+			width: 30px;
+			height: 30px;
+		}
+
+		.trackInfos {
+			font-size: 16px;
+			.name {
+				font-size: 14px;
+			}
+			.artist {
+				margin-bottom: 1px;
+			}
+		}
+
+		.placeholder {
+			font-size: 20px;
+		}
+
+		.score {
+			font-size: 23px;
+			width: 45px;
+			height: 45px;
+			padding: 13px 0;
+		}
+
+		.guesser {
+			transform: translate(10px, 50%);
+			.pseudo {
+				font-size: 13px;
+			}
+		}
+
+		.stop {
+			width: 30px;
+			height: 30px;
+			min-width: 30px;
+		}
+	}
+
 	.trackInfos {
 		font-size: 20px;
 		flex-grow: 1;
@@ -220,10 +302,25 @@ export default class TrackEntry extends Vue {
 			background-color: @mainColor_warn;
 		}
 	}
+
+	.stars {
+		position: absolute;
+		top: 0;
+		left: 0;
+		pointer-events: none;
+		img {
+			opacity: 0;
+			position: absolute;
+			width: 30px;
+			height: 30px;
+			transform-origin: center center;
+		}
+	}
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 50px) {
 	.trackentry {
+		background-color: red;
 
 		padding: 7px;
 		&>.icon {

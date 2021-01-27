@@ -1,5 +1,6 @@
 import Config from './Config';
 import { Route } from 'vue-router';
+import Store from '@/store/Store';
 
 export default class SpotifyAPI {
 
@@ -25,6 +26,10 @@ export default class SpotifyAPI {
 		return this._instance;
 	}
 
+	public get hasAccessToken():boolean {
+		return this.access_token != null;
+	}
+
 
 
 	/******************
@@ -33,7 +38,7 @@ export default class SpotifyAPI {
 	/**
 	 * Call a spotify endpoint
 	 */
-	public async call(endpoint: string, params?: any): Promise<any> {
+	public async call(endpoint: string, params?: any, autoAuth:boolean = true): Promise<any> {
 		let url = "https://api.spotify.com/"+endpoint+"?access_token=" + this.access_token;
 
 		if(params) {
@@ -50,8 +55,10 @@ export default class SpotifyAPI {
 		};
 		let result = await fetch(url, options);
 		if(result.status == 401) {
-			localStorage.setItem("redirect", document.location.href);//will allow to redirect the user to the current page after oauth result
-			this.authenticate();
+			Store.set("redirect", document.location.href);//will allow to redirect the user to the current page after oauth result
+			if(autoAuth) {
+				this.authenticate();
+			}
 			return Promise.reject();
 		}
 		if(result.status == 429) {
@@ -78,7 +85,7 @@ export default class SpotifyAPI {
 	 */
 	public setToken(token:string):void {
 		this.access_token = token;
-		localStorage.setItem("access_token", token);
+		Store.set("access_token", token);
 	}
 
 	/**
@@ -107,7 +114,7 @@ export default class SpotifyAPI {
 			if(this.isTokenExpired()) {
 				if(redirTo) {
 					let redirUrl = window.location.protocol+"//"+window.location.host+redirTo.path;
-					localStorage.setItem("redirect", redirUrl);
+					Store.set("redirect", redirUrl);
 				}
 				this.authenticate();
 				reject();
@@ -122,7 +129,7 @@ export default class SpotifyAPI {
 	 */
 	public isTokenExpired():boolean {
 		let minutesBeforeExpiration = 2;
-		let expirationDate = parseInt(localStorage.getItem("expirationDate"));
+		let expirationDate = parseInt(Store.get("expirationDate"));
 		return !expirationDate || isNaN(expirationDate) || (new Date().getTime() + minutesBeforeExpiration * 60 * 1000) > expirationDate;
 
 	}
@@ -136,8 +143,8 @@ export default class SpotifyAPI {
 	 * Initializes the class
 	 */
 	private initialize(): void {
-		if(localStorage.getItem("access_token")) {
-			this.access_token = localStorage.getItem("access_token");
+		if(Store.get("access_token")) {
+			this.access_token = Store.get("access_token");
 		}
 	}
 }

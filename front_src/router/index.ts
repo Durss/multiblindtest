@@ -8,8 +8,17 @@ import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
+import TwitchAuth from '@/views/twitch/TwitchAuth.vue';
+import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
+import TwitchBroadcasterControls from '@/views/twitch/TwitchBroadcasterControls.vue';
+import TwitchExtensionConfiguration from '@/views/twitch/TwitchExtensionConfiguration.vue';
+import TwitchIntro from '@/views/twitch/TwitchIntro.vue';
+import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
+import TwitchExtension from '@/views/TwitchExtension.vue';
+import TwitchGame from '@/views/TwitchGame.vue';
+import TwitchLobby from '@/views/TwitchLobby.vue';
 import Vue from 'vue';
-import VueRouter, { Route } from 'vue-router';
+import VueRouter, { Route, RouterMode } from 'vue-router';
 
 Vue.use(VueRouter)
 
@@ -92,6 +101,18 @@ const routes = [
 		}
 	},
 	{
+		path: '/create',
+		name: 'create',
+		meta: {
+			needAuth:true,
+			tag:{
+				path:"/create",
+				title:"Create mix"
+			}
+		},
+		component: MixCreator
+	},
+	{
 		path: '/playlists/:mode',
 		name: 'playlists',
 		props:true,
@@ -103,18 +124,6 @@ const routes = [
 			}
 		},
 		component: PlaylistSelector
-	},
-	{
-		path: '/create',
-		name: 'create',
-		meta: {
-			needAuth:true,
-			tag:{
-				path:"/create",
-				title:"Create mix"
-			}
-		},
-		component: MixCreator
 	},
 	{
 		path: '/group/:id?',
@@ -176,6 +185,100 @@ const routes = [
 		path: "*",
 		redirect:{name:"home"},
 	},
+
+
+
+
+
+	{
+		path: '/twitch',
+		name: 'twitch',
+		props:true,
+		meta: {
+			hideHomeBt:false,
+		},
+		component: TwitchIntro
+	},
+	{
+		path: '/twitch/auth/:twitchOAToken?/:spotifyOAToken?',
+		name: 'twitch/auth',
+		component: TwitchAuth,
+		props:true,
+		meta: {
+			needAuth:false,
+		}
+	},
+	{
+		path: '/twitch/lobby/:mode/:playlistids',
+		name: 'twitch/lobby',
+		props:true,
+		meta: {
+			hideHomeBt:false,
+			needSocket:true,
+		},
+		component: TwitchLobby
+	},
+	{
+		path: '/twitch/play/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		name: 'twitch/play',
+		props:true,
+		meta: {
+		},
+		component: TwitchGame
+	},
+	{
+		path: '/twitch/controls/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		name: 'twitch/controls',
+		props:true,
+		meta: {
+			needSocket:true,
+		},
+		component: TwitchBroadcasterControls
+	},
+	{
+		path: "/twitch/config",
+		name: "twitch/config",
+		props:true,
+		meta: {
+			hideHomeBt:true,
+			hideBackground:true,
+		},
+		component: TwitchExtensionConfiguration
+	},
+	{
+		path: '/twitchextension',
+		name: 'twitchext',
+		meta: {
+			hideHomeBt:true,
+			hideBackground:true,
+			needsTwitchHelper:true,
+			needSocket:true,
+		},
+		component: TwitchExtension,
+		children: [
+			{
+				path: "broadcaster",
+				name: "twitchext/broadcaster",
+				props:true,
+				components: {
+					twitch:TwitchBroadcaster
+				},
+			},
+			{
+				path: "viewer/:isBroadcaster?",
+				name: "twitchext/viewer",
+				props:true,
+				components: {
+					twitch:TwitchViewer
+				},
+			},
+		]
+	},
+
+
+
+
+	
 	{
 		path: '/redirect',
 		name: 'redirect',
@@ -186,9 +289,15 @@ const routes = [
 	},
 ]
 
-const router = new VueRouter({
-	mode: "history",
-	routes
-})
+let router;
+export function initRouter(mode:RouterMode):VueRouter {
+	router = new VueRouter({
+		mode:mode,
+		routes:routes
+	});
+	return router;
+}
 
-export default router
+export default function getRouter():VueRouter {
+	return router;
+}

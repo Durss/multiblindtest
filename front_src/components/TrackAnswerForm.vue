@@ -113,7 +113,6 @@ export default class TrackAnswerForm extends Vue {
 	}
 
 	public onSubmitGuess(event):void {
-		console.log(this.canGuess, this.anonMode)
 		if(this.canGuess) {
 			this.$emit("guess", this.guess);
 		}

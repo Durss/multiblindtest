@@ -1,9 +1,13 @@
 <template>
 	<div class="playlistselector">
-		<PlaylistLoading v-show="loading" />
+		<BouncingLoader v-if="loading" class="loader" :icon="require('@/assets/icons/home_logo.svg')">
+			<h1>{{$t('playlists.loading.title')}}</h1>
+			<p class="infos">{{$t('playlists.loading.description')}}</p>
+		</BouncingLoader>
 
 		<div class="playlists" v-if="!loading">
 			<div class="header">
+				<img src="@/assets/icons/twitch.svg" alt="Twitch" class="icon" v-if="mode=='twitch'">
 				<h1>{{$t('playlists.title')}}</h1>
 				<p>{{$t('playlists.subtitle')}}</p>
 				<Button :title="$t('playlists.refresh')"
@@ -62,16 +66,16 @@ import TrackData from '@/vo/TrackData';
 import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import gsap from 'gsap';
 import { v4 as uuidv4 } from 'uuid';
-import PlaylistLoading from '../components/PlaylistLoading.vue';
 import NoPlaylist from '../components/NoPlaylist.vue';
 import SearchPlaylistForm from '../components/SearchPlaylistForm.vue';
+import BouncingLoader from "@/components/BouncingLoader.vue";
 
 @Component({
 	components:{
 		Button,
 		NoPlaylist,
 		PlayListEntry,
-		PlaylistLoading,
+		BouncingLoader,
 		SearchPlaylistForm,
 		PlaylistSelectorFooter,
 	}
@@ -234,6 +238,12 @@ export default class PlaylistSelector extends Vue {
 			let ids = this.selectedPlaylists.map(p => p.id);
 			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
 			this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
+			
+		}else if(this.mode == "twitchExt" || this.mode == "twitchObs") {
+			let ids = this.selectedPlaylists.map(p => p.id);
+			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
+			this.$router.push({name:"twitch/lobby", params:{playlistids:ids.join(","), trackscounts, mode:this.mode}});
+
 		}else{
 			let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
 			playlists.forEach(p => delete p.tracks);
@@ -275,7 +285,20 @@ export default class PlaylistSelector extends Vue {
 	max-width: 500px;
 	padding-bottom: 150px;
 
+	.loader {
+		.center();
+		position: absolute;
+		/deep/ .icon {
+			top: 12px;
+			width: 70px;
+			height: 70px;
+		}
+	}
+
 	.header {
+		.icon {
+			height: 50px;
+		}
 		h1 {
 			margin-bottom: 10px;
 		}

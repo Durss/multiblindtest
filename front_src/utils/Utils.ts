@@ -1,5 +1,6 @@
 import store from '@/store';
 import TrackData from '@/vo/TrackData';
+import { Route } from 'vue-router';
 
 /**
  * Created by Durss
@@ -548,8 +549,13 @@ export default class Utils {
 	public static formatDate(dateStr:string, fallback:string="jamais"):string {
 		if(!dateStr) return fallback;
 		let date:Date = new Date(dateStr);
-		function tod(nbr:number):string{ return nbr < 9? "0"+nbr : nbr.toString()}
-		return tod(date.getDate())+"/"+tod(date.getMonth()+1)+"/"+date.getFullYear()+" "+tod(date.getHours())+"h"+tod(date.getMinutes());
+		return this.toDigits(date.getDate())+"/"+this.toDigits(date.getMonth()+1)+"/"+date.getFullYear()+" "+this.toDigits(date.getHours())+"h"+this.toDigits(date.getMinutes());
+	}
+
+	public static toDigits(num:number, digits:number = 2):string {
+		let res = num.toString();
+		while(res.length < digits) res = "0"+res;
+		return res;
 	}
 
 	public static getDemoTracks():TrackData[] {
@@ -758,5 +764,39 @@ export default class Utils {
 		return new Promise(function(resolve) {
 			setTimeout(_=>resolve(), delay);
 		})
+	}
+	
+	/**
+	 * Computes the luminance of a color.
+	 * @param color 
+	 * @returns value between 0 (dark) and 1 (bright)
+	 */
+	public static getLuminance(color:number|string):number {
+		let R,G,B;
+		if(typeof color == "string") color = parseInt(color.replace(/#/gi, ""), 16);
+		color = color & 0xffffff;//Strip out potential alpha channel
+		R = (color >> 16) & 0xff;
+		G = (color >> 8) & 0xff;
+		B = (color) & 0xff;
+		// return (0.299*R + 0.587*G + 0.114*B) / 255;
+		return (0.2126*R + 0.7152*G + 0.0722*B) / 255;
+	}
+
+	/**
+	 * Parse all matched routes from last to first to check
+	 * for a meta prop and return it.
+	 * 
+	 * @param route 
+	 * @param metaKey 
+	 */
+	public static getRouteMetaValue(route:Route, metaKey:string):any {
+		let res = null;
+		for (let i = route.matched.length-1; i >= 0; i--) {
+			const v = route.matched[i].meta[metaKey];
+			if(v === undefined) continue;
+			res = v;
+			break;
+		}
+		return res;
 	}
 }
