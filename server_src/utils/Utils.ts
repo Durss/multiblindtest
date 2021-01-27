@@ -383,6 +383,6 @@ export default class Utils  {
 		//Remove chars subject to miss reading
 		let code = (Math.round(Math.random()*(max-min))+min).toString(36);
 		code = code.replace(/0|o|l|i/gi, "u");
-		return code.toUpperCase();
+		return code;
 	}
 }
