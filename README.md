@@ -76,8 +76,9 @@ pm2 startup
 ```
 Now, the service should automatically start on boot 
  
-![Icon](https://github.com/Durss/multiblindtest/blob/master/front_src/assets/icons/twitch.svg)
-## Build for Twitch
+ 
+<img width="200" alt="twitch" src="https://github.com/Durss/multiblindtest/blob/master/front_src/assets/icons/twitch.svg">
+## Build for Twitch Extension
 To build the project so it works on twitch hosting services the files must all have relative PATHS.
 Problem is this is incompatible with the "history" mode of the router used by the actual website.
 Before building for twitch the following line must be uncommented on the **vue.config.js** file:
