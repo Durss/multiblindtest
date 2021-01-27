@@ -152,8 +152,10 @@ export default class HTTPServer {
 		 * Create new group
 		 */
 		this.app.post("/api/group/create", (req, res) => {
-			let roomId = Utils.genCode();// uuidv4();
-			console.log("ROOM ID", roomId);
+			let roomId;
+			do {
+				roomId = Utils.genCode();// uuidv4();
+			}while(this._rooms[roomId])
 			this._rooms[roomId] = {
 				id:roomId,
 				creator: null,
