@@ -374,4 +374,15 @@ export default class Utils  {
 		});
 		return selected;
 	}
+
+	public static genCode():string {
+		//Current params can generate ~1 billion different codes
+		let min = parseInt("100000", 36);
+		let max = parseInt("wwwwww", 36);
+
+		//Remove chars subject to miss reading
+		let code = (Math.round(Math.random()*(max-min))+min).toString(36);
+		code = code.replace(/0|o|l|i/gi, "u");
+		return code.toUpperCase();
+	}
 }

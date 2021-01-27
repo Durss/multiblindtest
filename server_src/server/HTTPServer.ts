@@ -4,6 +4,7 @@ import { NextFunction, Request, Response, Express } from "express-serve-static-c
 import * as http from "http";
 import Config from '../utils/Config';
 import Logger from '../utils/Logger';
+import Utils from '../utils/Utils';
 import * as historyApiFallback from 'connect-history-api-fallback';
 import SocketServer, { SOCK_ACTIONS } from "./SocketServer";
 import { v4 as uuidv4 } from 'uuid';
@@ -131,7 +132,7 @@ export default class HTTPServer {
 				return;
 			}
 			
-			let room = this._rooms[(<string>req.query.roomId).toLowerCase()];
+			let room = this._rooms[<string>req.query.roomId];
 			if(!room) {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
@@ -151,7 +152,8 @@ export default class HTTPServer {
 		 * Create new group
 		 */
 		this.app.post("/api/group/create", (req, res) => {
-			let roomId = uuidv4();
+			let roomId = Utils.genCode();// uuidv4();
+			console.log("ROOM ID", roomId);
 			this._rooms[roomId] = {
 				id:roomId,
 				creator: null,
