@@ -408,7 +408,7 @@ export default class Labels {
 				title:"Mises à jour",
 				logs: [
 					{
-						date:"01/27/2021",
+						date:"27/01/2021",
 						updates: [
 							"Ajout d'un timer au mode multi joueur",
 							"Une extension Twitch a été créée, peu de chances que Twitch la valide mais je peux ajouter n'importe qui à la liste des testeurs. <a href=\"https://www.durss.ninja/#about\" target=\"_blank\">Contactez moi</a> si ça vous intéresse !",

@@ -349,7 +349,6 @@ export default class GroupGame extends Vue {
 	 */
 	private onGuessedTrack(event:SocketEvent):void {
 		let room:RoomData = event.data.room;
-		let score:number = event.data.score;
 		let allGuessed = true;
 		for (let i = 0; i < this.tracksToPlay.length; i++) {
 			const track = this.tracksToPlay[i];
@@ -365,6 +364,8 @@ export default class GroupGame extends Vue {
 			}
 		}
 		this.roundComplete = allGuessed;
+		if(this.gameComplete) this.timerPercent = 1;
+		else this.timerPercent = 0;
 		Vue.set(this.room, "users", room.users);
 		Vue.set(this.room, "scoreHistory", room.scoreHistory);
 	}
