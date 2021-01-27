@@ -1,4 +1,4 @@
-![Icon](https://github.com/Durss/multiblindtest/blob/master/public/img/share_small.png)
+<img width="200" alt="twitch" src="https://github.com/Durss/multiblindtest/blob/master/front_src/assets/icons/home_logo_outlined.svg">
 # Multi Blindtest
 
 Web app to play a multi blindtest.\
