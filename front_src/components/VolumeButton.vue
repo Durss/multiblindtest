@@ -148,12 +148,14 @@ export default class VolumeButton extends Vue {
 
 	&.twitchMode {
 		top: 50%;
+		right: auto;
+		left: 0;
 		transform: translate(0, -50%);
 		width: 40px;
 		height: 40px;
 		border-radius: 20px;
-		border-bottom-right-radius: 0;
-		border-top-right-radius: 0;
+		border-bottom-left-radius: 0;
+		border-top-left-radius: 0;
 		.icon {
 			width:20px;
 			height:25px;

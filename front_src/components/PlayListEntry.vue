@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" @click="onClick($event)">
-		<Button type="checkbox" :value="selected" class="checkbox" v-if="!data.processingTracks" />
+		<Button type="checkbox" v-model="selected" class="checkbox" v-if="!data.processingTracks" />
 		<img src="@/assets/loader/loader_white.svg" alt="loader" v-if="data.processingTracks">
 
 		<img :src="data.cover" class="cover" v-if="data.cover">
@@ -12,16 +12,15 @@
 			<div v-if="reduced === false" class="total" :data-tooltip="$t('playlists.playableTracksInfos')">{{$t('playlists.playableTracks', {count:data.tracks.length})}}</div>
 		</div>
 		
-		<Button :icon="require('@/assets/icons/cross.svg')" v-if="data.searchOrigin" @click="onClickDelete($event)" />
+		<Button class="deleteBt" :icon="require('@/assets/icons/cross.svg')" v-if="data.searchOrigin" @click="onClickDelete($event)" />
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Button from './Button.vue';
-import SpotifyAPI from '@/utils/SpotifyAPI';
 import PlaylistData from '@/vo/PlaylistData';
+import { Component, Prop, Vue } from "vue-property-decorator";
 import Utils from '../utils/Utils';
+import Button from './Button.vue';
 
 @Component({
 	components:{
@@ -168,11 +167,16 @@ export default class PlayListEntry extends Vue {
 	}
 
 	.checkbox {
-		// border-radius: 50%;
+		border-radius: 7px;
 		background-color: #fff;
 		flex-grow: 0;
 		min-width: 25px;
 		min-height: 25px;
+	}
+
+	.deleteBt {
+		width: 30px;
+		height: 30px;
 	}
 }
 

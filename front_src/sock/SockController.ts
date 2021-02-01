@@ -71,7 +71,6 @@ export default class SockController extends EventDispatcher {
 			this._sockjs.onopen = null;
 		}
 
-		console.log("INIT SOCK ON PATH ", Config.SOCKET_PATH);
 		this._sockjs = new SockJS(Config.SOCKET_PATH);
 		this._sockjs.onopen = ()=> this.onConnect();
 		this._sockjs.onclose = (e)=> this.onClose(e);

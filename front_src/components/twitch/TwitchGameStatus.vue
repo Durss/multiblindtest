@@ -154,19 +154,19 @@ export default class TwitchGameStatus extends Vue {
 	}
 
 	.joinBt {
-		background-color: @mainColor_normal!important;
+		background-color: @mainColor_warn!important;
 		padding: 10px !important;
-		border-radius: 7px;
+		border-radius: 13px;
 
 		&:hover {
-			background-color: @mainColor_normal_light!important;
+			background-color: @mainColor_warn!important;
 		}
 	}
 
 	.playlistsHolder {
 		background-color: @mainColor_normal!important;
 		padding: 10px;
-		border-radius: 7px;
+		border-radius: 13px;
 		margin-top: 10px;
 		max-width: 80vw;
 		.playlistsTitle {

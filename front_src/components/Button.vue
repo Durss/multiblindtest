@@ -6,9 +6,9 @@
 	:target="target"
 	:to="to"
 	:href="type=='link'? to : null"
-	:data-selected="selected"
 	@click="onClick($event)"
-	:style="progressStyle">
+	:style="progressStyle"
+	v-model="value">
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
 
@@ -145,10 +145,15 @@ export default class Button extends Vue {
 		this.$emit('click', event);//bubble up event to avoid having to listen for @click.native everytime
 	}
 
-
 	@Watch("checked")
 	public onSelectStateChange():void {
 		this.$emit('input', this.checked);
+	}
+
+	@Watch("value")
+	public onValueChange():void {
+		console.log("change", this.checked);
+		this.checked = this.value;
 	}
 
 	@Watch("percent")
