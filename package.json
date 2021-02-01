@@ -8,7 +8,8 @@
     "front/serve": "vue-cli-service serve",
     "front/build": "vue-cli-service build",
     "server/watch": "tsc -w -p ./tsconfig_server.json",
-    "server/build": "tsc -p ./tsconfig_server.json"
+    "server/build": "tsc -p ./tsconfig_server.json",
+    "server/start": "pm2 start bootstrap-pm2.json"
   },
   "dependencies": {
     "@types/node-fetch": "^2.5.8",

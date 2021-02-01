@@ -6,6 +6,7 @@
 			<Button title="End this round" v-if="!roundComplete" @click="endRound()" />
 			<Button title="Next round" v-if="roundComplete && !gameComplete" @click="nextRound()" />
 			<Button title="Show results" v-if="gameComplete" @click="onShowResults()" />
+			<Button title="Replay" v-if="gameComplete" @click="restartGame()" />
 		</div>
 
 		<div class="timer">{{timeLeft}}</div>
@@ -434,6 +435,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.roundComplete = false;
 		this.showResults = false;
 		this.roundIndex = 1;
+		this.scoreHistory = [];
 		this.pickRandomTracks();
 		this.broadcastCurrentState();
 	}
