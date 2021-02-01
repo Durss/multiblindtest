@@ -40,6 +40,7 @@ import SocketEvent from './vo/SocketEvent';
 })
 export default class App extends Vue {
 
+	private preloadedImages:string[] = [];
 	private socketConnected:boolean = false;
 
 	public get classes():string[] {
@@ -67,8 +68,37 @@ export default class App extends Vue {
 		}
 		document.addEventListener("click", handler);
 		this.socketConnected = SockController.instance.connected;
-		SockController.instance.addEventListener(SOCK_ACTIONS.ONLINE, (e)=>this.onSockStateChange(e))
-		SockController.instance.addEventListener(SOCK_ACTIONS.OFFLINE, (e)=>this.onSockStateChange(e))
+		SockController.instance.addEventListener(SOCK_ACTIONS.ONLINE, (e)=>this.onSockStateChange(e));
+		SockController.instance.addEventListener(SOCK_ACTIONS.OFFLINE, (e)=>this.onSockStateChange(e));
+		
+		
+		//Preload elements
+		let preloaders = [require.context("@/assets/icons/"), require.context("@/assets/loader/"), require.context("@/assets/images/")];
+		for (let i = 0; i < preloaders.length; i++) {
+			preloaders[i].keys().forEach(img => {
+				this.preloadedImages.push(preloaders[i](img));
+				let loader = new Image();
+				loader.src = preloaders[i](img);
+				/*
+				loader.addEventListener("error", (e)=> {
+					console.error("Loading image failed ! error");
+					console.log(img);
+					console.log(e);
+				})
+				loader.addEventListener("abort", (e)=> {
+					console.error("Loading image failed ! abort");
+					console.log(e);
+				})
+				loader.addEventListener("stalled", (e)=> {
+					// console.error("Loading image failed ! stalled");
+					// console.log(e);
+				})
+				loader.addEventListener("load",(e)=> {
+					// console.log("IMAGE OK");
+				})
+				*/
+			});
+		}
 	}
 
 	public beforeDestroy():void {
