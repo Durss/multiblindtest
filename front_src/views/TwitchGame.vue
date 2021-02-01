@@ -46,19 +46,17 @@
 import AudioPlayer from "@/components/AudioPlayer";
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import CountDown from "@/components/CountDown.vue";
-import TrackAnswerForm from "@/components/TrackAnswerForm.vue";
-import TwitchResultsOverlay from "@/components/twitch/TwitchResultsOverlay.vue";
+import TwitchControls from "@/components/twitch/TwitchControls.vue";
 import TwitchGameOverlay from "@/components/twitch/TwitchGameOverlay.vue";
+import TwitchResultsOverlay from "@/components/twitch/TwitchResultsOverlay.vue";
 import VolumeButton from "@/components/VolumeButton.vue";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
 import AnswerTester from "@/utils/AnswerTester";
-import StatsManager from "@/utils/StatsManager";
 import Utils from "@/utils/Utils";
-import TrackData from "@/vo/TrackData";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import ScoreHistory from "@/vo/ScoreHistory";
-import TwitchControls from "@/components/twitch/TwitchControls.vue";
+import TrackData from "@/vo/TrackData";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -331,6 +329,7 @@ export default class TwitchGame extends Vue {
 	}
 
 	public onTimerComplete():void {
+		console.log("TIMER COMPLETE");
 		for (let i = 0; i < this.currentTracks.length; i++) {
 			const t = this.currentTracks[i];
 			t.enabled = true;

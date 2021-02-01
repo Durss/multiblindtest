@@ -166,7 +166,7 @@ export default class TwitchViewerGame extends Vue {
 		this.timerPercent = Math.min(1, ellapsed / (this.duration * 1000));
 
 		if(this.timerPercent == 1) {
-			this.$emit("timerComplete");
+			this.audioPlayer.stopAll();
 		}
 	}
 

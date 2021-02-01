@@ -19,8 +19,8 @@ export default class Labels {
 			},
 			home : {
 				title : "Multi Blindtest",
-				subtitle : "- try not to vomit -",
-				head : "It's like playing multiple blind tests simultaneously, awful.",
+				subtitle : "- best source of headaches -",
+				head : "Play up to 6 blind tests simultaneously",
 				connectSpotify : "Connect with Spotify",
 				demo : "Demo",
 				solo : "Play solo",
@@ -271,7 +271,7 @@ export default class Labels {
 			home : {
 				title : "Multi Blindtest",
 				subtitle : "- Pour un mal de crâne garanti -",
-				head : "Joue jusqu'à 6 blindtests en simultané et anéantis ton cerveau !",
+				head : "Joue jusqu'à 6 blindtests en simultané !",
 				connectSpotify : "Connexion via Spotify",
 				demo : "Demo",
 				solo : "Partie solo",

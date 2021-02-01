@@ -1,13 +1,16 @@
 <template>
 	<div class="twitchbroadcaster">
 		<img src="@/assets/icons/home_logo_outlined.svg" class="icon">
-		<div>Start a game session from multiblindtest.com</div>
-		<Button class="button" type="link"
-		title="Start Game"
-		:to="url"
-		:icon="require('@/assets/icons/ext_link.svg')"
-		target="_blank" />
-		<div class="url">{{url}}</div>
+		<div class="holder">
+			<div class="title">Start a game session from multiblindtest.com</div>
+			<Button class="button" type="link"
+				title="Start Game"
+				:to="url"
+				:icon="require('@/assets/icons/ext_link.svg')"
+				target="_blank"
+				white />
+			<div class="url">{{url}}</div>
+		</div>
 	</div>
 </template>
 
@@ -47,20 +50,28 @@ export default class TwitchBroadcaster extends Vue {
 		margin: auto;
 		margin-bottom: 20px;
 	}
-	.button {
-		margin-top: 20px;
-	}
 
-	.url {
-		font-size: 14px;
-		font-style: italic;
-		margin: auto;
-		margin-top: 10px;
-		background-color: rgba(255,255,255,1);
-		padding: 5px;
-		border-radius: 10px;
-		white-space: nowrap;
-		width: min-content;
+	.holder {
+		background-color: @mainColor_normal!important;
+		padding: 10px;
+		border-radius: 7px;
+		color: #fff;
+		.button {
+			margin-top: 20px;
+		}
+	
+		.url {
+			font-size: 14px;
+			font-style: italic;
+			margin: auto;
+			margin-top: 10px;
+			color: @mainColor_normal;
+			background-color: #fff;
+			padding: 5px;
+			border-radius: 10px;
+			white-space: nowrap;
+			width: min-content;
+		}
 	}
 }
 </style>

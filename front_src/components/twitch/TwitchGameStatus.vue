@@ -4,23 +4,29 @@
 			<div class="title" v-if="playlists.length > 0">
 				<!-- <h1>Game will start soon</h1> -->
 				<img src="@/assets/icons/home_logo_outlined.svg" alt="logo" class="logo">
-				<div v-if="expertMode">💪🏻 expert mode</div>
+				<div v-if="expertMode" class="expertMode">
+					<div class="head"><img src="@/assets/icons/flex_left.svg"> Expert mode <img src="@/assets/icons/flex_right.svg"></div>
+					<div :class="titleClasses">Title</div>
+					<div :class="artistClasses">Artist</div>
+				</div>
 			</div>
 		</transition>
 		
-		<Button v-if="playlists.length > 0" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big />
-
-		<div class="playlistsTitle">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
-		<transition-group tag="div" class="playlists"
-		v-bind:css="false"
-		v-on:before-enter="beforeEnter"
-		v-on:enter="enter"
-		v-on:leave="leave">
-			<div v-for="(p,index) in playlists" :key="p.id" class="playlist" :data-index="index">
-				<img :src="p.cover" :alt="p.name" class="cover">
-				<span class="label">{{p.name}}</span>
-			</div>
-		</transition-group>
+		<Button v-if="playlists.length > 0" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big white />
+		
+		<div class="playlistsHolder">
+			<div class="playlistsTitle">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
+			<transition-group tag="div" class="playlists"
+			v-bind:css="false"
+			v-on:before-enter="beforeEnter"
+			v-on:enter="enter"
+			v-on:leave="leave">
+				<div v-for="(p,index) in playlists" :key="p.id" class="playlist" :data-index="index">
+					<img :src="p.cover" :alt="p.name" class="cover">
+					<span class="label">{{p.name}}</span>
+				</div>
+			</transition-group>
+		</div>
 	</div>
 </template>
 
@@ -39,13 +45,24 @@ export default class TwitchGameStatus extends Vue {
 	public iwannaplay:boolean = false;
 
 	public get expertMode():boolean {
-		return this.$store.state.twitchExpertMode;
+		return this.$store.state.twitchExpertMode != null && this.$store.state.twitchExpertMode.length > 0;
 	}
 
 	public get playlists():{name:string,cover:string}[] {
 		let list:any[] = JSON.parse(JSON.stringify(this.$store.state.twitchPlaylists));
 		if(!list) return [];
 		return list;
+	}
+	public get titleClasses():string[] {
+		let res = ["type"];
+		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("title") > -1) res.push("active");
+		return res;
+	}
+
+	public get artistClasses():string[] {
+		let res = ["type"];
+		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("artist") > -1) res.push("active");
+		return res;
 	}
 
 	public mounted():void {
@@ -89,51 +106,111 @@ export default class TwitchGameStatus extends Vue {
 
 	.title {
 		text-align: center;
-		margin-bottom: 20px;
+		margin-bottom: 10px;
+
+		.expertMode {
+			background-color: @mainColor_warn;
+			color: white;
+			font-weight: bold;
+			padding: 5px;
+			border-radius: 7px;
+			width: min-content;
+			margin: auto;
+			.head {
+				white-space: nowrap;
+				font-size: 24px;
+				img {
+					height: 18px;
+					vertical-align: middle;
+				}
+			}
+			.type {
+				white-space: nowrap;
+				color: @mainColor_alert;
+				&::before {
+					content: "";
+					width: 16px;
+					height: 13px;
+					display: inline-block;
+					margin-right: 5px;
+					background-position: right center;
+					background-repeat: no-repeat;
+					background-image: url("../../assets/icons/cross.svg");
+				}
+				&.active {
+					color: white;
+					&::before {
+						width: 16px;
+						height: 16px;
+						background-image: url("../../assets/icons/checkmark_white.svg");
+					}
+				}
+			}
+		}
 	}
 
 	.logo {
 		height: 100px;
 	}
 
-	.playlistsTitle {
-		font-size: 20px;
-		margin-top: 20px;
+	.joinBt {
+		background-color: @mainColor_normal!important;
+		padding: 10px !important;
+		border-radius: 7px;
+
+		&:hover {
+			background-color: @mainColor_normal_light!important;
+		}
 	}
+
+	.playlistsHolder {
+		background-color: @mainColor_normal!important;
+		padding: 10px;
+		border-radius: 7px;
+		margin-top: 10px;
+		max-width: 80vw;
+		.playlistsTitle {
+			font-size: 20px;
+			color: #fff;
+			font-weight: bold;
+			font-family: "Futura";
+			margin-bottom: 5px;
+		}
 	
-	.playlists {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
-		.playlist {
-			position: relative;
-			background-color: @mainColor_normal;
-			border-radius: 100px;
+		.playlists {
 			display: flex;
 			flex-direction: row;
-			align-items: center;
-			padding: 2px 10px 2px 2px;
-			box-sizing: border-box;
-			width: min-content;
-			white-space: nowrap;
-			max-width: 100%;
-			margin-bottom: 5px;
-			&:not(:last-child) {
-				margin-right: 5px;
-			}
-			.label {
-				color: #fff;
-				margin-left: 5px;
-				font-size: 14px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			.cover {
-				width: 25px;
-				height: 25px;
-				border-radius: 50%;
-				object-fit: cover;
+			flex-wrap: wrap;
+			justify-content: center;
+			.playlist {
+				position: relative;
+				background-color: #fff;
+				border-radius: 100px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				padding: 2px 10px 2px 2px;
+				box-sizing: border-box;
+				width: min-content;
+				white-space: nowrap;
+				max-width: 100%;
+				margin-bottom: 5px;
+				&:not(:last-child) {
+					margin-right: 5px;
+				}
+				.label {
+					color: @mainColor_normal;
+					margin-left: 5px;
+					font-size: 14px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.cover {
+					width: 25px;
+					height: 25px;
+					border-radius: 50%;
+					object-fit: cover;
+				}
 			}
 		}
 	}

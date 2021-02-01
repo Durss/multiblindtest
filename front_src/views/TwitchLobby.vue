@@ -259,7 +259,7 @@ export default class TwitchLobby extends Vue {
 		}
 		let data = {
 			playlists,
-			expert:this.expertMode && this.expertMode.length > 0,
+			expert:this.expertMode,
 		}
 		TwitchExtensionHelper.instance.broadcast(TwitchMessageType.PLAYLISTS, data);
 	}

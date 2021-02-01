@@ -14,7 +14,7 @@
 
 		<div class="checkboxContent" v-if="type=='checkbox'">
 			<div class="checkmark">
-				<img :src="require('@/assets/icons/checkmark.svg')" v-if="checked" alt="ico n" class="img">
+				<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
 			</div>
 			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
 			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
@@ -77,6 +77,14 @@ export default class Button extends Vue {
 		return this.parsedIcon.indexOf("<") != -1;
 	}
 
+	public get checkMarkIcon():string {
+		if(this.white !== false) {
+			return require('@/assets/icons/checkmark_white.svg');
+		}else{
+			return require('@/assets/icons/checkmark.svg');
+		}
+	}
+
 	public get nodeType():string {
 		if(this.to) return "router-link";
 		if(this.type == "checkbox") return "div";
@@ -97,7 +105,7 @@ export default class Button extends Vue {
 			let p:number = Math.round(this.pInterpolated);
 			let color = "255, 255, 255";
 			let alpha = .5;
-			if(this.white) {
+			if(this.white !== false) {
 				color = "75, 201, 194"
 				alpha = .3;
 			}
@@ -308,6 +316,14 @@ export default class Button extends Vue {
 		}
 		&.loading {
 			background-color: fade(#ffffff, 50%);
+		}
+		.checkboxContent {
+			.checkmark {
+				border-color: #fff;
+			}
+			.label {
+				color: #fff;
+			}
 		}
 	}
 
