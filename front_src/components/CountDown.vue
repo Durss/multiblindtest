@@ -1,12 +1,12 @@
 <template>
 	<div class="countdown">
-		<div v-for="index in seconds" :key="index" ref="number" class="number">{{(seconds - index==0)? "GO" : seconds - index}}</div>
+		<div v-for="index in delay" :key="index" ref="number" class="number">{{(delay - index==0)? "GO" : delay - index}}</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import gsap from 'gsap';
+import { Component, Prop, Vue } from "vue-property-decorator";
 import Beeper from '../utils/Beeper';
 
 @Component({
@@ -17,8 +17,16 @@ export default class CountDown extends Vue {
 	@Prop({default:4})
 	public seconds:number;
 
-	public timeout:number;
+	@Prop({default:0})
+	public additionalTime:number;
+
+	public timeout1:number;
+	public timeout2:number;
 	public timeoutBeeps:number;
+
+	public get delay():number {
+		return this.seconds + this.additionalTime;
+	}
 
 	public mounted():void {
 		let nbrs = <HTMLDivElement[]>this.$refs.number;
@@ -37,21 +45,30 @@ export default class CountDown extends Vue {
 			beeps.push({d:100, f:800, p:900});
 		}
 		beeps.push({d:300, f:1600})
-		let delay = this.seconds - 4;
+		let delay = (this.seconds + this.additionalTime) - 4;
 		clearTimeout(this.timeoutBeeps);
 		//Start beeps only for last 4 seconds
 		this.timeoutBeeps = setTimeout(_=>{
 			Beeper.instance.beepPatern(beeps, volume);
 		}, delay * 1000);
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(_=> {
+
+		clearTimeout(this.timeout1);
+		this.timeout1 = setTimeout(_=> {
 			this.$emit("complete")
-		}, this.seconds * 1000-500)
+		}, (this.seconds + this.additionalTime) * 1000-500);
+
+		if(this.additionalTime > 0) {
+			clearTimeout(this.timeout2);
+			this.timeout2 = setTimeout(_=> {
+				this.$emit("3SecComplete")
+			}, this.seconds * 1000-500);
+		}
 	}
 
 	public beforeDestroy():void {
 		Beeper.instance.stopAll();
-		clearTimeout(this.timeout);
+		clearTimeout(this.timeout1);
+		clearTimeout(this.timeout2);
 	}
 
 }

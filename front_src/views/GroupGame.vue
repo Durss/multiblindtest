@@ -3,7 +3,7 @@
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
 		<div v-if="room && fullMe && !loading && tracksToPlay && !kicked && !serverReboot && !notEnoughPlayers">
-			<CountDown v-if="pause && !roundComplete && !gameComplete && !fullMe.pass" @complete="onCountDownComplete()" :seconds="4 + me.handicap" />
+			<CountDown v-if="pause && !roundComplete && !gameComplete && !fullMe.pass" @3SecComplete="on3SecComplete()" @complete="onCountDownComplete()" :seconds="4" :additionalTime="me.handicap" />
 
 			<div class="countDown">
 				<div class="label">{{$t('group.game.index', {index:room.gameStepIndex, total:room.gamesCount})}}</div>
@@ -109,6 +109,7 @@ import TimerRenderer from "@/components/TimerRenderer.vue";
 	}
 })
 export default class GroupGame extends Vue {
+	//TODO manage case when user reloads the page, the timer restarts from 0
 
 	@Prop()
 	public id:string;
@@ -125,6 +126,7 @@ export default class GroupGame extends Vue {
 	public roundComplete:boolean = false;
 	public notEnoughPlayers:boolean = false;
 	public disposed:boolean = false;
+	public timerStarted:boolean = false;
 	public me:UserData = null;
 	public allTracks:TrackData[] = null;
 	public timerPercent:number = 0;
@@ -341,7 +343,6 @@ export default class GroupGame extends Vue {
 		this.pause = true;
 		if(this.gameComplete) this.timerPercent = 1;
 		else this.timerPercent = 0;
-		console.log("ofkdofdkfd");
 	}
 
 	/**
@@ -426,22 +427,9 @@ export default class GroupGame extends Vue {
 	}
 
 	/**
-	 * Check if game is complete
-	 */
-	private checkComplete():void {
-		let complete = true;
-		for (let i = 0; i < this.tracksToPlay.length; i++) {
-			if(!this.tracksToPlay[i].enabled) complete = false;
-		}
-		this.roundComplete = complete;
-		if(this.gameComplete) this.timerPercent = 1;
-		else this.timerPercent = 0;
-	}
-
-	/**
 	 * Called when player clicks "give up" button
 	 */
-	private onGiveUp():void {
+	public onGiveUp():void {
 		this.gaveUp = true;
 		Utils.confirm(this.$t('group.game.giveupConfirm.title').toString(), null, this.$t('group.game.giveupConfirm.description').toString())
 		.then(async _=> {
@@ -457,6 +445,26 @@ export default class GroupGame extends Vue {
 				t.enabled = true;
 			}
 		}).catch(_=>{/*don't care*/});
+	}
+
+	/**
+	 * Called when clicking kick button on a user
+	 */
+	public async onKickUser(user:UserData):Promise<void> {
+		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
+	}
+
+	/**
+	 * Check if game is complete
+	 */
+	private checkComplete():void {
+		let complete = true;
+		for (let i = 0; i < this.tracksToPlay.length; i++) {
+			if(!this.tracksToPlay[i].enabled) complete = false;
+		}
+		this.roundComplete = complete;
+		if(this.gameComplete) this.timerPercent = 1;
+		else this.timerPercent = 0;
 	}
 
 	/**
@@ -491,19 +499,12 @@ export default class GroupGame extends Vue {
 	}
 
 	/**
-	 * Called when clicking kick button on a user
-	 */
-	private async onKickUser(user:UserData):Promise<void> {
-		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
-	}
-
-	/**
 	 * Computes the timer
 	 */
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(_=>this.renderFrame());
-		if(this.pause || this.roundComplete || this.timerPercent == 1) {
+		if(!this.timerStarted || this.roundComplete || this.timerPercent == 1) {
 			this.timeOffset = new Date().getTime();
 			return;
 		}
@@ -517,11 +518,22 @@ export default class GroupGame extends Vue {
 	}
 
 	/**
+	 * Called when 3 seconds complete
+	 */
+	public on3SecComplete():void{
+		this.timerPercent = 0;
+		this.timerStarted = true;
+	}
+
+	/**
 	 * Called when start countdown completes
 	 */
 	public onCountDownComplete():void{
-		this.timerPercent = 0;
-		this.pause = false
+		this.timerStarted = true;
+		this.pause = false;
+		if(!this.me.handicap || this.me.handicap == 0) {
+			this.timerPercent = 0;
+		}
 	}
 
 }
