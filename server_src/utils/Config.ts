@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { LogStyle } from "../utils/Logger";
+import Logger, { LogStyle } from "../utils/Logger";
 /**
  * Created by Durss
  */
@@ -7,6 +7,62 @@ export default class Config {
 
 	private static _ENV_NAME: EnvName;
 	private static _CONF_PATH: string = "env.conf";
+	private static _PRIVATE_CREDENTIALS: any;
+
+	public static get SECRET(): string {
+		return this._PRIVATE_CREDENTIALS["SECRET"];
+	}
+	public static get EXTSECRET(): string {
+		return this._PRIVATE_CREDENTIALS["EXTSECRET"];
+	}
+	public static get OWNERID(): string {
+		return this._PRIVATE_CREDENTIALS["OWNERID"];
+	}
+	public static get CLIENTID(): string {
+		return this._PRIVATE_CREDENTIALS["CLIENTID"];
+	}
+	public static get EXTVERSION(): string {
+		return this._PRIVATE_CREDENTIALS["EXTVERSION"];
+	}
+	public static get SMS_KEY(): string {
+		return this._PRIVATE_CREDENTIALS["SMS_KEY"];
+	}
+	public static get SMS_USER(): string {
+		return this._PRIVATE_CREDENTIALS["SMS_USER"];
+	}
+
+	public static async loadPrivateCredentials():Promise<void> {
+		let url = "credentials.conf";
+		let creds;
+		if (fs.existsSync(url)) {
+			creds = fs.readFileSync(url);
+		} else {
+			url = "./server_src/" + url;
+			if (fs.existsSync(url)) {
+				creds = fs.readFileSync(url);
+			}
+		}
+		if (creds) {
+			this._PRIVATE_CREDENTIALS = {};
+			let chunks = creds.toString().replace(/(\r|\n){2,}/gi, "\r").split(/\r|\n/gi);
+			for (let i = 0; i < chunks.length; i++) {
+				const [id, value] = chunks[i].split(";");
+				// this[id] = value.replace(/"/gi, "");
+				this._PRIVATE_CREDENTIALS[id] = value.replace(/"/gi, "");
+			}
+
+		} else {
+			Logger.error("MISSING FILE \"credentials.conf\" contianing Twitch credentials");
+			Logger.error("The file has been created, please fill the missing key values");
+			fs.writeFileSync("credentials.conf", `SECRET;xxx
+EXTSECRET;xxx
+CLIENTID;xxx
+OWNERID;xxx
+EXTVERSION;xxx
+SMS_KEY;xxx
+SMS_USER;xxx`);
+		}
+	}
 
 
 	public static get LOGS_ENABLED(): boolean {

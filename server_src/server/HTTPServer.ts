@@ -12,6 +12,7 @@ import RoomData from "../vo/RoomData";
 import UserData from "../vo/UserData";
 import TrackData from "../vo/TrackData";
 import TwitchEBS from "../controllers/TwitchEBS";
+import fetch from "node-fetch";
 
 export default class HTTPServer {
 
@@ -108,6 +109,7 @@ export default class HTTPServer {
 		});
 		
 		this.createEndpoints();
+		Config.loadPrivateCredentials();
 		TwitchEBS.instance.initialize();
 		
 		let staticHandler:any = express.static( Config.PUBLIC_PATH );
@@ -394,6 +396,20 @@ export default class HTTPServer {
 		this.app.post("/api/twitch/user", async (req, res) => {
 			let token = req.body.token;
 			let user = await TwitchEBS.instance.validateToken(token);
+			res.status(200).send(JSON.stringify({success:true, user}));
+		});
+
+		/**
+		 * Called when a user asks to be added to the twitch extension testers
+		 */
+		this.app.post("/api/twitch/requestAccess", async (req, res) => {
+			let user = req.body.user;
+			let msg = "MultiBlindTest Twitch extension test request for user : "+user;
+			Logger.success(msg);
+			//Send an SMS to myself. Too lazy to send mail or create a Database for
+			//something that nobody will use :D
+			let url = "https://smsapi.free-mobile.fr/sendmsg?user="+Config.SMS_USER+"&pass="+Config.SMS_KEY+"&msg="+encodeURIComponent(msg);
+			await fetch(url, {});
 			res.status(200).send(JSON.stringify({success:true, user}));
 		});
 	}

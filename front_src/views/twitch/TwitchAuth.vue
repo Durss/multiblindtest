@@ -36,7 +36,7 @@
 			</div>
 
 			<div class="step" v-if="loggedIn && url">
-				<ToggleBlock class="block" :enabled="false" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS (soon)">
+				<ToggleBlock class="block" :enabled="false" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS (soon?)">
 					<!-- <div>Configure this URL in the OBS browser params:</div>
 					<div class="url">
 						<div class="text" @click="selectText">{{url}}</div>
@@ -51,6 +51,7 @@
 					<div class="twitchExt">
 						<div>Install the <strong>Twitch Extension</strong> and start a game:</div>
 						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
+						<router-link :to="{name:'twitch'}" class="getAccess">- get access -</router-link>
 						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" />
 					</div>
 				</ToggleBlock>
@@ -276,6 +277,13 @@ export default class TwitchAuth extends Vue {
 				align-items: center;
 				&>*:not(:last-child) {
 					margin-bottom: 5px;
+				}
+				.getAccess {
+					font-size: 14px;
+					font-style: italic;
+					margin-top: -6px;
+					margin-bottom: 10px;
+					color: @mainColor_alert;
 				}
 			}
 

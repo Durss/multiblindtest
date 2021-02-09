@@ -1,7 +1,7 @@
-import * as fs from "fs";
-import Logger from "../utils/Logger";
 import * as jsonwebtoken from "jsonwebtoken";
 import fetch from "node-fetch";
+import Config from "../utils/Config";
+import Logger from "../utils/Logger";
 
 /**
 * Created : 23/01/2021 
@@ -9,12 +9,6 @@ import fetch from "node-fetch";
 export default class TwitchEBS {
 
 	private static _instance: TwitchEBS;
-
-	private SECRET: string;
-	private EXTSECRET: string;
-	private OWNERID: string;
-	private CLIENTID: string;
-	private EXTVERSION: string;
 
 	constructor() {
 
@@ -36,7 +30,7 @@ export default class TwitchEBS {
 	* PUBLIC METHODS *
 	******************/
 	public initialize(): void {
-		this.loadConfs();
+		
 	}
 
 
@@ -44,7 +38,7 @@ export default class TwitchEBS {
 		// console.log("Broadcast \" "+message+"\" to channel "+channelId);
 		// Set the HTTP headers required by the Twitch API.
 		const headers = {
-			'Client-Id': this.CLIENTID,
+			'Client-Id': Config.CLIENTID,
 			'Content-Type': 'application/json',
 			'Authorization': "Bearer " + this.makeServerToken(channelId),
 		};
@@ -79,7 +73,7 @@ export default class TwitchEBS {
 		let token = await this.getClientCredentialToken();
 
 		let headers:any = {
-			"Client-Id":this.CLIENTID,
+			"Client-Id":Config.CLIENTID,
 			"Authorization":"Bearer "+token
 		};
 		var options = {
@@ -122,7 +116,7 @@ export default class TwitchEBS {
 
 	public async sendToChat(channelId:string, message:string, token:string):Promise<void> {
 		let headers:any = {
-			"Client-Id":this.CLIENTID,
+			"Client-Id":Config.CLIENTID,
 			"Content-Type":"application/json",
 			'Authorization': "Bearer " + token,
 		};
@@ -131,7 +125,7 @@ export default class TwitchEBS {
 			headers,
 			body:JSON.stringify({text:message})
 		};
-		let url = "https://api.twitch.tv/extensions/"+this.CLIENTID+"/"+this.EXTVERSION+"/channels/"+channelId+"/chat";
+		let url = "https://api.twitch.tv/extensions/"+Config.CLIENTID+"/"+Config.EXTVERSION+"/channels/"+channelId+"/chat";
 		let result = await fetch(url, options);
 		console.log("SEND TOT CHAT RESULT !");
 		console.log(result.status);
@@ -144,45 +138,17 @@ export default class TwitchEBS {
 	* PRIVATE METHODS *
 	*******************/
 
-	private async loadConfs(): Promise<void> {
-		let url = "credentials.conf";
-		let creds;
-		if (fs.existsSync(url)) {
-			creds = fs.readFileSync(url);
-		} else {
-			url = "./server_src/" + url;
-			if (fs.existsSync(url)) {
-				creds = fs.readFileSync(url);
-			}
-		}
-		if (creds) {
-			let chunks = creds.toString().replace(/(\r|\n){2,}/gi, "\r").split(/\r|\n/gi);
-			for (let i = 0; i < chunks.length; i++) {
-				const [id, value] = chunks[i].split(";");
-				this[id] = value.replace(/"/gi, "");
-			}
-
-		} else {
-			Logger.error("MISSING FILE \"credentials.conf\" contianing Twitch credentials");
-			Logger.error("The file has been created, please fill the missing keys");
-			fs.writeFileSync("credentials.conf", `SECRET;xxx
-EXTSECRET;xxx
-CLIENTID;xxx
-OWNERID;xxx`);
-		}
-	}
-
 	private makeServerToken(channelId: string): string {
 		const payload = {
 			exp: Math.floor(Date.now() / 1000) + 30,
 			channel_id: channelId,
-			user_id: this.OWNERID,
+			user_id: Config.OWNERID,
 			role: 'external',
 			pubsub_perms: {
 				send: ['broadcast'],
 			},
 		};
-		return jsonwebtoken.sign(payload, Buffer.from(this.EXTSECRET, "base64"), { algorithm: 'HS256' });
+		return jsonwebtoken.sign(payload, Buffer.from(Config.EXTSECRET, "base64"), { algorithm: 'HS256' });
 	}
 
 	private getClientCredentialToken(scope:string="channel:read:redemptions+channel:moderate+channel_subscriptions+bits:read"):Promise<string> {
@@ -194,7 +160,7 @@ OWNERID;xxx`);
 				method: "POST",
 				headers: headers,
 			};
-			fetch("https://id.twitch.tv/oauth2/token?client_id="+this.CLIENTID+"&client_secret="+this.SECRET+"&grant_type=client_credentials&scope="+scope, options)
+			fetch("https://id.twitch.tv/oauth2/token?client_id="+Config.CLIENTID+"&client_secret="+Config.SECRET+"&grant_type=client_credentials&scope="+scope, options)
 			.then((result) => {
 				if(result.status == 200) {
 					result.json().then((json)=> {
