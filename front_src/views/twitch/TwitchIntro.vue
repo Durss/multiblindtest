@@ -7,7 +7,7 @@
 				<p>You're a streamer and you want to play with your viewers?</p>
 				<p>The MultiBlindTest Twitch Extension is for you.</p>
 			</div>
-			<div>Twitch won't allow the extension because of <strong>DMCA</strong> issues, if you want to be able to use it <strong>you must be manually added to the allowed users list</strong>.</div>
+			<div>Twitch won't validate the extension because of <strong>DMCA</strong> issues, if you want to be able to use it <strong>you must be manually added to the allowed users list</strong>.</div>
 			<div>Send your twitch nickname with the form bellow to request access:</div>
 			<form class="form"  @submit.prevent="submitTwitchName()" v-if="!success">
 				<input type="text" class="dark" placeholder="twitch user name..." v-model="twitchName">
