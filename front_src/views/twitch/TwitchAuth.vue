@@ -7,11 +7,11 @@
 			label="Connecting to Twitch..." />
 		
 		<div v-if="!loading">
-			<h1 v-if="!needSpotifyAuth && !loggedIn">Connect with twitch</h1>
+			<h1 v-if="!needSpotifyAuth && !loggedIn">Connect with Twitch</h1>
 			<h1 v-if="!needSpotifyAuth && loggedIn">Embed to your stream</h1>
 
 			<div class="step" v-if="!loggedIn">
-				<div class="head">Please first generate an access token</div>
+				<div class="head">Please first generate an access token so I can receive your chat messages</div>
 				<Button to="https://twitchapps.com/tmi/"
 					type="link"
 					target="_blank"
@@ -36,36 +36,35 @@
 			</div>
 
 			<div class="step" v-if="loggedIn && url">
-				<ToggleBlock class="block" :enabled="false" :closed="true" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS (soon?)">
-					<!-- <div>Configure this URL in the OBS browser params:</div>
+				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS">
+					<div>Configure this URL in the OBS browser params:</div>
 					<div class="url">
 						<div class="text" @click="selectText">{{url}}</div>
 						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
 					</div>
 					<div class="head">Or continue if you already are on OBS:</div>
 					<Button :to="redirect" :title="$t('twitch.auth.continue')" big />
-					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" /> -->
+					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" />
 				</ToggleBlock>
 
-				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/twitch.svg')" title="Play with Twitch extension">
+				<ToggleBlock class="block" :enabled="false" :closed="true" :icon="require('@/assets/icons/twitch.svg')" title="Play with Twitch extension">
 					<div class="twitchExt">
-						<div>Install the <strong>Twitch Extension</strong> and start a game:</div>
+						<p>A twitch extension has been developped but Twitch won't validate it because of DMCA issues.</p>
+						<!-- <div>Install the <strong>Twitch Extension</strong> and start a game:</div>
 						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
 						<router-link :to="{name:'twitch'}" class="getAccess">- get access -</router-link>
-						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" />
+						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" /> -->
 					</div>
 				</ToggleBlock>
 
 				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/dmca.svg')" title="What about DMCA strike?">
 					<div class="dmca">
-						<div>The music won't be played on your stream but from within the extension so it will be undetectable by any live DMCA detection and your VOD won't have any trace of the audio.</div>
-						<!-- <div>
-							<p>At the time of this writting, live DMCA does not exist on twitch and you can configure OBS to have a different audio source for your live and your VOD.</p>
-							<p>This means you can play music live and the VOD won't contain the MultiBlindtest audio.</p>
-						</div>
+						<!-- <div>The music won't be played on your stream but from within the extension so it will be undetectable by any live DMCA detection and your VOD won't have any trace of the audio.</div> -->
+						<div>At the time of this writting, live DMCA does not exist on twitch and you can configure OBS to have a different audio source for your live and your VOD.</div>
+						<div>This means you can play music live and the VOD won't contain it.</div>
 						<div>Learn how to configure this here:</div>
-						<Button to="https://help.twitch.tv/s/article/soundtrack-audio-configuration?language=en_US" type="link" title="Configure OBS for DMCA" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
-						<div>Also, the fact that many tracks are playing at the same time might help being undetected ¯\_(ツ)_/¯</div> -->
+						<Button href="https://www.youtube.com/watch?v=7vd1EyQXq7A" type="link" title="Configure OBS VOD Track" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
+						<div>Also, the fact that many tracks are playing at the same time might help remaining undetected by any futur live DMCA ¯\_(ツ)_/¯</div>
 					</div>
 				</ToggleBlock>
 			</div>
@@ -237,7 +236,7 @@ export default class TwitchAuth extends Vue {
 
 		.head {
 			font-size: 20px;
-			margin-bottom: 20px;
+			margin-bottom: 10px;
 		}
 
 		form {
@@ -314,6 +313,12 @@ export default class TwitchAuth extends Vue {
 						margin-left: 0px;
 						margin-right: 0px;
 					}
+				}
+			}
+
+			.dmca {
+				div, .button {
+					margin-bottom: 10px;
 				}
 			}
 		}
