@@ -152,7 +152,6 @@ export default class Button extends Vue {
 
 	@Watch("value")
 	public onValueChange():void {
-		console.log("change", this.checked);
 		this.checked = this.value;
 	}
 

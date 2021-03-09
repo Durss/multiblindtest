@@ -12,7 +12,7 @@
 			</div>
 		</transition>
 		
-		<Button v-if="playlists.length > 0" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big white />
+		<Button v-if="playlists.length > 0 && !obsMode" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big white />
 		
 		<div class="playlistsHolder">
 			<div class="playlistsTitle">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import Utils from "@/utils/Utils";
 import gsap from "gsap";
 import { Component, Vue, Watch } from "vue-property-decorator";
 import Button from "../Button.vue";
@@ -53,6 +54,7 @@ export default class TwitchGameStatus extends Vue {
 		if(!list) return [];
 		return list;
 	}
+
 	public get titleClasses():string[] {
 		let res = ["type"];
 		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("title") > -1) res.push("active");
@@ -63,6 +65,10 @@ export default class TwitchGameStatus extends Vue {
 		let res = ["type"];
 		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("artist") > -1) res.push("active");
 		return res;
+	}
+
+	public get obsMode():boolean {
+		return Utils.getRouteMetaValue(this.$route, "obsMode") === true;
 	}
 
 	public mounted():void {

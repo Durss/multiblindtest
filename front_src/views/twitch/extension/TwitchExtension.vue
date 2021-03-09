@@ -1,5 +1,5 @@
 <template>
-	<div class="twitchvideooverlay">
+	<div class="twitchextension">
 		<div class="frameholder">
 			<BouncingLoader class="loader" :icon="require('@/assets/icons/home_logo.svg')" v-if="!ready" />
 			<router-view name="twitch" class="subView"></router-view>
@@ -21,7 +21,7 @@ import { Component, Vue } from "vue-property-decorator";
 		BouncingLoader,
 	}
 })
-export default class TwitchVideoOverlay extends Vue {
+export default class TwitchExtension extends Vue {
 
 	public isBroadcaster:boolean = false;
 	public ready:boolean = false;
@@ -108,7 +108,7 @@ export default class TwitchVideoOverlay extends Vue {
 </script>
 
 <style scoped lang="less">
-.twitchvideooverlay{
+.twitchextension{
 	&>.frameholder {
 		position: absolute;
 		top: 5rem;

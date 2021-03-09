@@ -35,11 +35,11 @@
 				</form>
 			</div>
 
-			<div class="step" v-if="loggedIn && url">
+			<div class="step" v-if="loggedIn && urlOBS">
 				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS">
 					<div>Configure this URL in the OBS browser params:</div>
 					<div class="url" ref="url">
-						<div class="text" @click="selectText">{{url}}</div>
+						<div class="text" @click="selectText">{{urlOBS}}</div>
 						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
 					</div>
 					<!-- <div class="head">Or continue if you already are on OBS:</div> -->
@@ -115,7 +115,7 @@ export default class TwitchAuth extends Vue {
 	public needSpotifyAuth:boolean = false;
 	public spotifyExpired:boolean = false;
 	public token:string = null;
-	public url:string = null;
+	public urlOBS:string = null;
 
 	public get authUrl():string {
 		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch/auth'}).href);
@@ -154,12 +154,13 @@ export default class TwitchAuth extends Vue {
 		if(!json) {
 			this.error = true;
 		}else{
+			let twitchLogin = json.login;
 			this.loading = true;
 			this.$store.dispatch("setTwitchOAuthToken", this.token);
-			this.$store.dispatch("setTwitchLogin", json.login);
+			this.$store.dispatch("setTwitchLogin", twitchLogin);
 			let res;
 			try {
-				res = await IRCClient.instance.initialize(json.login, this.token);
+				res = await IRCClient.instance.initialize(twitchLogin, this.token);
 			}catch(error) {
 				console.log("FAILED !");
 				this.errorIRC = true;
@@ -180,13 +181,18 @@ export default class TwitchAuth extends Vue {
 					this.needSpotifyAuth = true;
 					return;
 				}
-				// this.$router.push(this.redirect);
+				let route = {
+					name:"twitch/obs/play"
+				}
+				this.$router.push(route);
 			}else if(!SpotifyAPI.instance.hasAccessToken){
 				this.spotifyExpired = false;
 				this.needSpotifyAuth = true;
 			}else{
-				let route = {name:'twitch/auth', params:{twitchOAToken:this.token, spotifyOAToken:this.$store.state.accessToken}};
-				this.url = document.location.origin+this.$router.resolve(route).href;
+				// let route = {name:'twitch/auth', params:{twitchOAToken:this.token, spotifyOAToken:this.$store.state.accessToken}};
+				// this.urlOBS = document.location.origin+this.$router.resolve(route).href;
+				let route = {name:'twitchobs/viewer', params:{twitchLogin:twitchLogin}};
+				this.urlOBS = document.location.origin+this.$router.resolve(route).href;
 			}
 			return true;
 		}
@@ -211,7 +217,7 @@ export default class TwitchAuth extends Vue {
 	}
 
 	public copyURL():void {
-		Utils.copyToClipboard(this.url);
+		Utils.copyToClipboard(this.urlOBS);
 		gsap.set(this.$refs.url, {filter:"brightness(100%)"})
 		gsap.from(this.$refs.url, {duration:.5, filter:"brightness(200%)"})
 	}

@@ -1,5 +1,5 @@
 <template>
-	<div class="twitchgame">
+	<div class="twitchobsgame">
 		<TwitchControls class="controls"
 			@pause="pause = true"
 			@start="started = true"
@@ -68,7 +68,7 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 		BouncingLoader,
 	}
 })
-export default class TwitchGame extends Vue {
+export default class TwitchOBSGame extends Vue {
 
 	@Prop({default:""})
 	public playlistids:string;
@@ -84,6 +84,9 @@ export default class TwitchGame extends Vue {
 
 	@Prop({default:""})
 	public expertMode:string;
+
+	@Prop({default:""})
+	public twitchLogin:string;
 
 	public ready:boolean = false;
 	public started:boolean = false;
@@ -126,13 +129,13 @@ export default class TwitchGame extends Vue {
 			this.ready = true;
 		}
 
-		let users = this.$store.state.twitchAllowedUsers;
-		if(!users) {
-			//This can be the case if the local storage of the user is full and users
-			//have not been saved properly
-			this.$router.push({name:"twitch/auth"});
-			return;
-		}
+		// let users = this.$store.state.twitchAllowedUsers;
+		// if(!users) {
+		// 	//This can be the case if the local storage of the user is full and users
+		// 	//have not been saved properly
+		// 	this.$router.push({name:"twitch/auth"});
+		// 	return;
+		// }
 		this.initAudioElements();
 		this.pickRandomTracks();
 
@@ -355,7 +358,7 @@ export default class TwitchGame extends Vue {
 </script>
 
 <style scoped lang="less">
-.twitchgame{
+.twitchobsgame{
 	max-width: 100% !important;
 	overflow: hidden;
 
@@ -387,7 +390,7 @@ export default class TwitchGame extends Vue {
 		min-height: 330px;
 		box-sizing: border-box;
 		&.showZone {
-			background-image: url('../../assets/icons/dashedBg.svg');
+			background-image: url('../../../assets/icons/dashedBg.svg');
 			background-size: 20px 20px;
 			background-position: center center;
 		}

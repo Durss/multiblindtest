@@ -9,13 +9,14 @@ import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
 import TwitchAuth from '@/views/twitch/common/TwitchAuth.vue';
-import TwitchBroadcaster from '@/views/twitch/extension/broadcaster/TwitchBroadcaster.vue';
-import TwitchBroadcasterControls from '@/views/twitch/extension/broadcaster/TwitchBroadcasterControls.vue';
+import TwitchBroadcaster from '@/views/twitch/common/broadcaster/TwitchBroadcaster.vue';
+import TwitchBroadcasterControls from '@/views/twitch/common/broadcaster/TwitchBroadcasterControls.vue';
 import TwitchExtensionConfiguration from '@/views/twitch/extension/TwitchExtensionConfiguration.vue';
 import TwitchIntro from '@/views/twitch/common/TwitchIntro.vue';
 import TwitchViewer from '@/views/twitch/extension/viewer/TwitchViewer.vue';
 import TwitchExtension from '@/views/twitch/extension/TwitchExtension.vue';
-import TwitchGame from '@/views/twitch/TwitchGame.vue';
+import TwitchOBS from '@/views/twitch/obs/TwitchOBS.vue';
+import TwitchOBSGame from '@/views/twitch/obs/TwitchOBSGame.vue';
 import TwitchLobby from '@/views/twitch/TwitchLobby.vue';
 import Vue from 'vue';
 import VueRouter, { Route, RouterMode } from 'vue-router';
@@ -219,14 +220,6 @@ const routes = [
 		component: TwitchLobby
 	},
 	{
-		path: '/twitch/obs/play/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
-		name: 'twitch/obs/play',
-		props:true,
-		meta: {
-		},
-		component: TwitchGame
-	},
-	{
 		path: '/twitch/controls/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
 		name: 'twitch/controls',
 		props:true,
@@ -241,7 +234,6 @@ const routes = [
 		props:true,
 		meta: {
 			hideHomeBt:true,
-			hideBackground:true,
 		},
 		component: TwitchExtensionConfiguration
 	},
@@ -250,7 +242,6 @@ const routes = [
 		name: 'twitchext',
 		meta: {
 			hideHomeBt:true,
-			hideBackground:true,
 			needsTwitchHelper:true,
 			needSocket:true,
 		},
@@ -268,6 +259,36 @@ const routes = [
 				path: "viewer/:isBroadcaster?",
 				name: "twitchext/viewer",
 				props:true,
+				components: {
+					twitch:TwitchViewer
+				},
+			},
+		]
+	},
+	{
+		path: '/twitchobs',
+		name: 'twitchobs',
+		component: TwitchOBS,
+		meta: {
+			needSocket:true,
+			obsMode:true,
+		},
+		children: [
+			{
+				path: "broadcaster",
+				name: "twitchobs/broadcaster",
+				props:true,
+				components: {
+					twitch:TwitchBroadcaster
+				},
+			},
+			{
+				path: "viewer/:twitchLogin",
+				name: "twitchobs/viewer",
+				props:true,
+				meta: {
+					hideHomeBt:true,
+				},
 				components: {
 					twitch:TwitchViewer
 				},

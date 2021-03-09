@@ -1,5 +1,7 @@
 <template>
 	<div class="twitchviewer">
+		{{section}}
+		{{$store.state.twitchPlaylists}}
 		<TwitchGameStatus v-if="section == 'playlists'" />
 		<TwitchViewerGame v-if="section == 'game'" />
 		<TwitchViewerLeaderboard v-if="section == 'leaderboard'" />
@@ -9,9 +11,9 @@
 
 <script lang="ts">
 import TwitchGameStatus from "@/components/twitch/TwitchGameStatus.vue";
-import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
-import TwitchMessageType from "@/twitch/TwitchMessageType";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import SockController from "@/sock/SockController";
+import Utils from "@/utils/Utils";
+import { Component, Vue } from "vue-property-decorator";
 import TwitchViewerControls from "./TwitchViewerControls.vue";
 import TwitchViewerGame from "./TwitchViewerGame.vue";
 import TwitchViewerLeaderboard from "./TwitchViewerLeaderboard.vue";
@@ -26,8 +28,6 @@ import TwitchViewerLeaderboard from "./TwitchViewerLeaderboard.vue";
 })
 export default class TwitchViewer extends Vue {
 
-	public iwannaplay:boolean = false;
-
 	public get section():string {
 		let section = null;
 		if(this.$store.state.twitchLeaderboard) section = "leaderboard";
@@ -36,19 +36,34 @@ export default class TwitchViewer extends Vue {
 		return section;
 	}
 
+	//Only available for twitch extension to display controls within the
+	//extension of the broadcaster. Useless for OBS mode as the OBS browser
+	//interaction is hell.
 	public get isBroadcaster():boolean {
+		//Can't use @Prop(). Doesn't work with nested routes -_-
 		return this.$route.params.isBroadcaster == "1";
 	}
 
+	public get twitchLogin():string {
+		//Can't use @Prop(). Doesn't work with nested routes -_-
+		return this.$route.params.twitchLogin;
+	}
+
 	public mounted():void {
-		
+		this.$store.dispatch("setHideBackground", true);
+		if(Utils.getRouteMetaValue(this.$route, "obsMode")) {
+			SockController.instance.connect();
+			SockController.instance.user = {
+												name:"controler",
+												id:this.twitchLogin+"_ext",
+												offline:false,
+												score:0,
+												handicap:0,
+											};
+		}
 	}
 
 	public beforeDestroy():void {
-	}
-
-	public test():void {
-		TwitchExtensionHelper.instance.broadcast(TwitchMessageType.BROADCASTER_CONTROL, {couille:"VERGE EN FEUUUUUUUUUU DE DIEUUUUUUUUU"});
 	}
 
 }

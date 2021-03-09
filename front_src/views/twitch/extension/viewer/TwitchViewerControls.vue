@@ -19,6 +19,7 @@
 import Button from "@/components/Button.vue";
 import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
 import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
+import Utils from "@/utils/Utils";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
@@ -37,17 +38,27 @@ export default class TwitchViewerControls extends Vue {
 	public gameComplete:boolean = false;
 	public clickHandler:any;
 
+	public get socketName():string {
+		if(Utils.getRouteMetaValue(this.$route, "obsMode")) {
+			return this.$store.state.twitchLogin
+		}else{
+			return TwitchExtensionHelper.instance.auth.channelId;
+		}
+	}
+
 	public async mounted():Promise<void> {
 		this.clickHandler = (e:MouseEvent) => this.onClickOutside(e);
 		document.body.addEventListener("click", this.clickHandler);
 		// IRCClient.instance.sendMessage("test")
 
-		await TwitchExtensionHelper.instance.onConnect();
+		if(!Utils.getRouteMetaValue(this.$route, "obsMode")) {
+			await TwitchExtensionHelper.instance.onConnect();
+		}
 
 		SockController.instance.connect();
 		SockController.instance.user = {
-											name:"stream",//TwitchExtensionHelper.instance.auth.token,
-											id:TwitchExtensionHelper.instance.auth.channelId+"_ext",
+											name:"stream",
+											id:this.socketName+"_ext",
 											offline:false,
 											score:0,
 											handicap:0,
@@ -82,7 +93,7 @@ export default class TwitchViewerControls extends Vue {
 
 	private async sendMessage(message:string):Promise<void> {
 		let data = {
-			target:TwitchExtensionHelper.instance.auth.channelId+"_ctrl",
+			target:this.socketName+"_ctrl",
 			data:{action:SOCK_ACTIONS.SEND_TO_UID, data:message}
 		};
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data});

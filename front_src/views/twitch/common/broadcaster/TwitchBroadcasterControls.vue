@@ -118,7 +118,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
 		SockController.instance.connect();
 		SockController.instance.user = {
-											name:"controler",//TwitchExtensionHelper.instance.auth.token,
+											name:"controler",
 											id:res.user.user_id+"_ctrl",
 											offline:false,
 											score:0,
@@ -375,8 +375,16 @@ export default class TwitchBroadcasterControls extends Vue {
 			//Remove players with a 0 score and only keep the nicknames
 			data.history = this.scoreHistory;
 		}
-		let actionType = this.showResults? TwitchMessageType.LEADERBOARD : TwitchMessageType.ROUND_STATE
-		TwitchExtensionHelper.instance.broadcast(actionType, {state:data});
+		let actionType = this.showResults? TwitchMessageType.LEADERBOARD : TwitchMessageType.ROUND_STATE;
+		if(Utils.getRouteMetaValue(this.$route, "obsMode")) {
+			let event = {
+				target:this.$store.state.twitchLogin+"_ext",
+				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType, state:data}}
+			};
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});
+		}else{
+			TwitchExtensionHelper.instance.broadcast(actionType, {state:data});
+		}
 	}
 
 	/**

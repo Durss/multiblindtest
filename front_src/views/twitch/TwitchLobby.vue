@@ -47,9 +47,9 @@
 
 			<div class="block params">
 				<GameParams :gamesCount.sync="gamesCount" :gameDuration.sync="gameDuration" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
-					<div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
+					<!-- <div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
 						<Button type="checkbox" v-model="noBackground" title="Transparent Background" />
-					</div>
+					</div> -->
 					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
 			</div>
@@ -153,7 +153,7 @@ export default class TwitchLobby extends Vue {
 
 		this.noBackground = this.$store.state.hideBackground === true;
 
-		if(this.mode == "twitchExt") this.broadcastInfosToExtension();
+		this.broadcastInfosToExtension();
 
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
@@ -161,7 +161,7 @@ export default class TwitchLobby extends Vue {
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
 		SockController.instance.connect();
 		SockController.instance.user = {
-											name:"controler",//TwitchExtensionHelper.instance.auth.token,
+											name:"controler",
 											id:res.user.user_id+"_ctrl",
 											offline:false,
 											score:0,
@@ -261,7 +261,16 @@ export default class TwitchLobby extends Vue {
 			playlists,
 			expert:this.expertMode,
 		}
-		TwitchExtensionHelper.instance.broadcast(TwitchMessageType.PLAYLISTS, data);
+		if(this.mode == "twitchObs") {
+			console.log("OKFDOKFD");
+			let event = {
+				target:this.$store.state.twitchLogin+"_ext",
+				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType:TwitchMessageType.PLAYLISTS, state:data}}
+			};
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});
+		}else{
+			TwitchExtensionHelper.instance.broadcast(TwitchMessageType.PLAYLISTS, data);
+		}
 	}
 	
 
