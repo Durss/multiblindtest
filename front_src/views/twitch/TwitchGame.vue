@@ -387,7 +387,7 @@ export default class TwitchGame extends Vue {
 		min-height: 330px;
 		box-sizing: border-box;
 		&.showZone {
-			background-image: url('../assets/icons/dashedBg.svg');
+			background-image: url('../../assets/icons/dashedBg.svg');
 			background-size: 20px 20px;
 			background-position: center center;
 		}

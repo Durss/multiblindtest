@@ -8,15 +8,15 @@ import Home from '@/views/Home.vue';
 import MixCreator from '@/views/MixCreator.vue';
 import OAuth from '@/views/OAuth.vue';
 import PlaylistSelector from '@/views/PlaylistSelector.vue';
-import TwitchAuth from '@/views/twitch/TwitchAuth.vue';
-import TwitchBroadcaster from '@/views/twitch/TwitchBroadcaster.vue';
-import TwitchBroadcasterControls from '@/views/twitch/TwitchBroadcasterControls.vue';
-import TwitchExtensionConfiguration from '@/views/twitch/TwitchExtensionConfiguration.vue';
-import TwitchIntro from '@/views/twitch/TwitchIntro.vue';
-import TwitchViewer from '@/views/twitch/TwitchViewer.vue';
-import TwitchExtension from '@/views/TwitchExtension.vue';
-import TwitchGame from '@/views/TwitchGame.vue';
-import TwitchLobby from '@/views/TwitchLobby.vue';
+import TwitchAuth from '@/views/twitch/common/TwitchAuth.vue';
+import TwitchBroadcaster from '@/views/twitch/extension/broadcaster/TwitchBroadcaster.vue';
+import TwitchBroadcasterControls from '@/views/twitch/extension/broadcaster/TwitchBroadcasterControls.vue';
+import TwitchExtensionConfiguration from '@/views/twitch/extension/TwitchExtensionConfiguration.vue';
+import TwitchIntro from '@/views/twitch/common/TwitchIntro.vue';
+import TwitchViewer from '@/views/twitch/extension/viewer/TwitchViewer.vue';
+import TwitchExtension from '@/views/twitch/extension/TwitchExtension.vue';
+import TwitchGame from '@/views/twitch/TwitchGame.vue';
+import TwitchLobby from '@/views/twitch/TwitchLobby.vue';
 import Vue from 'vue';
 import VueRouter, { Route, RouterMode } from 'vue-router';
 
@@ -219,8 +219,8 @@ const routes = [
 		component: TwitchLobby
 	},
 	{
-		path: '/twitch/play/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
-		name: 'twitch/play',
+		path: '/twitch/obs/play/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		name: 'twitch/obs/play',
 		props:true,
 		meta: {
 		},
@@ -274,6 +274,7 @@ const routes = [
 			},
 		]
 	},
+
 
 
 
