@@ -5,7 +5,7 @@
 			<div class="count">{{currentRound}}/{{gamesCount}}</div>
 		</div>
 
-		<VolumeButton twitchMode />
+		<VolumeButton twitchMode v-if="!obsMode" />
 		
 		<TimerRenderer class="timer" ref="timer"
 			:timerPercent="timerPercent"
@@ -15,10 +15,10 @@
 			<div v-for="t in tracks" :key="t.id" class="track">
 				<TrackEntry class="actualTrack"
 					:data="t"
-					:canReplay="true"
+					:canReplay="!obsMode"
 					:burstStars="true"
+					:small="true"
 					:scoreHistory="scoreHistory"
-					:small="smallEntry"
 					@play="playTrack(t)"
 					@stop="stopTrack(t)"
 				/>
@@ -35,6 +35,7 @@ import CountDown from "@/components/CountDown.vue";
 import TimerRenderer from "@/components/TimerRenderer.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
 import VolumeButton from "@/components/VolumeButton.vue";
+import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import TrackData from "@/vo/TrackData";
 import { Component, Vue, Watch } from "vue-property-decorator";
@@ -65,11 +66,10 @@ export default class TwitchViewerGame extends Vue {
     public audioPlayer:AudioPlayer;
     public clickHandler:any;
 
-	public get smallEntry():boolean { return true;/*document.body.clientHeight < 600;*/ }
+	public get obsMode():boolean { return Utils.getRouteMetaValue(this.$route, "obsMode"); }
 
 	public get tracksClasses():string[] {
 		let res = ["tracks"];
-		if(this.smallEntry) res.push("small");
 		if(this.tracks.length == 5) res.push("center3rd");
 		return res;
 	}
@@ -83,6 +83,11 @@ export default class TwitchViewerGame extends Vue {
 				}
 			}
 		};
+
+		if(this.obsMode) {
+			this.$store.dispatch("setVolume", 1);
+		}
+
 		document.addEventListener("click", this.clickHandler);
 		this.renderFrame();
 		this.onGameStateChange();
@@ -261,10 +266,14 @@ export default class TwitchViewerGame extends Vue {
 <style scoped lang="less">
 .twitchviewergame{
 	position: relative;
+	.countdown {
+		position: absolute;
+		z-index: 4;
+	}
 	.step {
 		position: absolute;
 		width: 100%;
-		height: 100px;
+		height: 5.5em;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -273,25 +282,25 @@ export default class TwitchViewerGame extends Vue {
 		z-index: 2;
 		box-sizing: border-box;
 		h1 {
-			font-size: 20px;
+			font-size: 1em;
 		}
 		.count {
-			font-size: 18px;
+			font-size: 1em;
 			font-family: FuturaExtraBold;
 			margin-top: 5px;
 		}
 	}
 
 	.timer {
-		width: 100px;
-		height: 100px;
+		width: 5.5em;
+		height: 5.5em;
 		margin: auto;
-		z-index: 1;
+		z-index: 3;
 	}
 
 	.tracks {
 		width: 100vw;
-		max-width: 800px;
+		max-width: calc(100vw - 10em);
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -299,10 +308,9 @@ export default class TwitchViewerGame extends Vue {
 		justify-content: center;
 		.track {
 			width: 45%;
-			height: 90px;
-			margin: 10px;
-			border: 5px solid #ffffff;
-			border-radius: 50px;
+			margin: .3em;
+			border: .17em solid #ffffff;
+			border-radius: 5em;
 			box-sizing: border-box;
 
 			.actualTrack {
@@ -312,20 +320,9 @@ export default class TwitchViewerGame extends Vue {
 		&.center3rd {
 			.track:nth-child(3) {
 				display: block;
-				margin: 0 100px;
+				margin: 0 4em;
 			}
 		}
-		&.small {
-			.track {
-				margin: 5px;
-				height: 50px;
-				border-width: 2px;
-			}
-		}
-	}
-
-	.countdown {
-
 	}
 }
 </style>

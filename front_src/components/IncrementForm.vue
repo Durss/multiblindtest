@@ -3,32 +3,32 @@
 		<label class="title" :for="inputId" v-if="title">{{title}}</label>
 		<div class="content" @mousewheel="onMouseWheel">
 			<Button :icon="require('@/assets/icons/minus2.svg')"
-				@mousedown.native="startIncrement(-10);"
+				@mousedown.native="startIncrement(-10 * step);"
 				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(-10);"
+				@touchstart.native="startIncrement(-10 * step);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
 				v-if="tenStep"
 			/>
 			<Button :icon="require('@/assets/icons/minus.svg')"
-				@mousedown.native="startIncrement(-1);"
+				@mousedown.native="startIncrement(-step);"
 				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(-1);"
+				@touchstart.native="startIncrement(-step);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
 			/>
 			<input type="number" v-model="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
 			<Button :icon="require('@/assets/icons/plus.svg')"
-				@mousedown.native="startIncrement(1);"
+				@mousedown.native="startIncrement(step);"
 				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(1);"
+				@touchstart.native="startIncrement(step);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
 			/>
 			<Button :icon="require('@/assets/icons/plus2.svg')"
-				@mousedown.native="startIncrement(10);"
+				@mousedown.native="startIncrement(10 * step);"
 				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(10);"
+				@touchstart.native="startIncrement(10 * step);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
 				v-if="tenStep"
@@ -59,6 +59,9 @@ export default class IncrementForm extends Vue {
 
 	@Prop({default:30})
 	public maxValue:number;
+
+	@Prop({default:1})
+	public step:number;
 
 	@Prop({default:false})
 	public tenStep:boolean;
@@ -95,6 +98,7 @@ export default class IncrementForm extends Vue {
 
 	public startIncrement(inc:number):void {
 		this.valueLocal += inc;
+		this.valueLocal = Math.round(this.valueLocal*100)/100;//Prevents fucked up JS number rounding to create values like 1.000000001
 		clearInterval(this.incInterval);
 		this.incInterval = setInterval(_=> { this.valueLocal += inc; }, 100);
 	}

@@ -127,7 +127,13 @@ export default class App extends Vue {
 	background-color: @mainColor_normal_extralight;
 
 	&.noBg {
-		background-color: rgba(0, 0, 0, 0);
+		background-color: rgba(0, 0, 0, 1);
+		padding: 0;
+		overflow: hidden;
+
+		.content {
+			max-width: none;
+		}
 	}
 
 	.content {

@@ -65,6 +65,9 @@ export default class TwitchBroadcasterControls extends Vue {
 	@Prop({default:""})
 	public expertMode:string;
 
+	@Prop({default:""})
+	public mode:string;
+
 	public loading:boolean = true;
 	public ready:boolean = false;
 	public disposed:boolean = false;
@@ -99,6 +102,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			this.ready = true;
 		}
 
+		SockController.instance.keepBroadcastingLastMessage = true;
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 
@@ -376,7 +380,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			data.history = this.scoreHistory;
 		}
 		let actionType = this.showResults? TwitchMessageType.LEADERBOARD : TwitchMessageType.ROUND_STATE;
-		if(Utils.getRouteMetaValue(this.$route, "obsMode")) {
+		if(this.mode == "twitchObs") {
 			let event = {
 				target:this.$store.state.twitchLogin+"_ext",
 				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType, state:data}}

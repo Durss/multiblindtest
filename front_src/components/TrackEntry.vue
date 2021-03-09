@@ -146,10 +146,10 @@ export default class TrackEntry extends Vue {
 .trackentry{
 	background-color: @mainColor_normal;
 	color: #fff;
-	max-width: 500px;
-	border-radius: 50px;
+	// max-width: 500px;
+	border-radius: 2em;
 	text-align: center;
-	padding: 10px;
+	padding: .55em;
 	opacity: .5;
 	transition: all .25s;
 	box-sizing: border-box;
@@ -159,8 +159,10 @@ export default class TrackEntry extends Vue {
 	position: relative;
 
 	&>.icon {
-		width: 50px;
-		height: 50px;
+		width: 3em;
+		height: 3em;
+		min-width: 3em;
+		min-height: 3em;
 		.icon {
 			height: 100%;
 			width: 100%;
@@ -169,44 +171,23 @@ export default class TrackEntry extends Vue {
 		.score {
 			font-family: "Futura";
 			font-weight: bold;
-			border-radius: 50px;
-			font-size: 25px;
+			font-size: 1.5em;
 			color: @mainColor_warn;
 			background-image: url("../assets/icons/star.svg");
 			background-repeat: no-repeat;
 			display: block;
-			width: 60px;
-			height: 60px;
-			margin-left: -5px;
-			margin-top: -8px;
-			padding: 21px 0;
+			width: 2.5em;
+			height: 2.5em;
+			margin-left: -.1em;
+			margin-top: -.3em;
+			padding: .9em 0;
 
 			&::before {
 				content: "+";
-				margin-left: -9px;
-				font-size: 18px;
+				margin-left: -.3em;
+				font-size: .7em;
 				vertical-align: top;
 			}
-		}
-	}
-
-	.stop {
-		width: 45px;
-		height: 45px;
-		min-width: 45px;
-		cursor: pointer;
-		position: relative;
-		
-		.icon {
-			width: 100%;
-			height: 100%;
-		}
-		.loader {
-			position: absolute;
-			top:-2px;
-			left:-2px;
-			width: calc(100% + 4px);
-			height: calc(100% + 4px);
 		}
 	}
 
@@ -231,57 +212,59 @@ export default class TrackEntry extends Vue {
 
 	&.small {
 		&>.icon {
-			width: 30px;
-			height: 30px;
+			width: 2em;
+			height: 2em;
+			min-width: 2em;
+			min-height: 2em;
 		}
 
 		.trackInfos {
-			font-size: 16px;
+			font-size: 1em;
 			.name {
-				font-size: 14px;
+				font-size: .8em;
 			}
 			.artist {
-				margin-bottom: 1px;
+				margin-bottom: .1em;
 			}
 		}
 
 		.placeholder {
-			font-size: 20px;
+			font-size: 1.2em;
 		}
 
 		.score {
-			font-size: 23px;
-			width: 45px;
-			height: 45px;
-			padding: 13px 0;
+			font-size: 1.4em;
+			width: 2em;
+			height: 2em;
+			padding: .6em 0;
 		}
 
 		.guesser {
-			transform: translate(10px, 50%);
+			transform: translate(.5em, 50%);
 			.pseudo {
-				font-size: 13px;
+				font-size: .85em;
 			}
 		}
 
 		.stop {
-			width: 30px;
-			height: 30px;
-			min-width: 30px;
+			width: 2em;
+			height: 2em;
+			min-width: 2em;
 		}
 	}
 
 	.trackInfos {
-		font-size: 20px;
+		font-size: 1.15em;
 		flex-grow: 1;
 		.artist {
 			font-weight: bold;
-			margin-bottom: 5px;
+			margin-bottom: .25em;
 		}
 	}
 
 	.placeholder {
 		flex-grow: 1;
-		font-size: 30px;
+		font-size: 2em;
 		font-family: "Arial";
 		font-weight: bold;
 	}
@@ -290,7 +273,7 @@ export default class TrackEntry extends Vue {
 		position: absolute;
 		right: 0;
 		bottom: 0;
-		transform: translate(10px, 25%);
+		transform: translate(.7em, 25%);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -298,8 +281,9 @@ export default class TrackEntry extends Vue {
 		z-index: 1;
 
 		.pseudo {
-			padding: 5px 10px;
-			border-radius: 20px;
+			font-size: 1em;
+			padding: .25em .5em;
+			border-radius: 2em;
 			background-color: @mainColor_warn;
 		}
 	}
@@ -312,57 +296,29 @@ export default class TrackEntry extends Vue {
 		img {
 			opacity: 0;
 			position: absolute;
-			width: 30px;
-			height: 30px;
+			width: 2em;
+			height: 2em;
 			transform-origin: center center;
 		}
 	}
-}
 
-@media only screen and (max-width: 50px) {
-	.trackentry {
-		background-color: red;
-
-		padding: 7px;
-		&>.icon {
-			max-width: 20px;
-			max-height: 20px;
-
-			.score {
-				font-size: 16px;
-				width: 40px;
-				height: auto;
-				margin-left: 0px;
-				margin-top: -10px;
-				padding: 13px 0;
-
-				&::before {
-					margin-left: -5px;
-					font-size: 13px;
-				}
-			}
+	.stop {
+		width: 3em;
+		height: 3em;
+		min-width: 3em;
+		cursor: pointer;
+		position: relative;
+		
+		.icon {
+			width: 100%;
+			height: 100%;
 		}
-
-		.trackInfos {
-			font-size: 16px;
-			flex-grow: 1;
-			.artist {
-				font-weight: bold;
-				margin-bottom: 5px;
-			}
-		}
-
-		.placeholder {
-			flex-grow: 1;
-			font-size: 20px;
-			font-family: "Arial";
-			font-weight: bold;
-		}
-
-		.stop {
-			width: 30px;
-			height: 30px;
-			min-width: 30px;
+		.loader {
+			position: absolute;
+			top:-2px;
+			left:-2px;
+			width: calc(100% + 4px);
+			height: calc(100% + 4px);
 		}
 	}
 }

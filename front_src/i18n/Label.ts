@@ -46,7 +46,7 @@ export default class Labels {
 					head : "You have no playlist available on your Spotify account. Create one or subscribe to some then click <strong>{refresh}</strong> button above.",
 					suggestion : "Here are some suggestions you can subscribe to :",
 				},
-				noTrack :"Following playlist(s) don't have enough playable tracks",
+				noTrack: "Following playlist(s) don't have any playable tracks",
 				title: "Select playlists",
 				subtitle: "Select playlists from which you want songs to be picked up randomly for your Multi Blindtest",
 				refresh: "Refresh playlists",
@@ -98,8 +98,6 @@ export default class Labels {
 						details:"When enabled, orthographic tolerence will be slightly lowered and you can accept only track's title or artist's name",
 						acceptTitle:"Title accepted",
 						acceptArtist:"Artist name accepted",
-						refuseTitle:"Title refused",
-						refuseArtist:"Artist name refused",
 						selectSomething: "Please select at least one option",
 					},
 					share: {
@@ -145,6 +143,7 @@ export default class Labels {
 				},
 				lobby: {
 					maxPlayers:"Max players",
+					zoomLevel:"Interface scale",
 				},
 				game: {
 					index:"Round",
@@ -297,7 +296,7 @@ export default class Labels {
 					head : "Vous n'avez aucune playlist disponible dans Spotify. Créez-en ou abonnez-vous à des playlists existantes puis cliquez sur <strong>{refresh}</strong> au-dessus.",
 					suggestion : "Voici quelques suggestions de playlists auxquelles vous abonner",
 				},
-				noTrack :"Les playlists suivantes ne possèdent pas assez de morceaux jouables",
+				noTrack: "Les playlists suivantes ne possèdent pas de morceaux jouables",
 				title: "Sélectionne des playlists",
 				subtitle: "Sélectionne les playlists dans lesquelles piocher des morceaux aléatoirement",
 				refresh: "Rafraîchir la liste",
@@ -349,6 +348,7 @@ export default class Labels {
 						details:"Le mode expert réduit légèrement la tolérence orthographique des réponses et vous pouvez choisir de n'accepter que le titre ou l'artiste du morceau",
 						acceptTitle:"Accepter le titre",
 						acceptArtist:"Accepter l'artiste",
+						selectSomething: "Sélectionnez au moins une option",
 					},
 					share: {
 						title: "Inviter des ami·e·s :",

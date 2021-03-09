@@ -6,8 +6,8 @@
 				<img src="@/assets/icons/home_logo_outlined.svg" alt="logo" class="logo">
 				<div v-if="expertMode" class="expertMode">
 					<div class="head"><img src="@/assets/icons/flex_left.svg"> Expert mode <img src="@/assets/icons/flex_right.svg"></div>
-					<div :class="titleClasses">Title</div>
-					<div :class="artistClasses">Artist</div>
+					<div :class="titleClasses">{{$t('group.game.expertMode.'+(titleAccepted? 'accept': 'refuse')+'Title')}}</div>
+					<div :class="artistClasses">{{$t('group.game.expertMode.'+(artistAccepted? 'accept': 'refuse')+'Artist')}}</div>
 				</div>
 			</div>
 		</transition>
@@ -57,15 +57,17 @@ export default class TwitchGameStatus extends Vue {
 
 	public get titleClasses():string[] {
 		let res = ["type"];
-		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("title") > -1) res.push("active");
+		if(this.expertMode && this.titleAccepted) res.push("active");
 		return res;
 	}
+	public get titleAccepted():boolean { return this.$store.state.twitchExpertMode.indexOf("title") > -1; }
 
 	public get artistClasses():string[] {
 		let res = ["type"];
-		if(this.expertMode && this.$store.state.twitchExpertMode.indexOf("artist") > -1) res.push("active");
+		if(this.expertMode && this.artistAccepted) res.push("active");
 		return res;
 	}
+	public get artistAccepted():boolean { return this.$store.state.twitchExpertMode.indexOf("artist") > -1; }
 
 	public get obsMode():boolean {
 		return Utils.getRouteMetaValue(this.$route, "obsMode") === true;
@@ -112,21 +114,22 @@ export default class TwitchGameStatus extends Vue {
 
 	.title {
 		text-align: center;
-		margin-bottom: 10px;
+		margin-bottom: .55em;
 
 		.expertMode {
 			background-color: @mainColor_warn;
 			color: white;
 			font-weight: bold;
-			padding: 5px;
-			border-radius: 7px;
+			padding: .3em;
+			border-radius: .5em;
 			width: min-content;
 			margin: auto;
+			margin-top: .4em;
 			.head {
 				white-space: nowrap;
-				font-size: 24px;
+				font-size: 1.5em;
 				img {
-					height: 18px;
+					height: .7em;
 					vertical-align: middle;
 				}
 			}
@@ -135,8 +138,8 @@ export default class TwitchGameStatus extends Vue {
 				color: @mainColor_alert;
 				&::before {
 					content: "";
-					width: 16px;
-					height: 13px;
+					width: .75em;
+					height: .65em;
 					display: inline-block;
 					margin-right: 5px;
 					background-position: right center;
@@ -146,8 +149,8 @@ export default class TwitchGameStatus extends Vue {
 				&.active {
 					color: white;
 					&::before {
-						width: 16px;
-						height: 16px;
+						width: .75em;
+						height: .75em;
 						background-image: url("../../assets/icons/checkmark_white.svg");
 					}
 				}
@@ -156,13 +159,13 @@ export default class TwitchGameStatus extends Vue {
 	}
 
 	.logo {
-		height: 100px;
+		height: 7em;
 	}
 
 	.joinBt {
 		background-color: @mainColor_warn!important;
-		padding: 10px !important;
-		border-radius: 13px;
+		padding: .8em !important;
+		border-radius: 1em;
 
 		&:hover {
 			background-color: @mainColor_warn!important;
@@ -171,16 +174,16 @@ export default class TwitchGameStatus extends Vue {
 
 	.playlistsHolder {
 		background-color: @mainColor_normal!important;
-		padding: 10px;
-		border-radius: 13px;
+		padding: .8em;
+		border-radius: 1em;
 		margin-top: 10px;
 		max-width: 80vw;
 		.playlistsTitle {
-			font-size: 20px;
+			font-size: 1.5em;
 			color: #fff;
 			font-weight: bold;
 			font-family: "Futura";
-			margin-bottom: 5px;
+			margin-bottom: .5em;
 		}
 	
 		.playlists {
@@ -195,25 +198,25 @@ export default class TwitchGameStatus extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				padding: 2px 10px 2px 2px;
+				padding: .1em .5em .1em .1em;
 				box-sizing: border-box;
 				width: min-content;
 				white-space: nowrap;
 				max-width: 100%;
-				margin-bottom: 5px;
+				margin-bottom: .5em;
 				&:not(:last-child) {
-					margin-right: 5px;
+					margin-right: .5em;
 				}
 				.label {
 					color: @mainColor_normal;
-					margin-left: 5px;
-					font-size: 14px;
+					margin-left: .3em;
+					font-size: 1em;
 					overflow: hidden;
 					text-overflow: ellipsis;
 				}
 				.cover {
-					width: 25px;
-					height: 25px;
+					width: 2em;
+					height: 2em;
 					border-radius: 50%;
 					object-fit: cover;
 				}

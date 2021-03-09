@@ -47,11 +47,23 @@
 
 			<div class="block params">
 				<GameParams :gamesCount.sync="gamesCount" :gameDuration.sync="gameDuration" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
+					<IncrementForm class="increment" :title="$t('twitch.lobby.zoomLevel')" v-model="zoomLevel" :minValue="1" :maxValue="2" :step=".1" />
 					<!-- <div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
 						<Button type="checkbox" v-model="noBackground" title="Transparent Background" />
 					</div> -->
 					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
+			</div>
+			
+			<div class="obsConfig">
+				<h2>OBS config</h2>
+				<div class="content">
+					<div>Configure this URL in the OBS browser params:</div>
+					<div class="url" ref="url">
+						<div class="text" @click="selectText">{{urlOBS}}</div>
+						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
+					</div>
+				</div>
 			</div>
 		</div>
 		
@@ -90,6 +102,7 @@ export default class TwitchLobby extends Vue {
 	@Prop({default:""})
 	public mode:string;
 
+	public urlOBS:string = null;
 	public selectedPlaylists:PlaylistData[] = null;
 
 	public ready:boolean = false;
@@ -100,6 +113,7 @@ export default class TwitchLobby extends Vue {
 	public gamesCount:number = 10;
 	public tracksCount:number = 4;
 	public gameDuration:number = 120;
+	public zoomLevel:number = 1;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
@@ -135,6 +149,9 @@ export default class TwitchLobby extends Vue {
 			this.$router.push({name:"twitch/auth"});
 			return;
 		}
+		
+		let route = {name:'twitchobs/viewer', params:{twitchLogin:this.$store.state.twitchLogin}};
+		this.urlOBS = document.location.origin+this.$router.resolve(route).href;
 
 		let playlists:PlaylistData[] = this.$store.state.playlistsCache;
 		this.selectedPlaylists = [];
@@ -160,6 +177,7 @@ export default class TwitchLobby extends Vue {
 
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
 		SockController.instance.connect();
+		SockController.instance.keepBroadcastingLastMessage = true;
 		SockController.instance.user = {
 											name:"controler",
 											id:res.user.user_id+"_ctrl",
@@ -248,6 +266,11 @@ export default class TwitchLobby extends Vue {
 		this.broadcastInfosToExtension();
 	}
 
+	@Watch("zoomLevel")
+	public onZoomChange():void {
+		this.broadcastInfosToExtension();
+	}
+
 	/**
 	 * Broadcast current config infos to clients
 	 */
@@ -260,9 +283,9 @@ export default class TwitchLobby extends Vue {
 		let data = {
 			playlists,
 			expert:this.expertMode,
+			zoom:this.zoomLevel,
 		}
 		if(this.mode == "twitchObs") {
-			console.log("OKFDOKFD");
 			let event = {
 				target:this.$store.state.twitchLogin+"_ext",
 				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType:TwitchMessageType.PLAYLISTS, state:data}}
@@ -273,7 +296,21 @@ export default class TwitchLobby extends Vue {
 		}
 	}
 	
+	public copyURL():void {
+		Utils.copyToClipboard(this.urlOBS);
+		gsap.set(this.$refs.url, {filter:"brightness(100%)"})
+		gsap.from(this.$refs.url, {duration:.5, filter:"brightness(200%)"})
+	}
 
+	public selectText(e:Event):void {
+		let div = <HTMLDivElement>e.target;
+		var selection = window.getSelection();
+		var range = document.createRange();
+		range.selectNodeContents(div);
+		selection.removeAllRanges();
+		selection.addRange(range);
+
+	}
 }
 </script>
 
@@ -283,6 +320,7 @@ export default class TwitchLobby extends Vue {
 		.center();
 		position: absolute;
 	}
+	
 	.playlists {
 		display: flex;
 		flex-direction: column;
@@ -315,6 +353,45 @@ export default class TwitchLobby extends Vue {
 				height: 30px;
 				border-radius: 50%;
 				object-fit: cover;
+			}
+		}
+	}
+
+	.obsConfig {
+		max-width: 300px;
+		margin: auto;
+		box-sizing: border-box;
+		.content {
+			.blockContent();
+			.url {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				margin-top: 10px;
+				margin-bottom: 10px;
+				.text {
+					color: #ffffff;
+					padding: 5px 10px;
+					display: inline-block;
+					border-radius: 20px;
+					background-color: @mainColor_normal;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					width: 200px;
+					&:hover {
+						word-wrap: break-word;
+						overflow: visible;
+						white-space: normal;
+					}
+				}
+				.button {
+					padding: 5px 10px 5px 5px;
+					/deep/ .icon {
+						margin-left: 0px;
+						margin-right: 0px;
+					}
+				}
 			}
 		}
 	}

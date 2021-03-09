@@ -1,7 +1,5 @@
 <template>
 	<div class="twitchviewer">
-		{{section}}
-		{{$store.state.twitchPlaylists}}
 		<TwitchGameStatus v-if="section == 'playlists'" />
 		<TwitchViewerGame v-if="section == 'game'" />
 		<TwitchViewerLeaderboard v-if="section == 'leaderboard'" />

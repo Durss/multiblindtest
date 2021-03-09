@@ -20,9 +20,11 @@ export default class SockController extends EventDispatcher {
 	private _attempts: number;
 	private _groupID : string;
 	private _version : string;
+	private _lastMessage : string;
 	private _connected : boolean = false;
 	private _enabled : boolean = false;
 	private _verbose : boolean = true;
+	private _rebroadcastInterval : any;
 
 	constructor() {
 		super();
@@ -50,6 +52,18 @@ export default class SockController extends EventDispatcher {
 
 	public set groupId(value:string) {
 		this._groupID = value;
+	}
+
+	public set keepBroadcastingLastMessage(value:boolean) {
+		clearInterval(this._rebroadcastInterval);
+		if(value){
+			this._rebroadcastInterval = setInterval(_=> {
+				if(this._verbose) console.log("SC :: rebroadcast last message");
+				if(this._lastMessage) {
+					this._sockjs.send(this._lastMessage);
+				}
+			}, 1000);
+		}
 	}
 
 
@@ -117,7 +131,8 @@ export default class SockController extends EventDispatcher {
 			setTimeout(_=> this.sendMessage(data), 250);
 		}else{
 			if(this._verbose) console.log("SC :: sendMessage : do()")
-			this._sockjs.send(JSON.stringify(data));
+			this._lastMessage = JSON.stringify(data),
+			this._sockjs.send(this._lastMessage);
 		}
 	}
 

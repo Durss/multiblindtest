@@ -16,7 +16,6 @@ import TwitchIntro from '@/views/twitch/common/TwitchIntro.vue';
 import TwitchViewer from '@/views/twitch/extension/viewer/TwitchViewer.vue';
 import TwitchExtension from '@/views/twitch/extension/TwitchExtension.vue';
 import TwitchOBS from '@/views/twitch/obs/TwitchOBS.vue';
-import TwitchOBSGame from '@/views/twitch/obs/TwitchOBSGame.vue';
 import TwitchLobby from '@/views/twitch/TwitchLobby.vue';
 import Vue from 'vue';
 import VueRouter, { Route, RouterMode } from 'vue-router';

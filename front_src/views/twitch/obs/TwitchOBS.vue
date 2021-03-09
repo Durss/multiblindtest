@@ -1,5 +1,5 @@
 <template>
-	<div class="twitchobs">
+	<div class="twitchobs" :style="styles">
 		<BouncingLoader class="loader" :icon="require('@/assets/icons/home_logo.svg')" v-if="!ready" />
 		<router-view name="twitch" class="subView"></router-view>
 	</div>
@@ -24,6 +24,13 @@ export default class TwitchOBS extends Vue {
 	public ready:boolean = false;
 	public gameStarted:boolean = false;
 	public messageHandler:any;
+	public zoom:number = 1;
+
+	public get styles():any {
+		return {
+			fontSize:this.zoom+"em",
+		}
+	}
 
 	public mounted():void {
 		this.ready = true;
@@ -37,17 +44,18 @@ export default class TwitchOBS extends Vue {
 	}
 
 	public onMessage(e:SocketEvent):void {
-		// console.log("SOCKET EVENT");
-		// console.log(e);
-		// console.log(e.data.actionType);
-		// console.log(typeof e.data);
+		console.log("SOCKET EVENT");
+		console.log(e);
+		console.log(e.data.actionType);
+		console.log(typeof e.data);
 		if(typeof e.data != "object") return;
 		
 		switch(e.data.actionType) {
 			case TwitchMessageType.PLAYLISTS:
 				console.log("SET PLAYLISTS");
-				this.$store.dispatch("setTwitchPlaylists", e.data.playlists);
-				this.$store.dispatch("setTwitchExpertMode", e.data.expert);
+				this.zoom = e.data.state.zoom;
+				this.$store.dispatch("setTwitchPlaylists", e.data.state.playlists);
+				this.$store.dispatch("setTwitchExpertMode", e.data.state.expert);
 				this.$store.dispatch("setTwitchGameState", null);
 				this.$store.dispatch("setTwitchLeaderboard", null);
 				this.gameStarted = true;
@@ -71,6 +79,10 @@ export default class TwitchOBS extends Vue {
 			case TwitchMessageType.BROADCASTER_CONTROL:
 				console.log("BROADCASTER_CONTROL");
 				break;
+			case TwitchMessageType.SET_ZOOM_LEVEL:
+				console.log("SET_ZOOM_LEVEL");
+				this.zoom = e.data.zoom
+				break;
 			default:
 				console.error("Received a broadcast message with no \"type\" value");
 				console.log(e.data);
@@ -86,6 +98,31 @@ export default class TwitchOBS extends Vue {
 
 <style scoped lang="less">
 .twitchobs{
-	
+	width: 100vw;
+	height: 100vh;
+	transition: font-size .3s;
+
+	.subView {
+		position: absolute;
+		bottom: 5rem;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+	}
+
+	.loader {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		/deep/ .icon {
+			top: 12px;
+			width: 70px;
+			height: 70px;
+		}
+	}
 }
 </style>
