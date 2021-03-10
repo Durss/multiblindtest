@@ -102,7 +102,8 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 	public toggleResults():void {
 		this.expandResults = !this.expandResults;
-		gsap.to(this.$refs.scrollable, {duration:.5, scrollTo:this.expandResults? 330 : 0, ease:"Quad.easeInOut"});
+		let pageH = (<HTMLDivElement>this.$refs.scrollable).getBoundingClientRect().height;
+		gsap.to(this.$refs.scrollable, {duration:.5, scrollTo:this.expandResults? pageH : 0, ease:"Quad.easeInOut"});
 	}
 
 }
@@ -117,11 +118,11 @@ export default class TwitchViewerLeaderboard extends Vue {
 	}
 
 	.scrollable {
-		height: 330px;
+		height: 20em;
 		overflow: hidden;
 	
 		.page {
-			height: 330px;
+			height: 20em;
 			overflow: auto;
 			box-sizing: border-box;
 		}
@@ -133,31 +134,31 @@ export default class TwitchViewerLeaderboard extends Vue {
 			flex-direction: row;
 			justify-content: stretch;
 			align-items: flex-end;
-			min-width: 500px;
+			min-width: 20em;
 			width: min-content;
 			.user {
 				flex-grow: 1;
 				position: relative;
 				text-align: center;
-				max-width: 300px;
+				max-width: 10em;
 				.name {
 					font-family: "Futura";
-					font-size: 40px;
+					font-size: 2em;
 					word-wrap: break-word;
 					padding-left: 20px;
 					padding-right: 20px;
 				}
 				.score {
 					font-family: "FuturaExtraBold";
-					font-size: 40px;
+					font-size: 2.5em;
 					.exp {
 						font-family: "Futura";
-						font-size: 20px;
+						font-size: .5em;
 						vertical-align: top;
 					}
 				}
 				.background {
-					-webkit-text-stroke: 10px #fff;
+					-webkit-text-stroke: .2em #fff;
 				}
 				.foreground {
 					position: absolute;
@@ -167,31 +168,31 @@ export default class TwitchViewerLeaderboard extends Vue {
 				}
 	
 				.step {
-					margin-top: 20px;
+					margin-top: .5em;
 					width: ~"calc(100% - 1px)";
 					display: flex;
 					justify-content: center;
 					align-items: center;
 					color: #ffffff;
 					font-family: "FuturaExtraBold";
-					font-size: 40px;
+					font-size: 2em;
 				}
 			}
 			.user:nth-child(1) {
 				.step {
-					height: 140px;
+					height: 3em;
 					background-color: @mainColor_normal;
 				}
 			}
 			.user:nth-child(2) {
 				.step {
-					height: 180px;
+					height: 4em;
 					background-color: @mainColor_normal;
 				}
 			}
 			.user:nth-child(3) {
 				.step {
-					height: 100px;
+					height: 2em;
 					background-color: @mainColor_normal;
 				}
 			}
@@ -200,7 +201,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 		.otherPlayers {
 			margin-top: 20px;
 			margin-bottom: 20px;
-			height: 310px;
+			height: calc(20em - 20px);
 			background-color: rgba(255,255,255,1);
 			border-radius: 20px;
 			overflow: hidden;
@@ -218,8 +219,8 @@ export default class TwitchViewerLeaderboard extends Vue {
 					display: flex;
 					flex-direction: row;
 					justify-content: center;
-					margin-bottom: 3px;
-					padding: 2px 5px;
+					margin-bottom: .2em;
+					padding: .2em .5em;
 					border-radius: 20px;
 					box-sizing: border-box;
 					color: @mainColor_dark;
@@ -229,13 +230,12 @@ export default class TwitchViewerLeaderboard extends Vue {
 						flex-grow: 1;
 						text-align: center;
 						font-family: "Futura";
-						font-size: 25px;
+						font-size: 1.25em;
 						margin-right: 10px;
 					}
 					.score {
 						font-family: "Futura";
-						font-size: 30px;
-						margin-right: 10px;
+						font-size: 1.5em;
 						min-width: 40px;
 						text-align:left;
 						font-weight: bold;
@@ -247,11 +247,11 @@ export default class TwitchViewerLeaderboard extends Vue {
 					}
 		
 					.pos {
-						font-size: 20px;
+						font-size: 1em;
 						font-family: "Futura";
 						text-align:left;
 						margin-right: 10px;
-						min-width: 40px;
+						min-width: 2em;
 					}
 				}
 			}
