@@ -215,6 +215,7 @@ export default class VolumeButton extends Vue {
 		.percent {
 			opacity: 1;
 			width: 50px;
+			margin-bottom: 0px;
 		}
 	}
 

@@ -138,7 +138,6 @@ export default class Labels {
 			},
 			twitch: {
 				auth: {
-					continue:"Continue",
 					spotifyConnect:"Connect",
 				},
 				lobby: {
@@ -175,6 +174,13 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"03/10/2021",
+						updates: [
+							"Adding Twitch mode via OBS",
+							"Removing Twitch extension after Twitch refused it :'(",
+						]
+					},
 					{
 						date:"01/27/2021",
 						updates: [
@@ -386,6 +392,22 @@ export default class Labels {
 					},
 				}
 			},
+			twitch: {
+				auth: {
+					spotifyConnect:"Connexion",
+				},
+				lobby: {
+					maxPlayers:"Joueurs max",
+					zoomLevel:"Taille de l'interface",
+				},
+				game: {
+					index:"Manche",
+					results:"Resultats",
+				},
+				viewer: {
+					selectedPlaylists:"Playlist sélectionnée | Playlists sélectionnées"
+				}
+			},
 			game: {
 				hidden: "???",
 				guess: "Faire une proposition :",
@@ -407,6 +429,13 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"10/03/2021",
+						updates: [
+							"Ajout d'un mode twitch via OBS",
+							"Suppression de l'extension Twitch suite à son refus par Twitch :'(",
+						]
+					},
 					{
 						date:"27/01/2021",
 						updates: [
