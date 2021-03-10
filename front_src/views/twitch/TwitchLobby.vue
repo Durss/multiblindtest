@@ -84,6 +84,7 @@ import Api from "@/utils/Api";
 import Utils from "@/utils/Utils";
 import PlaylistData from "@/vo/PlaylistData";
 import SocketEvent from "@/vo/SocketEvent";
+import gsap from "gsap/all";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
