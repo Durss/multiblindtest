@@ -131,8 +131,20 @@ export default class TrackEntry extends Vue {
 			let px = Math.random() * bounds.width - 30;
 			let py = Math.random() * bounds.height - 30;
 			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
-			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
+			gsap.to(s, {opacity:0,
+						rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad",
+						x:px + (Math.random()-Math.random()) * 200,
+						y:py + (Math.random()-Math.random()) * 100,
+						scale:0,
+						duration:1.25});
 		}
+		setTimeout(_=> {
+			//Reset stars to avoid page overflow on small screens
+			for (let i = 0; i < stars.length; i++) {
+				const s = stars[i];
+				gsap.set(s, {opacity:1, x:0, y:0, scale:0});
+			}
+		},1500)
 	}
 
 	public copyJSON():void {
