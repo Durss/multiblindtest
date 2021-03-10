@@ -34,7 +34,6 @@ export default class TwitchOBS extends Vue {
 
 	public mounted():void {
 		this.ready = true;
-		console.log("OK");
 		this.messageHandler = (e:SocketEvent) => this.onMessage(e);
 		SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, this.messageHandler);
 	}
@@ -44,15 +43,11 @@ export default class TwitchOBS extends Vue {
 	}
 
 	public onMessage(e:SocketEvent):void {
-		console.log("SOCKET EVENT");
-		console.log(e);
-		console.log(e.data.actionType);
-		console.log(typeof e.data);
 		if(typeof e.data != "object") return;
 		
 		switch(e.data.actionType) {
 			case TwitchMessageType.PLAYLISTS:
-				console.log("SET PLAYLISTS");
+				// console.log("SET PLAYLISTS");
 				this.zoom = e.data.state.zoom;
 				this.$store.dispatch("setTwitchPlaylists", e.data.state.playlists);
 				this.$store.dispatch("setTwitchExpertMode", e.data.state.expert);
@@ -61,7 +56,7 @@ export default class TwitchOBS extends Vue {
 				this.gameStarted = true;
 				break;
 			case TwitchMessageType.ROUND_STATE:
-				console.log("SET ROUND STATE");
+				// console.log("SET ROUND STATE");
 				this.$store.dispatch("setTwitchPlaylists", null);
 				this.$store.dispatch("setTwitchExpertMode", null);
 				this.$store.dispatch("setTwitchGameState", e.data.state);
@@ -69,7 +64,7 @@ export default class TwitchOBS extends Vue {
 				this.gameStarted = true;
 				break;
 			case TwitchMessageType.LEADERBOARD:
-				console.log("SET LEADERBOARD");
+				// console.log("SET LEADERBOARD");
 				this.$store.dispatch("setTwitchPlaylists", null);
 				this.$store.dispatch("setTwitchExpertMode", null);
 				this.$store.dispatch("setTwitchGameState", null);
@@ -77,11 +72,15 @@ export default class TwitchOBS extends Vue {
 				this.gameStarted = true;
 				break;
 			case TwitchMessageType.BROADCASTER_CONTROL:
-				console.log("BROADCASTER_CONTROL");
+				// console.log("BROADCASTER_CONTROL");
 				break;
 			case TwitchMessageType.SET_ZOOM_LEVEL:
-				console.log("SET_ZOOM_LEVEL");
+				// console.log("SET_ZOOM_LEVEL");
 				this.zoom = e.data.zoom
+				break;
+			case TwitchMessageType.CHANGE_VOLUME:
+				console.log("change volumùe", e.data.volume);
+				this.$store.dispatch("setVolume", e.data.volume);
 				break;
 			default:
 				console.error("Received a broadcast message with no \"type\" value");
