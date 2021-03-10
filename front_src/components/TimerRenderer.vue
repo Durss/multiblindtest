@@ -109,8 +109,8 @@ export default class TimerRenderer extends Vue {
 		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
 		let div = <HTMLDivElement>this.$refs.time;
 		let bounds = div.getBoundingClientRect();
-		let px = ((this.center.x + Math.cos(a) * (this.radius+20) - bounds.width/2).toFixed(1))+"px";
-		let py = ((this.center.y + Math.sin(a) * (this.radius+20) - bounds.height/2).toFixed(1))+"px";
+		let px = ((this.center.x + Math.cos(a) * (this.radius+bounds.width*.25) - bounds.width/2))+"px";
+		let py = ((this.center.y + Math.sin(a) * (this.radius+bounds.height*.25) - bounds.height/2))+"px";
 		div.style.transform = 'translate3d('+px+', '+py+', 0)';
 		return res;
 	}
@@ -138,11 +138,11 @@ export default class TimerRenderer extends Vue {
 		color: #ffffff;
 		background-color: @mainColor_normal;
 		border: 2px solid #ffffff;
-		padding: 10px;
-		border-radius: 50px;
+		padding: .5em;
+		border-radius: 5em;
 		font-family: Futura;
 		font-weight: bold;
-		font-size: 18px;
+		font-size: 1em;
 		z-index: 1;
 		top: 0;
 		left: 0;
