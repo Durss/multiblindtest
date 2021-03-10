@@ -21,6 +21,8 @@
 				/>
 			</div>
 		</div>
+		
+		<VolumeButton horizontal class="volume" v-if="mode == 'twitchObs'" />
 	</div>
 </template>
 
@@ -28,6 +30,7 @@
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from "@/components/Button.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
+import VolumeButton from "@/components/VolumeButton.vue";
 import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
 import IRCClient, { IRCTypes } from "@/twitch/IRCClient";
 import IRCEvent from "@/twitch/IRCevent";
@@ -39,12 +42,13 @@ import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import SocketEvent from "@/vo/SocketEvent";
 import TrackData from "@/vo/TrackData";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
 	components:{
 		Button,
 		TrackEntry,
+		VolumeButton,
 		BouncingLoader,
 	}
 })
@@ -82,6 +86,7 @@ export default class TwitchBroadcasterControls extends Vue {
     public startTime:number = 0;
     public ellapsedTime:number = 0;
     public frameDebounce:number = 0;
+    public volumeChangeDebounce:number = 0;
     public timeLeft:string = "";
     public ircMessageHandler:any;
     public socketMessageHandler:any;
@@ -119,6 +124,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.pickRandomTracks();
 		this.broadcastCurrentState();
 		this.renderFrame();
+		this.onVolumeChange();
 
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
 		SockController.instance.connect();
@@ -428,6 +434,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	 */
 	public nextRound():void {
 		this.roundIndex ++;
+		this.ellapsedTime = 0;
 		this.pickRandomTracks();
 		this.broadcastCurrentState();
 	}
@@ -465,6 +472,18 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.broadcastCurrentState();
 	}
 
+	@Watch("$store.state.volume")
+	public onVolumeChange():void {
+		clearTimeout(this.volumeChangeDebounce);
+		this.volumeChangeDebounce = setTimeout(_=> {
+			let event = {
+				target:this.$store.state.twitchLogin+"_ext",
+				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType:TwitchMessageType.CHANGE_VOLUME, volume:this.$store.state.volume}}
+			};
+			SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});
+		}, 100)
+	}
+
 }
 </script>
 
@@ -490,6 +509,11 @@ export default class TwitchBroadcasterControls extends Vue {
 		font-size: 30px;
 		font-family: "Futura";
 		font-weight: bold;
+	}
+
+	.volume {
+		margin: auto;
+		margin-top: 50px;
 	}
 }
 </style>
