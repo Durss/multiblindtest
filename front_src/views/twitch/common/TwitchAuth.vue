@@ -50,10 +50,10 @@
 				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/twitch.svg')" title="Play with Twitch extension">
 					<div class="twitchExt">
 						<p>A twitch extension has been developped but Twitch won't validate it because of DMCA issues, sorry :(</p>
-						<div>Install the <strong>Twitch Extension</strong> and start a game:</div>
+						<!-- <div>Install the <strong>Twitch Extension</strong> and start a game:</div>
 						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
 						<router-link :to="{name:'twitch'}" class="getAccess">- get access -</router-link>
-						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" />
+						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" /> -->
 					</div>
 				</ToggleBlock>
 
