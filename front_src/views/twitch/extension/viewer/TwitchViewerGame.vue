@@ -202,6 +202,13 @@ export default class TwitchViewerGame extends Vue {
 		this.currentRound = state.round;
 		this.duration = state.duration;
 		this.gameComplete = state.gameComplete;
+		// this.timerPercent = state.ellapsedDuration / this.duration;
+		if(!this.countDownComplete) {
+			this.timeOffset = Date.now() - state.ellapsedDuration;
+			if(state.ellapsedDuration > 0) {
+				this.countDownComplete = true;
+			}
+		}
 
 		let prevEnableStates = this.tracks? this.tracks.map(t=>t.enabled) : null;
 

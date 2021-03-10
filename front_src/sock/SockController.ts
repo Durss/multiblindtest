@@ -23,7 +23,7 @@ export default class SockController extends EventDispatcher {
 	private _lastMessage : string;
 	private _connected : boolean = false;
 	private _enabled : boolean = false;
-	private _verbose : boolean = true;
+	private _verbose : boolean = false;
 	private _rebroadcastInterval : any;
 
 	constructor() {

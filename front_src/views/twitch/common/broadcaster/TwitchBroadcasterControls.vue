@@ -80,6 +80,8 @@ export default class TwitchBroadcasterControls extends Vue {
     public scoreHistory:ScoreHistory[] = [];
     public players:IRCTypes.Tag[] = [];
     public startTime:number = 0;
+    public ellapsedTime:number = 0;
+    public frameDebounce:number = 0;
     public timeLeft:string = "";
     public ircMessageHandler:any;
     public socketMessageHandler:any;
@@ -102,7 +104,6 @@ export default class TwitchBroadcasterControls extends Vue {
 			this.ready = true;
 		}
 
-		SockController.instance.keepBroadcastingLastMessage = true;
 		this.ircMessageHandler = (e:IRCEvent) => this.onIrcMessage(e);
 		IRCClient.instance.addEventListener(IRCEvent.MESSAGE, this.ircMessageHandler);
 
@@ -121,6 +122,7 @@ export default class TwitchBroadcasterControls extends Vue {
 
 		let res = await Api.post("twitch/user", {token:IRCClient.instance.token});
 		SockController.instance.connect();
+		SockController.instance.keepBroadcastingLastMessage = true;
 		SockController.instance.user = {
 											name:"controler",
 											id:res.user.user_id+"_ctrl",
@@ -156,12 +158,22 @@ export default class TwitchBroadcasterControls extends Vue {
 		}
 
 		let seconds = this.gameDuration_num*1000 - (Date.now() - this.startTime);
-		seconds = Math.min((this.gameDuration_num-1)*1000, seconds);
-		let d = new Date(seconds+1000);
+		seconds = Math.min((this.gameDuration_num-1)*1000, seconds) + 1000;
+		this.ellapsedTime = this.gameDuration_num*1000 - seconds;
+		let d = new Date(seconds);
 		this.timeLeft = Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds());
 
 		if(seconds<=0) {
 			this.endRound();
+		}
+		
+		if(this.mode == "twitchObs") {
+			this.frameDebounce ++;
+			if(this.frameDebounce > 60*5) {
+				this.frameDebounce = 0;
+				//This allows to update the currently ellapsed duration to extension
+				this.broadcastCurrentState();
+			}
 		}
 	}
 
@@ -346,6 +358,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		data.round = this.roundIndex;
 		data.games = this.gamesCount_num;
 		data.duration = this.gameDuration_num;
+		data.ellapsedDuration = this.ellapsedTime;
 		data.roundComplete = this.roundComplete;
 		data.gameComplete = this.gameComplete;
 		if(!this.showResults) {
