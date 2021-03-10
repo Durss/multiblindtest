@@ -31,6 +31,9 @@ export default class VolumeButton extends Vue {
 	@Prop({default:false})
 	public twitchMode:boolean;
 
+	@Prop({default:false})
+	public horizontal:boolean;
+
 	public expand:boolean = false;
 	public dragging:boolean = false;
 	public isMouseOver:boolean = false;
@@ -48,6 +51,7 @@ export default class VolumeButton extends Vue {
 		let res = ["volumebutton"];
 		if(this.expand) res.push("expand");
 		if(this.twitchMode !== false) res.push("twitchMode");
+		if(this.horizontal !== false) res.push("horizontal");
 		return res;
 	}
 
@@ -108,8 +112,13 @@ export default class VolumeButton extends Vue {
 		if(!this.dragging) return;
 		let arrow = <SVGElement>this.$refs.arrow;
 		let bounds = arrow.getBoundingClientRect();
-		let mouseY = e instanceof MouseEvent? (<MouseEvent>e).clientY : (<TouchEvent>e).touches[0].clientY;
-		this.volume = Math.min(1, Math.max(0, 1-(mouseY - bounds.top)/bounds.height));
+		if(this.horizontal !== false) {
+			let mouseX = e instanceof MouseEvent? (<MouseEvent>e).clientX : (<TouchEvent>e).touches[0].clientX;
+			this.volume = Math.min(1, Math.max(0, (mouseX - bounds.left)/bounds.width));
+		}else{
+			let mouseY = e instanceof MouseEvent? (<MouseEvent>e).clientY : (<TouchEvent>e).touches[0].clientY;
+			this.volume = Math.min(1, Math.max(0, 1-(mouseY - bounds.top)/bounds.height));
+		}
 	}
 
 	@Watch("isMouseOver")
@@ -169,6 +178,43 @@ export default class VolumeButton extends Vue {
 		.content {
 			width: 100%;
 			height: 120px;
+		}
+	}
+
+	&.horizontal {
+		position: relative;
+		top: 50%;
+		right: auto;
+		left: 0;
+		transform: translate(0, -50%);
+		width: 220px;
+		height: 40px;
+		border-radius: 20px;
+		padding: 0;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		.icon {
+			width:20px;
+			height:25px;
+			padding: 0px;
+		}
+
+		&.expand {
+			height: 40px;
+		}
+		.content {
+			transform: rotate(90deg) translate(0, 0%);
+			width: 120px;
+			height: 120px;
+			margin: 0;
+			padding: 0;
+			opacity: 1;
+		}
+		.percent {
+			opacity: 1;
+			width: 50px;
 		}
 	}
 
