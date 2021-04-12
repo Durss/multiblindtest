@@ -274,7 +274,6 @@ export default class GroupGame extends Vue {
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;
-		console.log(toPlay);
 
 		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay});
 	}

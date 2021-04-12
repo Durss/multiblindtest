@@ -150,6 +150,7 @@ export default class Labels {
 				game: {
 					index:"Round",
 					results:"Results",
+					confirmChat:"Congrats @{USER} you guessed SingsNote {TITLE} by SingsMic {ARTIST}",
 				},
 				viewer: {
 					selectedPlaylists:"Selected playlist | Selected playlists"
@@ -177,6 +178,14 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"04/13/2021",
+						updates: [
+							"Adding possibility to accept album's names",
+							"Slightly enhanced answers check",
+							"New options for twitch to confirm good guesses with a chat message",
+						]
+					},
 					{
 						date:"03/10/2021",
 						updates: [
@@ -409,6 +418,7 @@ export default class Labels {
 				game: {
 					index:"Manche",
 					results:"Resultats",
+					confirmChat:"Bravo @{USER} tu as trouvé SingsNote {TITLE} par SingsMic {ARTIST}",
 				},
 				viewer: {
 					selectedPlaylists:"Playlist sélectionnée | Playlists sélectionnées"
@@ -435,6 +445,14 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"13/04/2021",
+						updates: [
+							"Ajout de la possibilité d'accepter le nom des albums",
+							"Légère amélioration de la validation des réponses",
+							"Ajout d'une nouvelle option twitch pour confirmer directement dans le chat lorsque quelqu'un trouve une bonne réponse",
+						]
+					},
 					{
 						date:"10/03/2021",
 						updates: [

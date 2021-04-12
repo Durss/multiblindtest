@@ -290,7 +290,7 @@ export default class TrackEntry extends Vue {
 		}
 		.title {
 			.icon {
-				height: 15px;
+				height: 22px;
 			}
 		}
 		.artist {
@@ -301,7 +301,7 @@ export default class TrackEntry extends Vue {
 		}
 		*> {
 			.icon {
-				height: 17px;
+				height: 30px;
 				margin-right: 7px;
 				vertical-align: bottom;
 			}

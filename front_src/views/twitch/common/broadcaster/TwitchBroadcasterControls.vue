@@ -314,13 +314,13 @@ export default class TwitchBroadcasterControls extends Vue {
 	 * Check if it matches the answer
 	 */
 	public guessTrack(value:string, user:IRCTypes.Tag):any {
+		if(user["message-type"] != "chat") return;//Ignore messages that are not simple chats
 		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
 		let acceptAlbum = this.acceptAlbum == "1";
 		let chatConfirm = this.chatConfirm == "1";
 		value = value.toLowerCase();
 		let newState = false;
-		
 		for (let i = 0; i < this.currentTracks.length; i++) {
 			let t = this.currentTracks[i];
 			if(!t.enabled
@@ -352,9 +352,14 @@ export default class TwitchBroadcasterControls extends Vue {
 
 				newState = true;
 				if(chatConfirm) {
-					IRCClient.instance.sendMessage("Bravo @"+user.username+" tu as trouvé SingsNote "+t.name+" par SingsMic "+t.artist);
+					let message = this.$t("twitch.game.confirmChat", {
+						USER:user.username,
+						TITLE:t.name,
+						ARTIST:t.artist,
+					}).toString();
+					IRCClient.instance.sendMessage(message);
 				}
-				
+
 				break;
 			}
 		}

@@ -350,7 +350,6 @@ export default class HTTPServer {
 				return;
 			}
 
-			console.log("Kick", userId)
 			for (let i = 0; i < room.users.length; i++) {
 				const u = room.users[i];
 				if(u.id == userId) {
