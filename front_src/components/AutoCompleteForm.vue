@@ -121,6 +121,7 @@ export default class AutoCompleteForm extends Vue {
 							id: t.id,
 							name: t.name,
 							artist: t.artists[0].name,
+							album: t.album?.name,
 							audioPath: t.preview_url,
 							picture:t.album.images && t.album.images.length > 0? t.album.images[0].url : null,
 							isPlaying:false,
