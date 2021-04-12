@@ -61,6 +61,7 @@ export default class SearchPlaylistForm extends Vue {
 							enabled:false,
 							name:track.name,
 							artist:track.artists[0].name,
+							album:track.album?.name,
 							audioPath:track.preview_url,
 						};
 						tracksWithPreview.push(trackInfos);

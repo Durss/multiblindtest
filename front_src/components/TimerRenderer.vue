@@ -146,7 +146,7 @@ export default class TimerRenderer extends Vue {
 		z-index: 1;
 		top: 0;
 		left: 0;
-		transition: background-color 1s, transform 0.001s linear;//Force text to render at a subpixel level
+		will-change: transform;
 	}
 }
 </style>

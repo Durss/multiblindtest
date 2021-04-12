@@ -46,11 +46,13 @@
 			</div> -->
 
 			<div class="block params">
-				<GameParams :gamesCount.sync="gamesCount" :gameDuration.sync="gameDuration" :tracksCount.sync="tracksCount" :expertMode.sync="expertMode">
-					<IncrementForm class="increment" :title="$t('twitch.lobby.zoomLevel')" v-model="zoomLevel" :minValue="1" :maxValue="2" :step=".1" />
-					<!-- <div class="noBg" v-if="mode=='twitchObs'" data-tooltip="If enabled the background will be set as transparent so you can use it as an overlay on a stream app like OBS">
-						<Button type="checkbox" v-model="noBackground" title="Transparent Background" />
-					</div> -->
+				<GameParams
+				:gamesCount.sync="gamesCount"
+				:gameDuration.sync="gameDuration"
+				:acceptAlbum.sync="acceptAlbum"
+				:tracksCount.sync="tracksCount"
+				:expertMode.sync="expertMode">
+					<IncrementForm class="increment" :title="$t('twitch.lobby.zoomLevel')" v-model="zoomLevel" :minValue=".5" :maxValue="3" :step=".1" />
 					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
 			</div>
@@ -108,13 +110,13 @@ export default class TwitchLobby extends Vue {
 
 	public ready:boolean = false;
 	public disposed:boolean = false;
-	public noBackground:boolean = false;
 	public sendingToChat:boolean = false;
 	public maxPlayers:number = 100;
 	public gamesCount:number = 10;
 	public tracksCount:number = 4;
-	public gameDuration:number = 120;
-	public zoomLevel:number = 1;
+	public gameDuration:number = 60;
+	public acceptAlbum:boolean = false;
+	public zoomLevel:number = 1.7;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
@@ -168,8 +170,6 @@ export default class TwitchLobby extends Vue {
 			if(a.name < b.name) return -1;
 			return 0;
 		});
-
-		this.noBackground = this.$store.state.hideBackground === true;
 
 		this.broadcastInfosToExtension();
 
@@ -248,6 +248,7 @@ export default class TwitchLobby extends Vue {
 			tracksCount:this.tracksCount.toString(),
 			gamesCount:this.gamesCount.toString(),
 			gameDuration:this.gameDuration.toString(),
+			acceptAlbum:this.acceptAlbum? 1 : 0,
 			mode:this.mode,
 		}
 		if(this.expertMode && this.expertMode.length > 0) {
@@ -255,11 +256,6 @@ export default class TwitchLobby extends Vue {
 		}
 		
 		this.$router.push({name:"twitch/controls", params});
-	}
-
-	@Watch("noBackground")
-	public onBgChange():void {
-		this.$store.dispatch("setHideBackground", this.noBackground);
 	}
 
 	@Watch("expertMode")

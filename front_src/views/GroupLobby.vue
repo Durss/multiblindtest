@@ -53,6 +53,7 @@
 				:gamesCount.sync="gamesCount"
 				:gameDuration.sync="gameDuration"
 				:tracksCount.sync="tracksCount"
+				:acceptAlbum.sync="acceptAlbum"
 				:expertMode.sync="expertMode">
 			</GameParams>
 
@@ -74,7 +75,6 @@
 <script lang="ts">
 import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import Api from '../utils/Api';
-import Utils from '../utils/Utils';
 import RoomData from '../vo/RoomData';
 import Button from '../components/Button.vue';
 import UserData from '../vo/UserData';
@@ -105,7 +105,8 @@ export default class GroupLobby extends Vue {
 
 	public gamesCount:number = 5;
 	public tracksCount:number = 4;
-	public gameDuration:number = 120;
+	public gameDuration:number = 60;
+	public acceptAlbum:boolean = false;
 	public expertMode:string[] = null;
 	public showCopied:boolean = false;
 	public loading:boolean = true;
@@ -308,6 +309,7 @@ export default class GroupLobby extends Vue {
 		this.room.tracksCount = this.tracksCount;
 		this.room.gamesCount = this.gamesCount;
 		this.room.gameDuration = this.gameDuration;
+		this.room.acceptAlbum = this.acceptAlbum;
 		this.room.expertMode = this.expertMode;
 		Api.post("group/update", {room:this.room});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});

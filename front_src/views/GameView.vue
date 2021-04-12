@@ -15,6 +15,7 @@
 						:scoreHistory="scoreHistory"
 						:forceReveal="forceReveal"
 						:canReplay="(forceReveal && multiplayerMode) || !multiplayerMode"
+						:acceptAlbum="acceptAlbum"
 						class="track"
 						ref="track"
 						@play="playTrack"
@@ -121,6 +122,9 @@ export default class GameView extends Vue {
 
 	@Prop({default:false})
 	public forceReveal:boolean;
+
+	@Prop({default:false})
+	public acceptAlbum:boolean;
 
 	@Prop({default:null})
 	public rawTracksData:TrackData[];
@@ -294,6 +298,7 @@ export default class GameView extends Vue {
 				enabled:false,
 				name:track.name,
 				artist:track.artists[0].name,
+				album:track.album?.name,
 				audioPath:track.preview_url,
 			});
 		}
@@ -390,6 +395,7 @@ export default class GameView extends Vue {
 			if(!t.enabled
 			&& (
 				(acceptTitle && AnswerTester.instance.test(value, t.name, this.expertMode != null)) ||
+				(this.acceptAlbum && AnswerTester.instance.test(value, t.album, this.expertMode != null)) ||
 				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null))
 			)
 			) {

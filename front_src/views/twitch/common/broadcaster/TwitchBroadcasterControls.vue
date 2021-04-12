@@ -17,6 +17,7 @@
 					:data="t"
 					:canReplay="false"
 					:burstStars="true"
+					:acceptAlbum="acceptAlbum"
 					:scoreHistory="scoreHistory"
 				/>
 			</div>
@@ -68,6 +69,9 @@ export default class TwitchBroadcasterControls extends Vue {
 
 	@Prop({default:""})
 	public expertMode:string;
+
+	@Prop({default:""})
+	public acceptAlbum:string;
 
 	@Prop({default:""})
 	public mode:string;
@@ -309,6 +313,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	public guessTrack(value:string, user:IRCTypes.Tag):any {
 		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
+		let acceptAlbum = this.acceptAlbum == "1";
 		value = value.toLowerCase();
 		let newState = false;
 		
@@ -317,7 +322,8 @@ export default class TwitchBroadcasterControls extends Vue {
 			if(!t.enabled
 			&& (
 				(acceptTitle && AnswerTester.instance.test(value, t.name, this.expertMode != null)) ||
-				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null))
+				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null)) ||
+				(acceptAlbum && AnswerTester.instance.test(value, t.name, this.expertMode != null))
 			)
 			) {
 				t.enabled = true;

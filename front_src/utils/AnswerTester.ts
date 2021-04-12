@@ -6,7 +6,7 @@ export default class AnswerTester {
 	
 	private static _instance:AnswerTester;
 
-	private logsEnabled:boolean = false;
+	private verbose:boolean = false;
 	
 	constructor() {
 		this.initialize();
@@ -38,10 +38,10 @@ export default class AnswerTester {
 		this.checkTest("showbiz", "Showbiz (the battle)", true);
 		this.checkTest("papa", "Papa pingouin", false);
 		this.checkTest("pingouin", "Papa pingouin", true);
-		this.checkTest("franky vinc", "Francky Vincent", false);
+		this.checkTest("franky vinc", "Francky Vincent", true);
 		this.checkTest("franky vincen", "Francky Vincent", true);
 		this.checkTest("freedom", "Freedom! '90", true);
-		this.checkTest("wassup", "What's Up?", true);
+		this.checkTest("wassup", "What's Up?", false);
 		this.checkTest("lambé", "Lambé An Dro", true);
 		this.checkTest("redhot hcilli pappers", "Red Hot Chili Peppers", true);
 		this.checkTest("walk on the", "Walk On the Wild Side", true);
@@ -56,12 +56,17 @@ export default class AnswerTester {
 		this.checkTest("céliendion", "Céline Dion", true);
 		this.checkTest("Sabaton", "jackson", false);
 		this.checkTest("....", "Eminem", false);
+		this.checkTest("kick ass", "Stand Up - Kick Ass film score version", true);
+		this.checkTest("A nous", "À nous - extrait de \"Robin des Bois\"", true);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
 
 	/**
 	 * Search within a collection of track via Fuse.js search engine
+	 * This is just a test for a new way of matching results
+	 * It's not used in game as it's not so good in its current state
+	 * but i keep it just in case.
 	 */
 	public testFuse(tracksList:TrackData[], userAnswer:string):TrackData {
 		let minAnswer = 999999;
@@ -123,31 +128,38 @@ export default class AnswerTester {
 		let costs = {insert:null, remove:.5, substitute:.5, transpose:0};
 		// console.log(Utils.levenshtein(cleanUserAnswer, cleanAnswer), Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs), cleanAnswer)
 		let res1 = Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs) < cleanAnswer.length * tolerence;
-		if(this.logsEnabled) {
+		if(this.verbose) {
 			console.log("%cLevenstein :", "font-size:16px;color:blue;font-weight:bold"+(res1? ";color:green" : ";color:red"), cleanUserAnswer + " VS " + cleanAnswer, Utils.levenshteinDamerau(cleanUserAnswer, cleanAnswer, costs), "/", (cleanAnswer.length * tolerence).toFixed(1));
 		}
 
 		//check for exact occurence in answer to be able to write a shortened version of the answer.
 		let res2 = (userAnswer.length >= expectedAnswer.length * .5) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
-		if(this.logsEnabled) {
+		if(this.verbose) {
 			console.log("%cShort answer :", "font-size:16px;color:blue;font-weight:bold"+(res2? ";color:green" : ";color:red"), res2);
 		}
 
-		//check for one specific word longer than 5 chars
+		//check for one specific word longer than 5 chars (might be too permissive...)
 		let res3 = (userAnswer.length >= 5 || cleanUserAnswer.length >= cleanAnswer.length * .5) && chunks.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
-		if(this.logsEnabled) {
+		if(this.verbose) {
 			console.log("%cExact word :", "font-size:16px;color:blue;font-weight:bold"+(res3? ";color:green" : ";color:red"), res3);
 		}
 
-		//If answer is longer than 8 chars, check its exact match (workaround stupidly long titles with useless informations on it)
+		//If answer is longer than 8 chars, check its exact match (this is a workaround for stupidly long titles with useless informations on it)
 		let res4 = (userAnswer.length >= 9) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
-		if(this.logsEnabled) {
+		if(this.verbose) {
 			console.log("%cExact word long :", "font-size:16px;color:blue;font-weight:bold"+(res4? ";color:green" : ";color:red"), res4, userAnswer, cleanAnswer.indexOf(cleanUserAnswer));
 		}
+
+		//check for one specific word longer than 5 chars (might be too permissive...)
+		let res5 = (cleanUserAnswer.split(" ").length > 1 && cleanAnswer.indexOf(cleanUserAnswer) > -1);
+		// console.log(cleanUserAnswer.split(" "), cleanAnswer.indexOf(cleanUserAnswer));
+		if(this.verbose) {
+			console.log("%cExact word group :", "font-size:16px;color:blue;font-weight:bold"+(res5? ";color:green" : ";color:red"), res5);
+		}
 		
-		if(this.logsEnabled) console.log("");
+		if(this.verbose) console.log("");
 		
-		return res1 || res2 || res3 || res4;
+		return res1 || res2 || res3 || res4 || res5;
 	}
 	
 	
@@ -169,6 +181,6 @@ export default class AnswerTester {
 	}
 
 	private cleanup(str:string):string {
-		return Utils.removeDiacritics(str).toLowerCase().replace(/[^A-z0-9]/gi, "");
+		return Utils.removeDiacritics(str).toLowerCase().replace(/[^A-z0-9 ]/gi, "").replace(/\s{2,}/gi, " ");
 	}
 }

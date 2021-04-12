@@ -37,10 +37,10 @@ export default new Vuex.Store({
 		hideBackground:null,//for OBS
 
 		confirm:{
-		  title:null,
-		  description:null,
-		  confirmCallback:null,
-		  cancelCallback:null,
+			title:null,
+			description:null,
+			confirmCallback:null,
+			cancelCallback:null,
 		},
 	},
 

@@ -17,7 +17,7 @@
 				@touchend.native="stopIncrement($event);"
 				class="button"
 			/>
-			<input type="number" v-model="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
+			<input type="number" v-model.lazy="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
 			<Button :icon="require('@/assets/icons/plus.svg')"
 				@mousedown.native="startIncrement(step);"
 				@mouseup.native="stopIncrement($event);"

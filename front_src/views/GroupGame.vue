@@ -20,6 +20,7 @@
 				:forceReveal="fullMe.pass || roundComplete"
 				:pause="pause"
 				:canGuess="!gaveUp"
+				:acceptAlbum="room.acceptAlbum"
 				@guessed="onTrackFound"
 				ref="game"
 				class="game"
@@ -95,6 +96,7 @@ import CountDown from '../components/CountDown.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import ChatWindow from '../components/ChatWindow.vue';
 import TimerRenderer from "@/components/TimerRenderer.vue";
+import PlaylistData from "@/vo/PlaylistData";
 
 @Component({
 	components:{
@@ -230,7 +232,7 @@ export default class GroupGame extends Vue {
 		this.loading = true;
 		let playlistIds = this.room.playlists.map(p => p.id);
 		let playlists = this.$store.state.playlistsCache;
-		let selectedPlaylists = [];
+		let selectedPlaylists:PlaylistData[] = [];
 		for (let i = 0; i < playlists.length; i++) {
 			const p = playlists[i];
 			if(playlistIds.indexOf(p.id) > -1) {
@@ -272,6 +274,7 @@ export default class GroupGame extends Vue {
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;
+		console.log(toPlay);
 
 		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay});
 	}
@@ -323,7 +326,7 @@ export default class GroupGame extends Vue {
 	/**
 	 * Called when finding a track
 	 */
-	private onTrackFound(track:TrackData):void {
+	public onTrackFound(track:TrackData):void {
 		Api.post("group/guessed", {roomId:this.room.id, user:this.me.id, trackId:track.id});
 	}
 

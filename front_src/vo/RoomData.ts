@@ -12,6 +12,7 @@ export default interface RoomData {
     gamesCount:number;
     gameDuration:number;
     gameStepIndex:number;
+    acceptAlbum:boolean;
     currentTracks?:TrackData[];
     expertMode:string[];
     scoreHistory:ScoreHistory[];

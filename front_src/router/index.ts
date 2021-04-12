@@ -219,7 +219,7 @@ const routes = [
 		component: TwitchLobby
 	},
 	{
-		path: '/twitch/controls/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:expertMode?',
+		path: '/twitch/controls/:mode/:playlistids/:tracksCount/:gamesCount/:gameDuration/:acceptAlbum/:expertMode?',
 		name: 'twitch/controls',
 		props:true,
 		meta: {

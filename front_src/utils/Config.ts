@@ -7,7 +7,7 @@ export default class Config {
 	private static _ENV_NAME: EnvName;
 
 	public static MAX_TRACK_COUNT:number = 6;
-	public static STORAGE_VERSION:number = 1;
+	public static STORAGE_VERSION:number = 2;
 	public static TWITCH_EXT_URL:string = "https://dashboard.twitch.tv/extensions/u4auavhba5b6brrtvjyjeqzhyz841b-1.0.0";
 
 	public static init():void {

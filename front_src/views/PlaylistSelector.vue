@@ -14,7 +14,7 @@
 					v-if="loadedFromCache"
 					class="reload"
 					:icon="require('@/assets/icons/refresh.svg')"
-					@click="load()"
+					@click="loadPlaylists()"
 				/>
 			</div>
 
@@ -135,7 +135,7 @@ export default class PlaylistSelector extends Vue {
 			this.playlists = this.$store.state.playlistsCache;
 			this.loadedFromCache = true;
 		}else{
-			this.load();
+			this.loadPlaylists();
 		}
 	}
 
@@ -146,7 +146,7 @@ export default class PlaylistSelector extends Vue {
 	/**
 	 * Loads playlists, covers and tracks from spotify
 	 */
-	public async load(offset:number = 0):Promise<void> {
+	public async loadPlaylists(offset:number = 0):Promise<void> {
 		if(offset==0) {
 			this.playlists = [];
 			this.selectedPlaylists = [];
@@ -176,6 +176,7 @@ export default class PlaylistSelector extends Vue {
 							enabled:false,
 							name:track.name,
 							artist:track.artists[0].name,
+							album:track.album?.name,
 							audioPath:track.preview_url,
 						};
 						tracksWithPreview.push(trackInfos);
@@ -197,7 +198,7 @@ export default class PlaylistSelector extends Vue {
 
 		if(json.next) {
 			//Load next page
-			this.load(offset+1);
+			this.loadPlaylists(offset+1);
 		}else{
 			this.loading = false;
 			// this.$store.dispatch("playlistsCache", this.playlists);

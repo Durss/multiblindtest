@@ -7,8 +7,18 @@
 		</div>
 		
 		<div v-if="reveal" class="trackInfos">
-			<div class="artist">{{data.artist}}</div>
-			<div class="name">{{data.name}}</div>
+			<div class="album" v-if="acceptAlbum">
+				<img src="@/assets/icons/playlist.svg" class="icon" alt="album">
+				<span>{{data.album}}</span>
+			</div>
+			<div class="artist">
+				<img src="@/assets/icons/user_white.svg" class="icon" alt="artist">
+				<span>{{data.artist}}</span>
+			</div>
+			<div class="title">
+				<img src="@/assets/icons/music.svg" class="icon" alt="title">
+				<span>{{data.name}}</span>
+			</div>
 		</div>
 		
 		<div v-if="data.loadFail" class="trackInfos">
@@ -67,6 +77,9 @@ export default class TrackEntry extends Vue {
 
 	@Prop({default:false})
 	public burstStars:boolean;
+
+	@Prop({default:false})
+	public acceptAlbum:boolean;
 	
 	public playing:boolean = false;
 	public showJSONBt:boolean = false;
@@ -232,11 +245,14 @@ export default class TrackEntry extends Vue {
 
 		.trackInfos {
 			font-size: 1em;
-			.name {
+			.title {
 				font-size: .8em;
 			}
 			.artist {
-				margin-bottom: .1em;
+				margin-bottom: .3em;
+			}
+			.album {
+				margin-bottom: .3em;
 			}
 		}
 
@@ -271,6 +287,24 @@ export default class TrackEntry extends Vue {
 		.artist {
 			font-weight: bold;
 			margin-bottom: .25em;
+		}
+		.title {
+			.icon {
+				height: 15px;
+			}
+		}
+		.artist {
+			margin-bottom: .3em;
+		}
+		.album {
+			margin-bottom: .3em;
+		}
+		*> {
+			.icon {
+				height: 17px;
+				margin-right: 7px;
+				vertical-align: bottom;
+			}
 		}
 	}
 
