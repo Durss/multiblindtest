@@ -74,6 +74,9 @@ export default class TwitchBroadcasterControls extends Vue {
 	public acceptAlbum:string;
 
 	@Prop({default:""})
+	public chatConfirm:string;
+
+	@Prop({default:""})
 	public mode:string;
 
 	public loading:boolean = true;
@@ -314,6 +317,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
 		let acceptAlbum = this.acceptAlbum == "1";
+		let chatConfirm = this.chatConfirm == "1";
 		value = value.toLowerCase();
 		let newState = false;
 		
@@ -347,6 +351,10 @@ export default class TwitchBroadcasterControls extends Vue {
 				};
 
 				newState = true;
+				if(chatConfirm) {
+					IRCClient.instance.sendMessage("Bravo @"+user.username+" tu as trouvé SingsNote "+t.name+" par SingsMic "+t.artist);
+				}
+				
 				break;
 			}
 		}

@@ -53,6 +53,7 @@
 				:tracksCount.sync="tracksCount"
 				:expertMode.sync="expertMode">
 					<IncrementForm class="increment" :title="$t('twitch.lobby.zoomLevel')" v-model="zoomLevel" :minValue=".5" :maxValue="3" :step=".1" />
+					<Button type="checkbox" v-model="chatConfirm" :title="$t('twitch.lobby.chatConfirm')" :data-tooltip="$t('twitch.lobby.chatConfirmTT')" />
 					<!-- <IncrementForm class="increment" :title="$t('twitch.lobby.maxPlayers')" v-model="maxPlayers" maxValue="200" :tenStep="true" /> -->
 				</GameParams>
 			</div>
@@ -116,6 +117,7 @@ export default class TwitchLobby extends Vue {
 	public tracksCount:number = 4;
 	public gameDuration:number = 60;
 	public acceptAlbum:boolean = false;
+	public chatConfirm:boolean = false;
 	public zoomLevel:number = 1.7;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
@@ -249,6 +251,7 @@ export default class TwitchLobby extends Vue {
 			gamesCount:this.gamesCount.toString(),
 			gameDuration:this.gameDuration.toString(),
 			acceptAlbum:this.acceptAlbum? 1 : 0,
+			chatConfirm:this.chatConfirm? 1 : 0,
 			mode:this.mode,
 		}
 		if(this.expertMode && this.expertMode.length > 0) {

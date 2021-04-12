@@ -144,6 +144,8 @@ export default class Labels {
 				lobby: {
 					maxPlayers:"Max players",
 					zoomLevel:"Interface scale",
+					chatConfirm:"Confirm good guesses on chat",
+					chatConfirmTT:"When someone finds a song a message a message will be sent in the chat with your account's name to alert her/him.<br />This can be usefull to compensate the stream delay issues.",
 				},
 				game: {
 					index:"Round",
@@ -401,6 +403,8 @@ export default class Labels {
 				lobby: {
 					maxPlayers:"Joueurs max",
 					zoomLevel:"Taille de l'interface",
+					chatConfirm:"Confirmer les bonnes réponses<br/>dans le chat",
+					chatConfirmTT:"Lorsque quelqu'un trouve une bonne réponse un message sera automatiquement envoyé en votre nom dans le chat pour la/le prévenir.<br/>Ceci peut-être utile pour palier aux problèmes de latence du stream.",
 				},
 				game: {
 					index:"Manche",

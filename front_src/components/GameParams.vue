@@ -2,10 +2,10 @@
 	<div class="gameparams">
 		<h2>{{$t('group.lobby.params')}}</h2>
 		<div class="content">
-			<slot></slot>
 			<IncrementForm class="increment" :title="$t('group.lobby.gameDuration')" v-model="gameDuration_local" maxValue="900" minValue="10" :tenStep="true"/>
 			<IncrementForm class="increment" :title="$t('group.lobby.gamesCount')" v-model="gamesCount_local" maxValue="99" />
 			<IncrementForm class="increment" :title="$t('group.lobby.tracksCount')" v-model="tracksCount_local" maxValue="6" />
+			<slot></slot>
 			<Button type="checkbox" v-model="acceptAlbum_local" :title="$t('group.lobby.acceptAlbum')" />
 			<ExpertModeForm v-model="expertMode_local" />
 		</div>
