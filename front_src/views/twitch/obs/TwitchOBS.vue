@@ -57,6 +57,7 @@ export default class TwitchOBS extends Vue {
 				break;
 			case TwitchMessageType.ROUND_STATE:
 				// console.log("SET ROUND STATE");
+				this.zoom = e.data.state.zoomLevel;
 				this.$store.dispatch("setTwitchPlaylists", null);
 				this.$store.dispatch("setTwitchExpertMode", null);
 				this.$store.dispatch("setTwitchGameState", e.data.state);

@@ -253,6 +253,7 @@ export default class TwitchLobby extends Vue {
 			acceptAlbum:this.acceptAlbum? 1 : 0,
 			chatConfirm:this.chatConfirm? 1 : 0,
 			mode:this.mode,
+			zoom:this.zoomLevel
 		}
 		if(this.expertMode && this.expertMode.length > 0) {
 			params.expertMode = this.expertMode.join(",");

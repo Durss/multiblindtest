@@ -193,7 +193,11 @@ export default class SocketServer {
 
 
 			}else if(json.action == SOCK_ACTIONS.DEFINE_UID) {
-				Logger.warn("Sock Register", json.data.name, json.data.id);
+				//Avoids spam from twitch extension that broadcasts the last state
+				//every second to make sure people are synced
+				if(json.data.noVerbose !== true) {
+					Logger.warn("Sock Register", json.data.name, json.data.id);
+				}
 				//Associate socket connection to user
 				this._uidToConnection[json.data.id] = conn;
 				this._connectionToUid[conn.id] = json.data.id;
@@ -201,7 +205,11 @@ export default class SocketServer {
 
 
 			}else if(json.action == SOCK_ACTIONS.SEND_TO_UID) {
-				Logger.warn("Send to specific user", json.data.target);
+				//Avoids spam from twitch extension that broadcasts the last state
+				//every second to make sure people are synced
+				if(json.data.noVerbose !== true) {
+					Logger.warn("Send to specific user", json.data.target);
+				}
 				this.sendToUID(json.data.target, json.data.data);
 				return;
 

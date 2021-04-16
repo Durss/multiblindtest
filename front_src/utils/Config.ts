@@ -29,9 +29,10 @@ export default class Config {
 	}
 	
 	public static get SOCKET_PATH():string{
-		if(document.location.href.indexOf("twitch") > -1){
-			return "https://multiblindtest.com/sock";
-		}else if(this.IS_PROD) {
+		// if(document.location.href.indexOf("twitch") > -1){
+		// 	return "https://multiblindtest.com/sock";
+		// }else
+		if(this.IS_PROD) {
 			return "/sock";
 		}else{
 			return window.location.origin.replace(/(.*):[0-9]+/gi, "$1")+":"+this.SERVER_PORT+"/sock";

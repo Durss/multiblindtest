@@ -79,6 +79,9 @@ export default class TwitchBroadcasterControls extends Vue {
 	@Prop({default:""})
 	public mode:string;
 
+	@Prop({default:""})
+	public zoom:string;
+
 	public loading:boolean = true;
 	public ready:boolean = false;
 	public disposed:boolean = false;
@@ -185,7 +188,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			if(this.frameDebounce > 60*5) {
 				this.frameDebounce = 0;
 				//This allows to update the currently ellapsed duration to extension
-				this.broadcastCurrentState();
+				this.broadcastCurrentState(false);
 			}
 		}
 	}
@@ -377,8 +380,10 @@ export default class TwitchBroadcasterControls extends Vue {
 
 	/**
 	 * Broadcast the current state to everyone
+	 * 
+	 * @param verbose defines if a log should be displayed server side
 	 */
-	private broadcastCurrentState():void {
+	private broadcastCurrentState(verbose:boolean = true):void {
 		let data:any = {};
 		data.round = this.roundIndex;
 		data.games = this.gamesCount_num;
@@ -386,6 +391,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		data.ellapsedDuration = this.ellapsedTime;
 		data.roundComplete = this.roundComplete;
 		data.gameComplete = this.gameComplete;
+		data.zoomLevel = parseFloat(this.zoom);
 		if(!this.showResults) {
 			//Game data
 			let tracks = [];
@@ -417,10 +423,12 @@ export default class TwitchBroadcasterControls extends Vue {
 			//Remove players with a 0 score and only keep the nicknames
 			data.history = this.scoreHistory;
 		}
+		
 		let actionType = this.showResults? TwitchMessageType.LEADERBOARD : TwitchMessageType.ROUND_STATE;
 		if(this.mode == "twitchObs") {
 			let event = {
 				target:this.$store.state.twitchLogin+"_ext",
+				noVerbose:!verbose,
 				data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType, state:data}}
 			};
 			SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});

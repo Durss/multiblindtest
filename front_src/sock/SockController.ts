@@ -60,7 +60,9 @@ export default class SockController extends EventDispatcher {
 			this._rebroadcastInterval = setInterval(_=> {
 				if(this._verbose) console.log("SC :: rebroadcast last message");
 				if(this._lastMessage) {
-					this._sockjs.send(this._lastMessage);
+					let mess = JSON.parse(this._lastMessage);
+					mess.noVerbose = true;//Disables server's logs for this event
+					this._sockjs.send(JSON.stringify(this._lastMessage));
 				}
 			}, 1000);
 		}
