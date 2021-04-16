@@ -11,4 +11,5 @@ export default interface TrackData {
 	picture?:string;
 	guessedBy?:UserData;//For multiplayer mode
 	loadFail?:boolean;
- }
+	highlight?:boolean;//Used in twitch mode when replaying one specific song to highlight it on the stream
+}

@@ -9,5 +9,6 @@ export default class TwitchMessageType {
 	public static LEADERBOARD:string = "LEADERBOARD";
 	public static BROADCASTER_CONTROL:string = "BROADCASTER_CONTROL";
 	public static SET_ZOOM_LEVEL:string = "SET_ZOOM_LEVEL";
+	public static SET_TRACK_PLAY_STATE:string = "SET_TRACK_PLAY_STATE";
 
 }

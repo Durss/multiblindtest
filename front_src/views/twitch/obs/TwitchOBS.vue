@@ -80,11 +80,13 @@ export default class TwitchOBS extends Vue {
 				this.zoom = e.data.zoom
 				break;
 			case TwitchMessageType.CHANGE_VOLUME:
-				console.log("change volumùe", e.data.volume);
 				this.$store.dispatch("setVolume", e.data.volume);
 				break;
+			case TwitchMessageType.SET_TRACK_PLAY_STATE:
+				//This is cpatured in the TwitchViewerGame clas
+				break;
 			default:
-				console.error("Received a broadcast message with no \"type\" value");
+				console.error("Received a broadcast message with no handled \"actionType\" value");
 				console.log(e.data);
 		}
 

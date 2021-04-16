@@ -90,6 +90,7 @@ export default class TrackEntry extends Vue {
 		if(this.reveal) res.push("enabled");
 		if(this.data.loadFail) res.push("error");
 		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
+		if(this.data.highlight === true) res.push("highlight");
 		return res;
 	}
 
@@ -229,6 +230,10 @@ export default class TrackEntry extends Vue {
 		.icon{
 			opacity: .6;
 		}
+	}
+
+	&.highlight {
+		background-color: @mainColor_warn;
 	}
 
 	&.error {

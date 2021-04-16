@@ -15,10 +15,12 @@
 			<div v-for="t in currentTracks" :key="t.id" class="track">
 				<TrackEntry class="actualTrack"
 					:data="t"
-					:canReplay="false"
+					:canReplay="true"
 					:burstStars="true"
 					:acceptAlbum="acceptAlbum"
 					:scoreHistory="scoreHistory"
+					@play="changeTrackPlayState(t,true)"
+					@stop="changeTrackPlayState(t,false)"
 				/>
 			</div>
 		</div>
@@ -509,6 +511,17 @@ export default class TwitchBroadcasterControls extends Vue {
 			};
 			SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});
 		}, 100)
+	}
+
+	/**
+	 * Restarts a specific song
+	 */
+	public changeTrackPlayState(t:TrackData, play:boolean):void {
+		let event = {
+			target:this.$store.state.twitchLogin+"_ext",
+			data:{action:SOCK_ACTIONS.SEND_TO_UID, data:{actionType:TwitchMessageType.SET_TRACK_PLAY_STATE, track:t.id, play}}
+		};
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data:event});
 	}
 
 }

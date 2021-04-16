@@ -35,8 +35,11 @@ import CountDown from "@/components/CountDown.vue";
 import TimerRenderer from "@/components/TimerRenderer.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
 import VolumeButton from "@/components/VolumeButton.vue";
+import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
+import TwitchMessageType from "@/twitch/TwitchMessageType";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
+import SocketEvent from "@/vo/SocketEvent";
 import TrackData from "@/vo/TrackData";
 import { Component, Vue, Watch } from "vue-property-decorator";
 
@@ -65,6 +68,7 @@ export default class TwitchViewerGame extends Vue {
     public currentTrackIds:string;
     public audioPlayer:AudioPlayer;
     public clickHandler:any;
+	public sockMessageHandler:any;
 
 	public get obsMode():boolean { return Utils.getRouteMetaValue(this.$route, "obsMode"); }
 
@@ -89,6 +93,8 @@ export default class TwitchViewerGame extends Vue {
 		}
 
 		document.addEventListener("click", this.clickHandler);
+		this.sockMessageHandler = (e:SocketEvent) => this.onSockMessage(e);
+		SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, this.sockMessageHandler);
 		this.renderFrame();
 		this.onGameStateChange();
 	}
@@ -99,6 +105,7 @@ export default class TwitchViewerGame extends Vue {
 			this.audioPlayer.dispose();
 		}
 		document.removeEventListener("click", this.clickHandler);
+		SockController.instance.removeEventListener(SOCK_ACTIONS.SEND_TO_UID, this.sockMessageHandler);
 	}
 
 	/**
@@ -107,6 +114,26 @@ export default class TwitchViewerGame extends Vue {
 	@Watch("pause")
 	public startPlay():void {
 		this.audioPlayer.play();
+	}
+
+	public onSockMessage(e:SocketEvent):void {
+		if(typeof e.data != "object") return;
+		
+		switch(e.data.actionType) {
+			case TwitchMessageType.SET_TRACK_PLAY_STATE:
+				console.log(e.data.track, e.data.play);
+				let track = this.tracks.find(t => t.id == e.data.track);
+				console.log(track);
+				if(track) {
+					track.highlight = e.data.play === true;
+					if(e.data.play) {
+						this.audioPlayer.unpauseTrack(track);
+					}else{
+						this.audioPlayer.stopTrack(track)
+					}
+				}
+				break;
+		}
 	}
 
 	/**
@@ -223,8 +250,10 @@ export default class TwitchViewerGame extends Vue {
 		this.roundComplete = state.roundComplete;
 
 		for (let i = 0; i < this.rawTracks.length; i++) {
-			const t:any = this.rawTracks[i];
+			const t:any = JSON.parse(JSON.stringify(this.rawTracks[i]));
 			t.audioPath = t.mp3;
+			delete t.mp3;
+			t.highlight = false;
 			if(t.user) {
 				this.scoreHistory.push({
 					trackId:t.id,
@@ -246,7 +275,7 @@ export default class TwitchViewerGame extends Vue {
 			this.tracks.push(t);
 		}
 
-		let trackIds = this.rawTracks.map(t => t.mp3).join(",");
+		let trackIds = this.rawTracks.map(t => t.id).join(",");
 		if(trackIds != this.currentTrackIds) {
 			this.initAudioElements();
 			this.currentTrackIds = trackIds;
@@ -317,7 +346,8 @@ export default class TwitchViewerGame extends Vue {
 			width: 45%;
 			margin: .3em;
 			border: .17em solid #ffffff;
-			border-radius: 5em;
+			border-radius: 2.1em;
+			background-color: #ffffff;
 			box-sizing: border-box;
 
 			.actualTrack {
