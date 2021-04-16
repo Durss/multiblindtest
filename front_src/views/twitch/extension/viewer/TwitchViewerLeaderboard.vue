@@ -158,7 +158,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 					}
 				}
 				.background {
-					-webkit-text-stroke: .2em #fff;
+					-webkit-text-stroke: .2em rgba(255, 255, 255, .5);
 				}
 				.foreground {
 					position: absolute;

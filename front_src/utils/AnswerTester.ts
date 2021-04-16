@@ -58,6 +58,8 @@ export default class AnswerTester {
 		this.checkTest("....", "Eminem", false);
 		this.checkTest("kick ass", "Stand Up - Kick Ass film score version", true);
 		this.checkTest("A nous", "À nous - extrait de \"Robin des Bois\"", true);
+		this.checkTest("inception", "Inception (Music From The Motion Picture)", true);
+		this.checkTest("les visiteurs", "Les Visiteurs: Ils ne sont pas nés d'hier ! (Bande originale du film)", true);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}

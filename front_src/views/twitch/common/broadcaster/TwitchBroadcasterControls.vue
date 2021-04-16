@@ -327,7 +327,7 @@ export default class TwitchBroadcasterControls extends Vue {
 			&& (
 				(acceptTitle && AnswerTester.instance.test(value, t.name, this.expertMode != null)) ||
 				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null)) ||
-				(acceptAlbum && AnswerTester.instance.test(value, t.name, this.expertMode != null))
+				(acceptAlbum && AnswerTester.instance.test(value, t.album, this.expertMode != null))
 			)
 			) {
 				t.enabled = true;

@@ -117,7 +117,7 @@ export default class TwitchLobby extends Vue {
 	public tracksCount:number = 4;
 	public gameDuration:number = 60;
 	public acceptAlbum:boolean = false;
-	public chatConfirm:boolean = false;
+	public chatConfirm:boolean = true;
 	public zoomLevel:number = 1.7;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
