@@ -127,9 +127,9 @@ export default class TwitchEBS {
 		};
 		let url = "https://api.twitch.tv/extensions/"+Config.CLIENTID+"/"+Config.EXTVERSION+"/channels/"+channelId+"/chat";
 		let result = await fetch(url, options);
-		console.log("SEND TOT CHAT RESULT !");
-		console.log(result.status);
-		console.log(await result.text());
+		// console.log("SEND TOT CHAT RESULT !");
+		// console.log(result.status);
+		// console.log(await result.text());
 	}
 
 

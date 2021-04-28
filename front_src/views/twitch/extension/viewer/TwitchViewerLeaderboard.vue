@@ -37,7 +37,7 @@ import Button from "@/components/Button.vue";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import gsap from "gsap";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -46,9 +46,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 })
 export default class TwitchViewerLeaderboard extends Vue {
 
-	@Prop({default:null})
-	public scoreHistory:ScoreHistory[];
-
+	public scoreHistory:ScoreHistory[] = [];
 	public expandResults:boolean = false;
 	public podium:{name:String, score:number}[] = [];
 	public users:{name:String, score:number}[] = [];
@@ -67,6 +65,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 	public mounted():void {
 		this.users = [];
 		let data:any = this.$store.state.twitchLeaderboard;
+		
 		let history:ScoreHistory[] = data.history;
 
 		for (let i = 0; i < history.length; i++) {
@@ -87,9 +86,12 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 		//Make sure there are at least 3 "users"
 		while(this.users.length < 3) this.users.push({name:"x", score:-1});
+		//Debug, add fake users
 		// for (let i = 0; i < 100; i++) {
 		// 	this.users.push(this.users[0]);
 		// }
+		// this.users[0].name = "Durss";
+		// this.users[0].score = 25;
 
 		//Set N°1 in the middle
 		this.podium = this.users.splice(0,3);
@@ -102,6 +104,16 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 	public toggleResults():void {
 		this.expandResults = !this.expandResults;
+		this.setScrollState();
+	}
+
+	@Watch("$store.state.twitchLeaderboard")
+	public onStateChange():void {
+		this.expandResults = this.$store.state.twitchLeaderboard.showMoreResults;
+		this.setScrollState();
+	}
+
+	private setScrollState():void {
 		let pageH = (<HTMLDivElement>this.$refs.scrollable).getBoundingClientRect().height;
 		gsap.to(this.$refs.scrollable, {duration:.5, scrollTo:this.expandResults? pageH : 0, ease:"Quad.easeInOut"});
 	}
@@ -158,7 +170,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 					}
 				}
 				.background {
-					-webkit-text-stroke: .2em rgba(255, 255, 255, .5);
+					-webkit-text-stroke: .5em rgba(255, 255, 255, 1);
 				}
 				.foreground {
 					position: absolute;
@@ -176,6 +188,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 					color: #ffffff;
 					font-family: "FuturaExtraBold";
 					font-size: 2em;
+					border-radius: .5em;
 				}
 			}
 			.user:nth-child(1) {
@@ -202,8 +215,8 @@ export default class TwitchViewerLeaderboard extends Vue {
 			margin-top: 20px;
 			margin-bottom: 20px;
 			height: calc(20em - 20px);
-			background-color: rgba(255,255,255,1);
-			border-radius: 20px;
+			background-color: rgba(255,255,255,.3);
+			border-radius: 1em;
 			overflow: hidden;
 			.scrollable {
 				overflow: auto;
@@ -211,6 +224,9 @@ export default class TwitchViewerLeaderboard extends Vue {
 				height: 100%;
 				width: 100%;
 				box-sizing: border-box;
+				&::-webkit-scrollbar {
+					display: none;
+				}
 				.user {
 					text-align: center;
 					display: flex;

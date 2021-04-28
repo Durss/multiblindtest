@@ -6,12 +6,13 @@
 			<Button title="End this round" v-if="!roundComplete" @click="endRound()" />
 			<Button title="Next round" v-if="roundComplete && !gameComplete" @click="nextRound()" />
 			<Button title="Show results" v-if="gameComplete" @click="onShowResults()" />
+			<Button title="Show/hide +Top 4" v-if="gameComplete && showResults && scoreHistory.length > 3" @click="onShowMoreResults()" />
 			<Button title="Replay" v-if="gameComplete" @click="restartGame()" />
 		</div>
 
 		<div class="timer">{{timeLeft}}</div>
 
-		<div class="tracks">
+		<div class="tracks" v-if="!showResults">
 			<div v-for="t in currentTracks" :key="t.id" class="track">
 				<TrackEntry class="actualTrack"
 					:data="t"
@@ -90,6 +91,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	public roundComplete:boolean = false;
 	public gameComplete:boolean = false;
 	public showResults:boolean = false;
+	public showMoreResults:boolean = false;
 	public roundIndex:number = 1;
 	public allTracks:TrackData[] = [];
 	public currentTracks:TrackData[] = [];
@@ -393,7 +395,9 @@ export default class TwitchBroadcasterControls extends Vue {
 		data.ellapsedDuration = this.ellapsedTime;
 		data.roundComplete = this.roundComplete;
 		data.gameComplete = this.gameComplete;
+		data.showMoreResults = this.showMoreResults;
 		data.zoomLevel = parseFloat(this.zoom);
+
 		if(!this.showResults) {
 			//Game data
 			let tracks = [];
@@ -489,12 +493,21 @@ export default class TwitchBroadcasterControls extends Vue {
 	}
 
 	/**
+	 * Called when clicking "show +Top 4 results" button
+	 */
+	public onShowMoreResults():void {
+		this.showMoreResults = !this.showMoreResults;
+		this.broadcastCurrentState();
+	}
+
+	/**
 	 * Called when clicking "show results" button
 	 */
 	public restartGame():void {
 		this.gameComplete = false;
 		this.roundComplete = false;
 		this.showResults = false;
+		this.showMoreResults = false;
 		this.roundIndex = 1;
 		this.scoreHistory = [];
 		this.pickRandomTracks();
@@ -532,6 +545,13 @@ export default class TwitchBroadcasterControls extends Vue {
 	.controls {
 		margin-top: 20px;
 		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		button {
+			min-width: 200px;
+			margin-bottom: 5px;
+		}
 	}
 
 	.tracks {

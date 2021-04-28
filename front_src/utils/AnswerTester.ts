@@ -61,6 +61,7 @@ export default class AnswerTester {
 		this.checkTest("inception", "Inception (Music From The Motion Picture)", true);
 		this.checkTest("les visiteurs", "Les Visiteurs: Ils ne sont pas nés d'hier ! (Bande originale du film)", true);
 		this.checkTest("... ", "Bruno Mars", false);
+		this.checkTest("wavin'flag", "Wavin' Flag - Coca-Cola Celebration Mix", true);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
@@ -184,6 +185,12 @@ export default class AnswerTester {
 	}
 
 	private cleanup(str:string):string {
-		return Utils.removeDiacritics(str).toLowerCase().replace(/[^A-z0-9 ]/gi, "").replace(/\s{2,}/gi, " ").trim();
+		return Utils.removeDiacritics(str).toLowerCase()
+		//Special case to replace apostrophes by nothing only if it's followed by only one char.
+		//Ex:"don't" will become "dont" but "wavin'flag" won't be changed and next rule will
+		//replace the apostrophe by a space
+		.replace(/('|`)([^\s]{0,1}(?!\w))/gi, "$2")
+		.replace(/[^A-z0-9 ]/gi, " ")
+		.replace(/\s{2,}/gi, " ").trim();
 	}
 }

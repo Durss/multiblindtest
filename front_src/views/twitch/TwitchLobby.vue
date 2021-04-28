@@ -202,7 +202,6 @@ export default class TwitchLobby extends Vue {
 	 * Called when receiving a message from IRC
 	 */
 	public onIrcMessage(e:IRCEvent):void {
-		console.log(e.message)
 		if(e.tags["message-type"] == "action" && e.message == this.inviteMessage) {
 			this.sendingToChat = false;
 		}
