@@ -215,7 +215,7 @@ export default class TwitchViewerLeaderboard extends Vue {
 			margin-top: 20px;
 			margin-bottom: 20px;
 			height: calc(20em - 20px);
-			background-color: rgba(255,255,255,.3);
+			background-color: rgba(255,255,255,.7);
 			border-radius: 1em;
 			overflow: hidden;
 			.scrollable {
