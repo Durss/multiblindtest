@@ -45,6 +45,14 @@
 				</div>
 			</div> -->
 
+			<div class="block multipleWinners">
+				<h2>Multiple winners</h2>
+				<div class="content">
+					<p>{{$t('twitch.lobby.acceptDurationDetails')}}</p>
+					<IncrementForm class="increment" :title="$t('twitch.lobby.acceptDuration')" v-model="acceptDuration" :minValue="0" :maxValue="999" :step="1" />
+				</div>
+			</div>
+
 			<div class="block params">
 				<GameParams
 				:gamesCount.sync="gamesCount"
@@ -116,9 +124,10 @@ export default class TwitchLobby extends Vue {
 	public gamesCount:number = 10;
 	public tracksCount:number = 4;
 	public gameDuration:number = 60;
+	public acceptDuration:number = 3;
 	public acceptAlbum:boolean = false;
 	public chatConfirm:boolean = true;
-	public zoomLevel:number = 1.7;
+	public zoomLevel:number = 1.4;
 	public expertMode:string[] = [];
 	public command:string = "!mbt";
 	public players:IRCTypes.Tag[] = [];
@@ -252,7 +261,8 @@ export default class TwitchLobby extends Vue {
 			acceptAlbum:this.acceptAlbum? 1 : 0,
 			chatConfirm:this.chatConfirm? 1 : 0,
 			mode:this.mode,
-			zoom:this.zoomLevel
+			zoom:this.zoomLevel,
+			acceptDuration:this.acceptDuration,
 		}
 		if(this.expertMode && this.expertMode.length > 0) {
 			params.expertMode = this.expertMode.join(",");
@@ -355,6 +365,12 @@ export default class TwitchLobby extends Vue {
 				object-fit: cover;
 			}
 		}
+	}
+
+	.multipleWinners {
+		max-width: 300px;
+		margin: auto;
+		box-sizing: border-box;
 	}
 
 	.obsConfig {

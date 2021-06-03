@@ -1,8 +1,8 @@
 <template>
 	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt">
 		<div class="icon">
-			<img v-if="(!reveal || !data.guessedBy) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
-			<div v-if="reveal && data.guessedBy && !data.loadFail" class="score">{{score}}</div>
+			<img v-if="(!reveal || !data.guessedBy || data.guessedBy.length == 0) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
+			<div v-if="reveal && data.guessedBy && data.guessedBy.length > 0 && !data.loadFail" class="score">{{score}}</div>
 			<img v-if="data.loadFail" src="@/assets/icons/cross_white.svg" alt="error" class="icon">
 		</div>
 		
@@ -33,8 +33,8 @@
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="onClickStop()" v-if="playing">
 		</div>
 
-		<div class="guesser" v-if="data.guessedBy">
-			<p class="pseudo">{{data.guessedBy.name}}</p>
+		<div class="guesser" v-if="reveal && data.guessedBy && data.guessedBy.length > 0">
+			<p class="pseudo" v-for="u in data.guessedBy" :key="'guess_'+u.name+'_'+u.id">{{u.name}}</p>
 		</div>
 
 		<div ref="stars" class="stars">
@@ -326,10 +326,14 @@ export default class TrackEntry extends Vue {
 		bottom: 0;
 		transform: translate(.7em, 25%);
 		display: flex;
-		flex-direction: row;
+		flex-direction: row-reverse;
 		align-items: center;
 		font-family: "Futura";
 		z-index: 1;
+		flex-wrap: wrap;
+		max-width: 100%;
+		max-height: 1.5em;
+		overflow: auto;
 
 		.pseudo {
 			font-size: 1em;

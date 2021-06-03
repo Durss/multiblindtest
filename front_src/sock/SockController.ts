@@ -62,6 +62,7 @@ export default class SockController extends EventDispatcher {
 				if(this._lastMessage) {
 					let mess = JSON.parse(this._lastMessage);
 					mess.noVerbose = true;//Disables server's logs for this event
+					if(mess.data) mess.data.noVerbose = true;//Disables server's logs for this event
 					this._sockjs.send(JSON.stringify(mess));
 				}
 			}, 1000);

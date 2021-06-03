@@ -359,7 +359,7 @@ export default class GroupGame extends Vue {
 			if(t.guessedBy) {
 				// track.guessedBy = t.guessedBy
 				if(!track.guessedBy) {
-					Vue.set(track, "guessedBy", t.guessedBy);
+					Vue.set(track, "guessedBy", [t.guessedBy]);
 					track.enabled = true;
 				}
 			}else{

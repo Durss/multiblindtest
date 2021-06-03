@@ -62,6 +62,7 @@ export default class AnswerTester {
 		this.checkTest("les visiteurs", "Les Visiteurs: Ils ne sont pas nés d'hier ! (Bande originale du film)", true);
 		this.checkTest("... ", "Bruno Mars", false);
 		this.checkTest("wavin'flag", "Wavin' Flag - Coca-Cola Celebration Mix", true);
+		this.checkTest("Murder On Dancefloor", "Murder On The Dancefloor ", true);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}

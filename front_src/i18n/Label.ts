@@ -144,6 +144,8 @@ export default class Labels {
 				lobby: {
 					maxPlayers:"Max players",
 					zoomLevel:"Interface scale",
+					acceptDurationDetails:"If this value is set above 0, once a player finds a track, other players will have this number of seconds to also find the track and earn points.",
+					acceptDuration:"Accept answers duration (seconds)",
 					chatConfirm:"Confirm good guesses on chat",
 					chatConfirmTT:"When someone finds a song a message a message will be sent in the chat with your account's name to alert her/him.<br />This can be usefull to compensate the stream delay issues.",
 				},

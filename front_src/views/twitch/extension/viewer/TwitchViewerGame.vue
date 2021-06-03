@@ -59,7 +59,7 @@ export default class TwitchViewerGame extends Vue {
 	public duration:number = 0;
 	public timeOffset:number = 0;
 	public tracks:TrackData[] = [];
-	public rawTracks:{ id:string, mp3:string, artist:string, name:string, user:string, score:number}[] = [];
+	public rawTracks:{ id:string, mp3:string, artist:string, name:string, user:string, score:number, enabled:boolean}[] = [];
 	public scoreHistory:ScoreHistory[] = [];
     public countDownComplete:boolean = false;
     public roundComplete:boolean = false;
@@ -250,24 +250,30 @@ export default class TwitchViewerGame extends Vue {
 		this.roundComplete = state.roundComplete;
 
 		for (let i = 0; i < this.rawTracks.length; i++) {
-			const t:any = JSON.parse(JSON.stringify(this.rawTracks[i]));
-			t.audioPath = t.mp3;
-			delete t.mp3;
-			t.highlight = false;
-			if(t.user) {
+			let rawT = this.rawTracks[i]
+			const t:TrackData = {
+				id: rawT.id,
+				audioPath:rawT.mp3,
+				name: rawT.name,
+				artist: rawT.artist,
+				album: "",
+				guessedBy:[],
+				enabled:rawT.enabled,
+			};
+			if(rawT.user) {
 				this.scoreHistory.push({
 					trackId:t.id,
-					guesserId:t.user,
-					score:t.score,
+					guesserId:rawT.user,
+					score:rawT.score,
 				});
 				
-				t.guessedBy = {
-					name:t.user,
-					id:t.user,
+				t.guessedBy = [{
+					name:rawT.user,
+					id:rawT.user,
 					offline:false,
-					score:t.score,
+					score:rawT.score,
 					handicap:0,
-				};
+				}];
 				if(!prevEnableStates || !prevEnableStates[i] && this.audioPlayer) {
 					this.audioPlayer.stopTrack(t);
 				}

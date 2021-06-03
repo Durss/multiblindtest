@@ -85,6 +85,9 @@ export default class TwitchBroadcasterControls extends Vue {
 	@Prop({default:""})
 	public zoom:string;
 
+	@Prop({default:""})
+	public acceptDuration:number;
+
 	public loading:boolean = true;
 	public ready:boolean = false;
 	public disposed:boolean = false;
@@ -325,9 +328,13 @@ export default class TwitchBroadcasterControls extends Vue {
 		let acceptTitle = !this.expertMode || this.expertMode.indexOf('title') > -1;
 		let acceptArtist = !this.expertMode || this.expertMode.indexOf('artist') > -1;
 		let acceptAlbum = this.acceptAlbum == "1";
-		let chatConfirm = this.chatConfirm == "1";
 		value = value.toLowerCase();
-		let newState = false;
+
+		//Add player to global players collection
+		if(!this.players.find(u=> u.username == user.username)) {
+			this.players.push(user);
+		}
+
 		for (let i = 0; i < this.currentTracks.length; i++) {
 			let t = this.currentTracks[i];
 			if(!t.enabled
@@ -337,49 +344,89 @@ export default class TwitchBroadcasterControls extends Vue {
 				(acceptAlbum && AnswerTester.instance.test(value, t.album, this.expertMode != null))
 			)
 			) {
-				t.enabled = true;
-				let score = this.currentTracks.length + 1;
+				//User already found this track, ignore it.
+				//Avoids multiple scoring on twitch mode with "multiple winners" mode enabled
+				console.log("UID:", user.id);
+				if(t.guessedBy) {
+					console.log(t.guessedBy.findIndex(v => v.id == user["user-id"]));
+				}
+				if(t.guessedBy && t.guessedBy.findIndex(v => v.id == user["user-id"]) > -1) continue;
+
+				//define how much points the player earns by counting the
+				//number of tracks left to be found
+				let score = this.currentTracks.length;
 				for (let j = 0; j < this.currentTracks.length; j++) {
 					if(this.currentTracks[j].enabled) score --;
 				}
 
+				//In "multiple winners" mode the next players to find a track get 1 point
+				//less than the first player with a minimum of 1 point.
+				if(t.guessedBy && t.guessedBy.length > 0) {
+					score --;
+					if(score <= 0) score = 1;
+				}
+
+				//Add to score history
 				this.scoreHistory.push({
 					trackId:t.id,
 					guesserId:user["user-id"],
 					score,
 				});
 
-				t.guessedBy = {
+				//Add user to guessers list
+				if(!t.guessedBy) t.guessedBy = []
+				t.guessedBy.push({
 					name:user.username,
-					id:user.id,
+					id:user["user-id"],
 					offline:false,
 					score:0,
 					handicap:0,
-				};
+				});
 
-				newState = true;
-				if(chatConfirm) {
-					let message = this.$t("twitch.game.confirmChat", {
-						USER:user.username,
-						TITLE:t.name,
-						ARTIST:t.artist,
-					}).toString();
-					IRCClient.instance.sendMessage(message);
+				//"multiple winners" mode, wait desired seconds
+				//before showing results
+				if(this.acceptDuration) {
+					if(!t.pendingAcceptation) {
+						t.pendingAcceptation = true;
+						//Give some time to other players to also find that track
+						console.log("Schedule end in", this.acceptDuration+"s");
+						setTimeout(_=> {
+							console.log("TIMEOUT OK ");
+							//Show first guesser's name and number of other players
+							let userName = t.guessedBy[0].name;
+							if(t.guessedBy.length > 1) {
+								userName += " (+"+(t.guessedBy.length-1)+")";
+							}
+							this.enableTrack(t, userName);
+						}, this.acceptDuration * 1000);
+					}
+				}else{
+					this.enableTrack(t, user.username);
 				}
 
 				break;
 			}
 		}
+	}
 
-		//Add player to global players collection
-		if(!this.players.find(u=> u.username == user.username)) {
-			this.players.push(user);
+	/**
+	 * Enables a tracks once found
+	 */
+	private enableTrack(t:TrackData, userName:string):void {
+		let chatConfirm = this.chatConfirm == "1";
+
+		t.enabled = true;
+		
+		if(chatConfirm) {
+			let message = this.$t("twitch.game.confirmChat", {
+				USER:userName,
+				TITLE:t.name,
+				ARTIST:t.artist,
+			}).toString();
+			IRCClient.instance.sendMessage(message);
 		}
-
 		this.checkComplete();
-		if(newState) {
-			this.broadcastCurrentState();
-		}
+		this.broadcastCurrentState();
 	}
 
 	/**
@@ -404,13 +451,15 @@ export default class TwitchBroadcasterControls extends Vue {
 			for (let i = 0; i < this.currentTracks.length; i++) {
 				const t = this.currentTracks[i];
 				let h = this.scoreHistory.find(h => h.trackId == t.id);
+				let guessedBy = t.guessedBy && t.guessedBy.length > 0? t.guessedBy[0].name : null;
+				if(t.guessedBy && t.guessedBy.length > 1) guessedBy +=" (+"+(t.guessedBy.length-1)+")";
 				tracks.push({
 					id:t.id,
 					enabled:t.enabled,
 					mp3:t.audioPath,
 					artist:t.enabled? t.artist:null,
 					name:t.enabled? t.name:null,
-					user:t.guessedBy? t.guessedBy.name : null,
+					user:guessedBy,
 					score:h? h.score : null,
 				})
 			}
