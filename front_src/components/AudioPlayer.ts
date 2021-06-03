@@ -58,7 +58,9 @@ export default class AudioPlayer {
 		if(!this.trackIdToIndex) return;
 		let index = this.trackIdToIndex[track.id];
 		if(index == null || index == undefined) return;
-		this.audioObjects[ index ].pause();
+		if(!this.audioObjects[ index ].paused) {
+			this.audioObjects[ index ].pause();
+		}
 	}
 
 	/**

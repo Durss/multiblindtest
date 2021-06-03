@@ -237,8 +237,6 @@ export default class TwitchViewerGame extends Vue {
 			}
 		}
 
-		let prevEnableStates = this.tracks? this.tracks.map(t=>t.enabled) : null;
-
 		this.tracks = [];
 		this.scoreHistory = [];
 		if(state.roundComplete != this.roundComplete) {
@@ -274,7 +272,7 @@ export default class TwitchViewerGame extends Vue {
 					score:rawT.score,
 					handicap:0,
 				}];
-				if(!prevEnableStates || !prevEnableStates[i] && this.audioPlayer) {
+				if(t.enabled && this.audioPlayer) {
 					this.audioPlayer.stopTrack(t);
 				}
 			}
