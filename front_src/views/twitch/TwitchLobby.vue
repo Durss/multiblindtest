@@ -46,7 +46,7 @@
 			</div> -->
 
 			<div class="block multipleWinners">
-				<h2>Multiple winners</h2>
+				<h2>{{$t('twitch.lobby.multipleWins')}}</h2>
 				<div class="content">
 					<p>{{$t('twitch.lobby.acceptDurationDetails')}}</p>
 					<IncrementForm class="increment" :title="$t('twitch.lobby.acceptDuration')" v-model="acceptDuration" :minValue="0" :maxValue="999" :step="1" />

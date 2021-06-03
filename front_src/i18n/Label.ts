@@ -144,6 +144,7 @@ export default class Labels {
 				lobby: {
 					maxPlayers:"Max players",
 					zoomLevel:"Interface scale",
+					multipleWins:"Multiple winners",
 					acceptDurationDetails:"If this value is set above 0, once a player finds a track, other players will have this number of seconds to also find the track and earn points.",
 					acceptDuration:"Accept answers duration (seconds)",
 					chatConfirm:"Confirm good guesses on chat",
@@ -180,6 +181,12 @@ export default class Labels {
 			changelog: {
 				title:"Latest updates",
 				logs: [
+					{
+						date:"06/03/2021",
+						updates: [
+							"Adding \"multiple winners\" mode for twitch so multiple users can earn point by finding the same song",
+						]
+					},
 					{
 						date:"04/13/2021",
 						updates: [
@@ -414,6 +421,9 @@ export default class Labels {
 				lobby: {
 					maxPlayers:"Joueurs max",
 					zoomLevel:"Taille de l'interface",
+					multipleWins:"Multiple gagnants",
+					acceptDurationDetails:"Si cette valeur est suppérieur à 0, lorsqu'un joueur trouve un morceau, les autres auront ce nombre de secondes pour également le trouver.",
+					acceptDuration:"Durée de réponse (seconds)",
 					chatConfirm:"Confirmer les bonnes réponses<br/>dans le chat",
 					chatConfirmTT:"Lorsque quelqu'un trouve une bonne réponse un message sera automatiquement envoyé en votre nom dans le chat pour la/le prévenir.<br/>Ceci peut-être utile pour palier aux problèmes de latence du stream.",
 				},
@@ -447,6 +457,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"03/06/2021",
+						updates: [
+							"Ajout d'un mode \"Plusieurs gagnants\" pour twitch permettant à plusieurs joueurs de trouver un seul et même morceau",
+						]
+					},
 					{
 						date:"13/04/2021",
 						updates: [
