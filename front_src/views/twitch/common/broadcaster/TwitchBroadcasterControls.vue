@@ -356,7 +356,7 @@ export default class TwitchBroadcasterControls extends Vue {
 				//number of tracks left to be found
 				let score = this.currentTracks.length;
 				for (let j = 0; j < this.currentTracks.length; j++) {
-					if(this.currentTracks[j].enabled) score --;
+					if(this.currentTracks[j].enabled || this.currentTracks[j].pendingAcceptation) score --;
 				}
 
 				//In "multiple winners" mode the next players to find a track get 1 point
