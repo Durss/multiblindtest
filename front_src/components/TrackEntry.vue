@@ -2,7 +2,7 @@
 	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt">
 		<div class="icon">
 			<img v-if="(!reveal || !data.guessedBy || data.guessedBy.length == 0) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
-			<div v-if="reveal && data.guessedBy && data.guessedBy.length > 0 && !data.loadFail" class="score">{{score}}</div>
+			<div v-if="reveal && data.guessedBy && data.guessedBy.length > 0 && !data.loadFail" class="score">{{data.score}}</div>
 			<img v-if="data.loadFail" src="@/assets/icons/cross_white.svg" alt="error" class="icon">
 		</div>
 		
@@ -50,7 +50,6 @@ import Utils from "@/utils/Utils";
 import TrackData from '@/vo/TrackData';
 import gsap from "gsap";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import ScoreHistory from '../vo/ScoreHistory';
 import Button from "./Button.vue";
 
 @Component({
@@ -62,9 +61,6 @@ export default class TrackEntry extends Vue {
 
 	@Prop()
 	public data:TrackData;
-
-	@Prop()
-	public scoreHistory:ScoreHistory[];
 
 	@Prop({default:false})
 	public forceReveal:boolean;
@@ -96,14 +92,6 @@ export default class TrackEntry extends Vue {
 
 	public get reveal():boolean {
 		return this.data.enabled || this.forceReveal;
-	}
-
-	public get score():number {
-		if(!this.scoreHistory) return null;
-		for (let i = this.scoreHistory.length-1; i > -1; i--) {
-			const s = this.scoreHistory[i];
-			if(s.trackId == this.data.id) return s.score;
-		}
 	}
 
 	public mounted():void {
@@ -340,6 +328,11 @@ export default class TrackEntry extends Vue {
 			padding: .25em .5em;
 			border-radius: 2em;
 			background-color: @mainColor_warn;
+			&:not(:first-child) {
+				font-size: .9em;
+				padding: .1em .25em;
+				background-color: fade(@mainColor_warn, 85%);
+			}
 		}
 	}
 

@@ -89,10 +89,11 @@ export default class IncrementForm extends Vue {
 		this.$emit("input", this.valueLocal);
 	}
 
-	private onMouseWheel(e:WheelEvent):void {
+	public onMouseWheel(e:WheelEvent):void {
 		let delta = e.deltaY? e.deltaY : e.deltaX;
-		if(delta > 0) this.valueLocal--;
-		if(delta < 0) this.valueLocal++;
+		if(delta > 0) this.valueLocal-=this.step;
+		if(delta < 0) this.valueLocal+=this.step;
+		this.valueLocal = Math.round(this.valueLocal*100)/100;//Prevents fucked up JS number rounding to create values like 1.000000001
 		e.preventDefault();
 	}
 

@@ -1,5 +1,5 @@
 <template>
-	<div class="twitchviewergame" v-if="rawTracks.length > 0">
+	<div class="twitchviewergame" v-if="tracks.length > 0">
 		<div class="step">
 			<h1>{{$t('twitch.game.index')}}</h1>
 			<div class="count">{{currentRound}}/{{gamesCount}}</div>
@@ -18,7 +18,6 @@
 					:canReplay="!obsMode"
 					:burstStars="true"
 					:small="true"
-					:scoreHistory="scoreHistory"
 					@play="playTrack(t)"
 					@stop="stopTrack(t)"
 				/>
@@ -59,7 +58,6 @@ export default class TwitchViewerGame extends Vue {
 	public duration:number = 0;
 	public timeOffset:number = 0;
 	public tracks:TrackData[] = [];
-	public rawTracks:{ id:string, mp3:string, artist:string, name:string, user:string, score:number, enabled:boolean}[] = [];
 	public scoreHistory:ScoreHistory[] = [];
     public countDownComplete:boolean = false;
     public roundComplete:boolean = false;
@@ -224,7 +222,7 @@ export default class TwitchViewerGame extends Vue {
 	@Watch("$store.state.twitchGameState")
 	public onGameStateChange():void {
 		let state = this.$store.state.twitchGameState;
-		this.rawTracks = state.tracks;
+		this.tracks = state.tracks;
 		this.gamesCount = state.games;
 		this.currentRound = state.round;
 		this.duration = state.duration;
@@ -237,7 +235,7 @@ export default class TwitchViewerGame extends Vue {
 			}
 		}
 
-		this.tracks = [];
+		// this.tracks = [];
 		this.scoreHistory = [];
 		if(state.roundComplete != this.roundComplete) {
 			this.timerPercent = 1;
@@ -247,39 +245,16 @@ export default class TwitchViewerGame extends Vue {
 		}
 		this.roundComplete = state.roundComplete;
 
-		for (let i = 0; i < this.rawTracks.length; i++) {
-			let rawT = this.rawTracks[i]
-			const t:TrackData = {
-				id: rawT.id,
-				audioPath:rawT.mp3,
-				name: rawT.name,
-				artist: rawT.artist,
-				album: "",
-				guessedBy:[],
-				enabled:rawT.enabled,
-			};
-			if(rawT.user) {
-				this.scoreHistory.push({
-					trackId:t.id,
-					guesserId:rawT.user,
-					score:rawT.score,
-				});
-				
-				t.guessedBy = [{
-					name:rawT.user,
-					id:rawT.user,
-					offline:false,
-					score:rawT.score,
-					handicap:0,
-				}];
+		for (let i = 0; i < this.tracks.length; i++) {
+			const t:TrackData = this.tracks[i];
+			if(t.enabled) {
 				if(t.enabled && this.audioPlayer) {
 					this.audioPlayer.stopTrack(t);
 				}
 			}
-			this.tracks.push(t);
 		}
 
-		let trackIds = this.rawTracks.map(t => t.id).join(",");
+		let trackIds = this.tracks.map(t => t.id).join(",");
 		if(trackIds != this.currentTrackIds) {
 			this.initAudioElements();
 			this.currentTrackIds = trackIds;

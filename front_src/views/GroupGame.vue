@@ -357,10 +357,12 @@ export default class GroupGame extends Vue {
 			const track = this.tracksToPlay[i];
 			let t = room.currentTracks.find(t => t.id == track.id);
 			if(t.guessedBy) {
+				console.log(t);
 				// track.guessedBy = t.guessedBy
 				if(!track.guessedBy) {
 					Vue.set(track, "guessedBy", [t.guessedBy]);
 					track.enabled = true;
+					track.score = t.score;
 				}
 			}else{
 				allGuessed = false;

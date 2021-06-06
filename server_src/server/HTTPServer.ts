@@ -191,6 +191,9 @@ export default class HTTPServer {
 				room.gameStepIndex = 0;
 				room.scoreHistory = [];
 				room.currentTracks = null;
+				for (let i = 0; i < room.users.length; i++) {
+					room.users[i].score = 0;
+				}
 			}
 			res.status(200).send(JSON.stringify({success:true, room}));
 		});
@@ -282,16 +285,19 @@ export default class HTTPServer {
 			}
 			let score = room.currentTracks.length;
 			let user:UserData;
+			let guessedTrack = null;
 			for (let i = 0; i < room.currentTracks.length; i++) {
 				const t:TrackData = room.currentTracks[i];
 				if(t.id == trackId && !t.guessedBy) {
 					user = room.users.find(u => u.id == uid);
 					t.guessedBy = user;
 					t.enabled = true;
+					guessedTrack = t;
 				}else if(t.enabled) {
 					score --;
 				}
 			}
+			guessedTrack.score = score;
 			if(user) {
 				user.score += score;
 			}

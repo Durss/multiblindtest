@@ -12,7 +12,6 @@
 						v-for="track in tracksToPlay"
 						:key="track.id"
 						:data="track"
-						:scoreHistory="scoreHistory"
 						:forceReveal="forceReveal"
 						:canReplay="(forceReveal && multiplayerMode) || !multiplayerMode"
 						:acceptAlbum="acceptAlbum"
@@ -107,6 +106,7 @@ import { v4 as uuidv4 } from 'uuid';
 	}
 })
 export default class GameView extends Vue {
+	//TODO test if it still works after removing scoreHistory. Make sure tha ttrack.score is populated properly
 
 	@Prop({default:""})
 	public tracksids:string;
@@ -399,7 +399,12 @@ export default class GameView extends Vue {
 				(acceptArtist && AnswerTester.instance.test(value, t.artist, this.expertMode != null))
 			)
 			) {
+				let score = this.tracksToPlay.length;
+				for (let j = 0; j < this.tracksToPlay.length; j++) {
+					if(this.tracksToPlay[j].enabled) score --;
+				}
 				t.enabled = true;
+				t.score = score;
 				goodAnswer = true;
 				this.audioPlayer.stopTrack(t);
 				this.$emit("guessed", t);

@@ -19,7 +19,6 @@
 					:canReplay="true"
 					:burstStars="true"
 					:acceptAlbum="acceptAlbum"
-					:scoreHistory="scoreHistory"
 					@play="changeTrackPlayState(t,true)"
 					@stop="changeTrackPlayState(t,false)"
 				/>
@@ -344,26 +343,28 @@ export default class TwitchBroadcasterControls extends Vue {
 				(acceptAlbum && AnswerTester.instance.test(value, t.album, this.expertMode != null))
 			)
 			) {
-				//User already found this track, ignore it.
+				//If user already found this track, ignore it.
 				//Avoids multiple scoring on twitch mode with "multiple winners" mode enabled
-				console.log("UID:", user.id);
-				if(t.guessedBy) {
-					console.log(t.guessedBy.findIndex(v => v.id == user["user-id"]));
-				}
 				if(t.guessedBy && t.guessedBy.findIndex(v => v.id == user["user-id"]) > -1) continue;
 
-				//define how much points the player earns by counting the
-				//number of tracks left to be found
-				let score = this.currentTracks.length;
-				for (let j = 0; j < this.currentTracks.length; j++) {
-					if(this.currentTracks[j].enabled || this.currentTracks[j].pendingAcceptation) score --;
+				let score;
+				if(t.score) {
+					//Track already has a score defined because it's pending acceptation
+					score = t.score;
+				}else{
+					//define how much points the player earns by counting the
+					//number of tracks left to be found
+					score = this.currentTracks.length;
+					for (let j = 0; j < this.currentTracks.length; j++) {
+						if(this.currentTracks[j].enabled || this.currentTracks[j].pendingAcceptation) score --;
+					}
+					t.score = score;
 				}
 
 				//In "multiple winners" mode the next players to find a track get 1 point
 				//less than the first player with a minimum of 1 point.
-				if(t.guessedBy && t.guessedBy.length > 0) {
-					score --;
-					if(score <= 0) score = 1;
+				if(t.guessedBy && t.guessedBy.length > 0 && t.pendingAcceptation) {
+					score = Math.max(1, score-1);
 				}
 
 				//Add to score history
@@ -404,7 +405,7 @@ export default class TwitchBroadcasterControls extends Vue {
 					this.enableTrack(t, user.username);
 				}
 
-				break;
+				return;
 			}
 		}
 	}
@@ -416,6 +417,8 @@ export default class TwitchBroadcasterControls extends Vue {
 		let chatConfirm = this.chatConfirm == "1";
 
 		t.enabled = true;
+		//reset multi winners mode vars
+		t.pendingAcceptation = false;
 		
 		if(chatConfirm) {
 			let message = this.$t("twitch.game.confirmChat", {
@@ -446,24 +449,7 @@ export default class TwitchBroadcasterControls extends Vue {
 		data.zoomLevel = parseFloat(this.zoom);
 
 		if(!this.showResults) {
-			//Game data
-			let tracks = [];
-			for (let i = 0; i < this.currentTracks.length; i++) {
-				const t = this.currentTracks[i];
-				let h = this.scoreHistory.find(h => h.trackId == t.id);
-				let guessedBy = t.guessedBy && t.guessedBy.length > 0? t.guessedBy[0].name : null;
-				if(t.guessedBy && t.guessedBy.length > 1) guessedBy +=" (+"+(t.guessedBy.length-1)+")";
-				tracks.push({
-					id:t.id,
-					enabled:t.enabled,
-					mp3:t.audioPath,
-					artist:t.enabled? t.artist:null,
-					name:t.enabled? t.name:null,
-					user:guessedBy,
-					score:h? h.score : null,
-				})
-			}
-			data.tracks = tracks;
+			data.tracks = this.currentTracks;
 		}else{
 			//Results data
 			for (let i = 0; i < this.scoreHistory.length; i++) {

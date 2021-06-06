@@ -9,4 +9,5 @@ export default interface TrackData {
 	isPlaying?:boolean;
 	picture?:string;
 	guessedBy?:UserData;
- }
+	score?:number;
+}
