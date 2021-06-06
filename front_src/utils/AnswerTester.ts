@@ -62,7 +62,8 @@ export default class AnswerTester {
 		this.checkTest("les visiteurs", "Les Visiteurs: Ils ne sont pas nés d'hier ! (Bande originale du film)", true);
 		this.checkTest("... ", "Bruno Mars", false);
 		this.checkTest("wavin'flag", "Wavin' Flag - Coca-Cola Celebration Mix", true);
-		this.checkTest("Murder On Dancefloor", "Murder On The Dancefloor ", true);
+		this.checkTest("Murder On Dancefloor", "Murder On The Dancefloor", true);
+		this.checkTest("ma sorciere bien", "Ma Sorcière Bien Aimée", true);//In this expected answer "é" and "è" are not actual simple char but a E followed by a modifier.
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}
@@ -138,7 +139,7 @@ export default class AnswerTester {
 		}
 
 		//check for exact occurence in answer to be able to write a shortened version of the answer.
-		let res2 = (userAnswer.length >= expectedAnswer.length * .5) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
+		let res2 = (cleanUserAnswer.length >= cleanAnswer.length * .5) && cleanAnswer.indexOf(cleanUserAnswer) > -1 && cleanUserAnswer.length > 0;
 		if(this.verbose) {
 			console.log("%cShort answer :", "font-size:16px;color:blue;font-weight:bold"+(res2? ";color:green" : ";color:red"), res2);
 		}
@@ -186,7 +187,12 @@ export default class AnswerTester {
 	}
 
 	private cleanup(str:string):string {
+		
 		return Utils.removeDiacritics(str).toLowerCase()
+		//This is a modifier found to be used by a spotify track to make "è" instead
+		//of just using the actual "è". Some people are weird on this planet... (same for "é")
+		.replace(/̀/gi, "")
+		.replace(/́/gi, "")
 		//Special case to replace apostrophes by nothing only if it's followed by only one char.
 		//Ex:"don't" will become "dont" but "wavin'flag" won't be changed and next rule will
 		//replace the apostrophe by a space
