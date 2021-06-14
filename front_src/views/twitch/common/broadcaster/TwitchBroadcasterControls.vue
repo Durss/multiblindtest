@@ -3,7 +3,7 @@
 		<h1>Round {{roundIndex}}/{{gamesCount_num}}</h1>
 
 		<div class="controls">
-			<Button title="End this round" v-if="!roundComplete" @click="endRound()" />
+			<Button title="End this round" v-if="!roundComplete" :disabled="!canSkip" @click="endRound()" />
 			<Button title="Next round" v-if="roundComplete && !gameComplete" @click="nextRound()" />
 			<Button title="Show results" v-if="gameComplete" @click="onShowResults()" />
 			<Button title="Show/hide +Top 4" v-if="gameComplete && showResults && scoreHistory.length > 3" @click="onShowMoreResults()" />
@@ -94,6 +94,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	public gameComplete:boolean = false;
 	public showResults:boolean = false;
 	public showMoreResults:boolean = false;
+	public canSkip:boolean = false;
 	public roundIndex:number = 1;
 	public allTracks:TrackData[] = [];
 	public currentTracks:TrackData[] = [];
@@ -244,6 +245,15 @@ export default class TwitchBroadcasterControls extends Vue {
 		//Add 4 seconds, 1 second for websocket message to be sent
 		//and 3 seconds for countdown
 		this.startTime = Date.now() + 4000;
+		
+		this.canSkip = false;
+		//Avoids mistakenly double clicking the
+		//button "Next round" then "End this round".
+		//The "end this round" button will show up only after a short
+		//delay.
+		setTimeout(_=> {
+			this.canSkip = true;
+		}, 500);
 	}
 
 	/**
