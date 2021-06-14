@@ -334,6 +334,8 @@ export default class TwitchBroadcasterControls extends Vue {
 			this.players.push(user);
 		}
 
+		console.log("Guess track by", user["display-name"]);
+
 		for (let i = 0; i < this.currentTracks.length; i++) {
 			let t = this.currentTracks[i];
 			if(!t.enabled
@@ -545,6 +547,8 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.showMoreResults = false;
 		this.roundIndex = 1;
 		this.scoreHistory = [];
+		this.startTime = 0;
+		this.ellapsedTime = 0;
 		this.pickRandomTracks();
 		this.broadcastCurrentState();
 	}

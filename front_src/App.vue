@@ -56,10 +56,10 @@ export default class App extends Vue {
 
 	public mounted():void {
 		//This hacks plays an empty sound on first click to avoid "click to play"
-		//layer when starting a multiplyer blindtest and we're not the host
+		//layer when starting a multiplayer blindtest and we're not the host
 		let handler = (e) => {
 			let elem = new Audio();
-			elem.loop = true;
+			elem.loop = false;
 			elem.autoplay = false;
 			elem.volume = 1;
 			elem.setAttribute("src", "/mp3/silence.mp3");
