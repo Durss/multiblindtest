@@ -250,6 +250,8 @@ export default class GroupGame extends Vue {
 			const p = selectedPlaylists[i];
 			this.allTracks = this.allTracks.concat(p.tracks);
 		}
+		//Make a copy of the track to avoid modifying original data
+		this.allTracks = JSON.parse(JSON.stringify(this.allTracks));
 		return true;
 	}
 
@@ -271,6 +273,7 @@ export default class GroupGame extends Vue {
 			let t = this.allTracks.shift();
 			t.enabled = false;
 			t.guessedBy = null;
+			t.score = null;
 			toPlay.push(t);
 		}
 		this.room.currentTracks = toPlay;

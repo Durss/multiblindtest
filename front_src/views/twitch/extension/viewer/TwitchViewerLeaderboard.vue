@@ -109,8 +109,11 @@ export default class TwitchViewerLeaderboard extends Vue {
 
 	@Watch("$store.state.twitchLeaderboard")
 	public onStateChange():void {
-		this.expandResults = this.$store.state.twitchLeaderboard.showMoreResults;
-		this.setScrollState();
+		let newState = this.$store.state.twitchLeaderboard.showMoreResults;
+		if(this.expandResults != newState) {
+			this.expandResults = this.$store.state.twitchLeaderboard.showMoreResults;
+			this.setScrollState();
+		}
 	}
 
 	private setScrollState():void {

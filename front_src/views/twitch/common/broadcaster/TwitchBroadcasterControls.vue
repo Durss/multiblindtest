@@ -108,6 +108,9 @@ export default class TwitchBroadcasterControls extends Vue {
     public ircMessageHandler:any;
     public socketMessageHandler:any;
 
+	private debugGameStarted:number = 0;
+	private debugEventsHistory:{date:number, data:any}[] = []
+
 	public get tracksCount_num():number { return parseInt(this.tracksCount); }
 	public get gamesCount_num():number { return parseInt(this.gamesCount); }
 	public get gameDuration_num():number { return parseInt(this.gameDuration); }
@@ -116,9 +119,8 @@ export default class TwitchBroadcasterControls extends Vue {
 		this.loading = true;
 		this.ready = IRCClient.instance.connected;
 		if(!this.ready) {
-			let res;
 			try {
-				res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
+				let res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
 			}catch(error) {
 				this.$router.push({name:"twitch/auth"});
 				return;
@@ -218,6 +220,8 @@ export default class TwitchBroadcasterControls extends Vue {
 			const p = selectedPlaylists[i];
 			this.allTracks = this.allTracks.concat(p.tracks);
 		}
+		//Make a copy of the track to avoid modifying original data
+		this.allTracks = JSON.parse(JSON.stringify(this.allTracks));
 	}
 
 	/**
@@ -235,7 +239,9 @@ export default class TwitchBroadcasterControls extends Vue {
 		for (let i = 0; i < Math.min(6, Math.max(1, this.tracksCount_num)); i++) {
 			let t = this.allTracks.shift();
 			t.enabled = false;
+			t.pendingAcceptation = false;
 			t.guessedBy = null;
+			t.score = null;
 			toPlay.push(t);
 		}
 		this.currentTracks = toPlay;
@@ -246,14 +252,17 @@ export default class TwitchBroadcasterControls extends Vue {
 		//and 3 seconds for countdown
 		this.startTime = Date.now() + 4000;
 		
-		this.canSkip = false;
 		//Avoids mistakenly double clicking the
 		//button "Next round" then "End this round".
-		//The "end this round" button will show up only after a short
-		//delay.
+		//The "end this round" button will be enabled only
+		//after a short delay.
+		this.canSkip = false;
 		setTimeout(_=> {
 			this.canSkip = true;
 		}, 500);
+
+		this.debugEventsHistory = [];
+		this.debugGameStarted = Date.now();
 	}
 
 	/**
@@ -276,13 +285,6 @@ export default class TwitchBroadcasterControls extends Vue {
 	 */
 	private parseBroadcasterCommands(message:string):boolean {
 		switch(message.toLowerCase()) {
-			// case "!start":
-			// case "!go":
-			// 	if(state.twitchPlaylists) {
-			// 		this
-			// 		return true;
-			// 	}
-			// 	break;
 
 			case "!skip":
 			case "!pass":
@@ -339,12 +341,14 @@ export default class TwitchBroadcasterControls extends Vue {
 		let acceptAlbum = this.acceptAlbum == "1";
 		value = value.toLowerCase();
 
+		this.debugEventsHistory.push({date:Date.now() - this.debugGameStarted, data:{value, user:{username:user.username, "user-id":user["user-id"]}}});
+
 		//Add player to global players collection
 		if(!this.players.find(u=> u.username == user.username)) {
 			this.players.push(user);
 		}
 
-		console.log("Guess track by", user["display-name"]);
+		console.log("Guess track by", user.username);
 
 		for (let i = 0; i < this.currentTracks.length; i++) {
 			let t = this.currentTracks[i];
@@ -402,9 +406,8 @@ export default class TwitchBroadcasterControls extends Vue {
 					if(!t.pendingAcceptation) {
 						t.pendingAcceptation = true;
 						//Give some time to other players to also find that track
-						console.log("Schedule end in", this.acceptDuration+"s");
+						console.log("Schedule revealed in", this.acceptDuration+"s");
 						setTimeout(_=> {
-							console.log("TIMEOUT OK ");
 							//Show first guesser's name and number of other players
 							let userName = t.guessedBy[0].name;
 							if(t.guessedBy.length > 1) {
@@ -513,6 +516,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	 * Called when clicking "next round" button
 	 */
 	public nextRound():void {
+		this.debugEventsHistory.push({date:Date.now() - this.debugGameStarted, data:"next"});
 		this.roundIndex ++;
 		this.ellapsedTime = 0;
 		this.pickRandomTracks();
@@ -528,6 +532,12 @@ export default class TwitchBroadcasterControls extends Vue {
 		}
 		this.roundComplete = true;
 		this.gameComplete = this.roundIndex == this.gamesCount_num;
+		if(this.gameComplete) {
+			// console.log( JSON.stringify(this.debugEventsHistory) );
+			// Api.post("debug/twitchhistory", {data:this.debugEventsHistory})
+		}else{
+			this.debugEventsHistory.push({date:Date.now() - this.debugGameStarted, data:"end"});
+		}
 		this.broadcastCurrentState();
 	}
 
@@ -548,7 +558,7 @@ export default class TwitchBroadcasterControls extends Vue {
 	}
 
 	/**
-	 * Called when clicking "show results" button
+	 * Called when clicking "Replay" button
 	 */
 	public restartGame():void {
 		this.gameComplete = false;

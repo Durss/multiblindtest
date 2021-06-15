@@ -64,6 +64,8 @@ export default class AnswerTester {
 		this.checkTest("wavin'flag", "Wavin' Flag - Coca-Cola Celebration Mix", true);
 		this.checkTest("Murder On Dancefloor", "Murder On The Dancefloor", true);
 		this.checkTest("ma sorciere bien", "Ma Sorcière Bien Aimée", true);//In this expected answer "é" and "è" are not actual simple char but a E followed by a modifier.
+		this.checkTest("twin", "Twin Peaks", true);
+		this.checkTest("alerte a malibu", "Alerte À Malibu", true);
 
 		// this.testFuse([{id:"0", name: "death bed (coffee for your head) (feat. beabadoobee)", artist:"kf", audioPath:""}], "coffee for your head")
 	}

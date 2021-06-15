@@ -9,8 +9,8 @@ export default interface TrackData {
 	enabled?:boolean;
 	isPlaying?:boolean;
 	picture?:string;
-	guessedBy?:UserData[];//For multiplayer mode
 	loadFail?:boolean;
+	guessedBy?:UserData[];//For multiplayer mode
 	pendingAcceptation?:boolean;//Used for twitch mode when "multiple winners" is enabled
 	highlight?:boolean;//Used in twitch mode when replaying one specific song to highlight it on the stream
 	score?:number//Used to make track scoring easier to manage

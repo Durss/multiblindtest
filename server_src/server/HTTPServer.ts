@@ -13,6 +13,7 @@ import UserData from "../vo/UserData";
 import TrackData from "../vo/TrackData";
 import TwitchEBS from "../controllers/TwitchEBS";
 import fetch from "node-fetch";
+import * as fs from "fs";
 
 export default class HTTPServer {
 
@@ -416,6 +417,18 @@ export default class HTTPServer {
 			let url = "https://smsapi.free-mobile.fr/sendmsg?user="+Config.SMS_USER+"&pass="+Config.SMS_KEY+"&msg="+encodeURIComponent(msg);
 			await fetch(url, {});
 			res.status(200).send(JSON.stringify({success:true, user}));
+		});
+
+		/**
+		 * Gets a user infos from its token
+		 */
+		this.app.post("/api/debug/twitchhistory", async (req, res) => {
+			let data = req.body.data;
+			let folder = "debug/";
+			if(!fs.existsSync(folder)) {
+				fs.mkdirSync(folder);
+			}
+			let file = fs.writeFileSync(folder+Date.now()+".json", JSON.stringify(data));
 		});
 	}
 
