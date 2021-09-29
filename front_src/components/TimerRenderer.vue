@@ -147,6 +147,7 @@ export default class TimerRenderer extends Vue {
 		top: 0;
 		left: 0;
 		will-change: transform;
+		transition: background-color .5s;
 	}
 }
 </style>
