@@ -2,6 +2,7 @@
 node_modules
 /dist
 /server
+/debug
 credentials.conf
 MultiBlindTest.json
 
