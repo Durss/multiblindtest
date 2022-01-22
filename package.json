@@ -19,7 +19,7 @@
     "glob": "^7.1.6",
     "http": "0.0.0",
     "jsonwebtoken": "^8.5.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "uuid": "^8.3.2",
     "vue": "^2.6.12",
     "vue-class-component": "^7.2.6",
