@@ -3,9 +3,9 @@
 # Multi Blindtest
 
 Web app to play a multi blindtest.\
-It's ike a classic blind test but instead of hearing one track you hear up to 6 at the same time.
+It's like a classic blind test but instead of hearing one track you hear up to 6 at the same time.
 
-When you find a track it's stopped so you can hear the other better.
+When you find a track it's stopped so you can better hear the others.
 
 Check it out live at :\
 https://multiblindtest.com

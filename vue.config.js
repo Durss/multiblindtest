@@ -1,4 +1,6 @@
 const htmlwp = require('html-webpack-plugin');
+const webpack = require('webpack');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 module.exports = {
 	//Uncomment this line before compiling twitch extension
 	// publicPath: './',
@@ -29,10 +31,35 @@ module.exports = {
 	// },
 
     configureWebpack: {
+        plugins: [
+            new NodePolyfillPlugin(),
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+                Buffer: ['buffer', 'Buffer']
+            }),
+        ],
 		resolve: {
 			alias: {
 				'@': __dirname + '/front_src'
-			}
+			},
+            fallback: {
+                "assert": require.resolve("assert/"),
+                "util": require.resolve("util/"),
+                "url": require.resolve("url/"),
+                "crypto": require.resolve("crypto-browserify"),
+                "querystring": require.resolve("querystring-es3"),
+                "stream": require.resolve("stream-browserify"),
+                "http": require.resolve("stream-http"),
+                "https": require.resolve("https-browserify"),
+                "os": require.resolve("os-browserify/browser"),
+                "path": require.resolve("path-browserify"),
+                "zlib": require.resolve("browserify-zlib"),
+                "net": false,
+                "tls": false,
+                "fs": false,
+                "buffer": require.resolve("buffer/"),
+                "process": require.resolve("process/browser"),
+            }
 		},
 		entry: {
 			app: './front_src/main.ts'

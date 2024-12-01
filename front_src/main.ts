@@ -14,6 +14,11 @@ import gsap from "gsap";
 import { ScrollToPlugin } from 'gsap/all';
 import Utils from './utils/Utils';
 import TwitchExtensionHelper from './twitch/TwitchExtensionHelper';
+import { Buffer } from 'buffer';
+import process from 'process';
+
+globalThis.Buffer = Buffer;
+globalThis.process = process;
 
 Vue.config.productionTip = false;
 Config.init();
