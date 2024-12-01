@@ -85,7 +85,7 @@ export default class SpotifyAPI {
 	 */
 	public setToken(token:string):void {
 		this.access_token = token;
-		Store.set("access_token", token);
+		Store.set("spotify_access_token", token);
 	}
 
 	/**
@@ -143,8 +143,8 @@ export default class SpotifyAPI {
 	 * Initializes the class
 	 */
 	private initialize(): void {
-		if(Store.get("access_token")) {
-			this.access_token = Store.get("access_token");
+		if(Store.get("spotify_access_token")) {
+			this.access_token = Store.get("spotify_access_token");
 		}
 	}
 }

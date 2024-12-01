@@ -39,6 +39,13 @@ export default class Config {
 		}
 	};
 
+	public static get TWITCH_CLIENT_ID():string {
+		return this.getEnvData({
+			dev: "p8xijblr8h21rbtuveb871f0w9yvd2",
+			prod: "p8xijblr8h21rbtuveb871f0w9yvd2",
+		});
+	}
+
 	public static get SPOTIFY_CLIENT_ID():string {
 		return this.getEnvData({
 			dev: "944d2c2ba14745f588a370a93e56833c",

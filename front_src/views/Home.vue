@@ -15,7 +15,7 @@
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
 			<div class="twitch" v-if="loggedIn">
 				<Button v-if="loggedIn" :title="$t('home.twitch')" :to="{name:'twitch'}" :icon="require('@/assets/icons/twitch.svg')" class="button" big />
-				<div class="beta">BETA!</div>
+				<!-- <div class="beta">BETA!</div> -->
 			</div>
 			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="require('@/assets/icons/playlist.svg')" class="button" big />
 		</div>

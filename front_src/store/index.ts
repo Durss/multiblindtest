@@ -6,6 +6,7 @@ import SockController from '@/sock/SockController';
 import Labels from '@/i18n/Label';
 import RoomData from '@/vo/RoomData';
 import Store from './Store';
+import TwitchUtils, { TwitchAuthToken } from '@/twitch/TwitchUtils';
 
 Vue.use(Vuex)
 
@@ -27,7 +28,7 @@ export default new Vuex.Store({
 		groupRoomData:null,//This is only used to transmit data from lobby to game view
 		
 		twitchLogin:null,
-		twitchOAuthToken:null,
+		twitchOAuthToken:null as TwitchAuthToken|null,
 		twitchAllowedUsers:null,
 		twitchPlaylists:null,
 		twitchExpertMode:false,
@@ -55,11 +56,11 @@ export default new Vuex.Store({
 			if (payload.access_token) {
 				state.accessToken = payload.access_token;
 				let expirationDate:number = new Date().getTime() + parseInt(payload.expires_in) * 1000;
-				Store.set("accessToken", payload.access_token);
+				Store.set("spotify_access_token", payload.access_token);
 				Store.set("expirationDate", expirationDate.toString());
 				SpotifyAPI.instance.setToken(payload.access_token);
 			} else {
-				Store.remove("accessToken");
+				Store.remove("spotify_access_token");
 				Store.remove("expirationDate");
 			}
 		},
@@ -111,9 +112,9 @@ export default new Vuex.Store({
 			Store.set("userGroupData", JSON.stringify(state.userGroupData));
 		},
 
-		setTwitchOAuthToken(state, payload) {
+		setTwitchOAuthToken(state, payload:TwitchAuthToken) {
 			state.twitchOAuthToken = payload;
-			Store.set("twitchOAuthToken", state.twitchOAuthToken);
+			Store.set("twitchOAuthToken", JSON.stringify(state.twitchOAuthToken));
 		},
 
 		setTwitchLogin(state, payload) {
@@ -138,6 +139,15 @@ export default new Vuex.Store({
 
 		setTwitchJoin(state, payload) { state.twitchJoin = payload; },
 
+		async refreshTwitchToken(state, callback) {
+			const token = await TwitchUtils.refreshToken(state.twitchOAuthToken.refresh_token);
+			if(token.access_token) {
+				state.twitchOAuthToken = token;
+				Store.set("twitchOAuthToken", JSON.stringify(token));
+			}
+			callback();
+		}
+
 	},
 
 
@@ -151,7 +161,7 @@ export default new Vuex.Store({
 			if (startPromise && payload.force !== true) return startPromise;
 			
 			state.initComplete = false;
-			let token = Store.get("accessToken");
+			let token = Store.get("spotify_access_token");
 			if(token) {
 				state.loggedin = true;
 				state.accessToken = token;
@@ -173,7 +183,18 @@ export default new Vuex.Store({
 			}
 			
 			let twitchToken = Store.get("twitchOAuthToken");
-			if(twitchToken) state.twitchOAuthToken = twitchToken;
+			try {
+				if(twitchToken) state.twitchOAuthToken = JSON.parse(twitchToken);
+				if(state.twitchOAuthToken.refresh_token) {
+					await new Promise((resolve)=>{
+						commit("refreshTwitchToken", resolve);
+					})
+				}
+			}catch(error) {
+				//Failed parsing token, probably an old one when i was only storing
+				//an access token as a simple string instead of an full serialized
+				//auth token object
+			}
 			let twitchLogin = Store.get("twitchLogin");
 			if(twitchLogin) state.twitchLogin = twitchLogin;
 			let twitchAllowedUsers = Store.get("twitchAllowedUsers");
@@ -230,7 +251,7 @@ export default new Vuex.Store({
 
 		setUserName({commit}, payload) { commit("setUserName", payload); },
 
-		setTwitchOAuthToken({commit}, payload) { commit("setTwitchOAuthToken", payload); },
+		setTwitchOAuthToken({commit}, payload:TwitchAuthToken) { commit("setTwitchOAuthToken", payload); },
 
 		setTwitchLogin({commit}, payload) { commit("setTwitchLogin", payload); },
 
@@ -247,5 +268,7 @@ export default new Vuex.Store({
 		setTwitchLeaderboard({commit}, payload) { commit("setTwitchLeaderboard", payload); },
 
 		setTwitchJoin({commit}, payload) { commit("setTwitchJoin", payload); },
+
+		refreshTwitchToken({commit}, callback) { commit("refreshTwitchToken", callback); },
 	}
 })

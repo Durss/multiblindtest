@@ -11,28 +11,13 @@
 			<h1 v-if="!needSpotifyAuth && loggedIn">Embed to your stream</h1>
 
 			<div class="step" v-if="!loggedIn">
-				<div class="head">Please first generate an access token so I can receive your chat messages</div>
-				<Button to="https://twitchapps.com/tmi/"
-					type="link"
-					target="_blank"
+				<div class="head">Please first generate an access token so I can read and write on your chat</div>
+				<Button
+					type="button"
 					title="Generate token"
 					:icon="require('@/assets/icons/twitch.svg')"
+					:loading="authenticating"
 					@click.native="clickGenerate()" />
-			</div>
-
-			<div class="step" v-if="showForm && !loggedIn">
-				<div class="head">Paste the generated token bellow:</div>
-				<form @submit.prevent="submitToken()">
-					<input type="text" v-model="token" class="dark">
-					<div v-if="error" class="error" @click="error=null">Invalid token</div>
-					<div v-if="errorIRC" class="error" @click="error=null">Unable to connect to twitch chat via IRC</div>
-					<Button class="submit"
-						type="submit"
-						title="Submit"
-						:loading="checkingToken"
-						:disabled="!token || token.length < 30"
-						:icon="require('@/assets/icons/checkmark_white.svg')" />
-				</form>
 			</div>
 
 			<div class="step" v-if="loggedIn && urlOBS">
@@ -85,7 +70,7 @@ import Button from "@/components/Button.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import Store from "@/store/Store";
 import IRCClient from "@/twitch/IRCClient";
-import TwitchUtils from "@/twitch/TwitchUtils";
+import TwitchUtils, {TwitchAuthToken} from "@/twitch/TwitchUtils";
 import Config from "@/utils/Config";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import Utils from "@/utils/Utils";
@@ -107,15 +92,15 @@ export default class TwitchAuth extends Vue {
 	public spotifyOAToken:string;
 
 	public loading:boolean = false;
+	public authenticating:boolean = false;
 	public checkingToken:boolean = false;
-	public showForm:boolean = false;
 	public error:boolean = false;
 	public errorIRC:boolean = false;
 	public loggedIn:boolean = false;
 	public needSpotifyAuth:boolean = false;
 	public spotifyExpired:boolean = false;
-	public token:string = null;
-	public urlOBS:string = null;
+	public token:TwitchAuthToken|null = null;
+	public urlOBS:string|null = null;
 
 	public get authUrl():string {
 		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch/auth'}).href);
@@ -149,8 +134,7 @@ export default class TwitchAuth extends Vue {
 		this.error = false;
 		this.errorIRC = false;
 		this.checkingToken = true;
-		this.token = this.token.replace("oauth:", "");
-		let json = await TwitchUtils.validateToken(this.token);
+		let json = await TwitchUtils.validateToken(this.token.access_token);
 		if(!json) {
 			this.error = true;
 		}else{
@@ -160,7 +144,7 @@ export default class TwitchAuth extends Vue {
 			this.$store.dispatch("setTwitchLogin", twitchLogin);
 			let res;
 			try {
-				res = await IRCClient.instance.initialize(twitchLogin, this.token);
+				res = await IRCClient.instance.initialize(twitchLogin, this.token.access_token);
 			}catch(error) {
 				console.log("FAILED !");
 				this.errorIRC = true;
@@ -200,10 +184,11 @@ export default class TwitchAuth extends Vue {
 		return false;
 	}
 
-	public clickGenerate():void {
-		setTimeout(_=> {
-			this.showForm = true;
-		}, 1000)
+	public async clickGenerate():Promise<void> {
+		this.authenticating = true;
+		this.token = await TwitchUtils.requestDCF();
+		this.submitToken();
+		this.authenticating = false;
 	}
 
 	public selectText(e:Event):void {
