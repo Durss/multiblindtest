@@ -20,7 +20,8 @@
     "paths": {
       "@/*": [
         "front_src/*"
-      ]
+      ],
+      "*": ["node_modules/*"]
     },
     "lib": [
       "esnext",
