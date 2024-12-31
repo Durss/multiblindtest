@@ -151,7 +151,7 @@ export default class TwitchLobby extends Vue {
 		this.ready = IRCClient.instance.connected;
 		if(!this.ready) {
 			try {
-				let res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken);
+				let res = await IRCClient.instance.initialize(this.$store.state.twitchLogin, this.$store.state.twitchOAuthToken.access_token);
 			}catch(error) {
 				this.$router.push({name:"twitch/auth"});
 				return;
