@@ -182,6 +182,18 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"01/01/2025",
+						updates: [
+							"Fixing Twitch session failing to start",
+						]
+					},
+					{
+						date:"12/01/2024",
+						updates: [
+							"Updating Twtich auth after the external service died",
+						]
+					},
+					{
 						date:"06/03/2021",
 						updates: [
 							"Adding \"multiple winners\" mode for twitch so multiple users can earn point by finding the same song",
@@ -457,6 +469,18 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"01/01/2025",
+						updates: [
+							"Correction d'un bug empêchant de lancer des parties via Twitch",
+						]
+					},
+					{
+						date:"01/12/2024",
+						updates: [
+							"Mise à jour de l'authentification Twitch suite à la fin de vie du service externe utilisé jusque là",
+						]
+					},
 					{
 						date:"03/06/2021",
 						updates: [
