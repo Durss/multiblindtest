@@ -799,4 +799,24 @@ export default class Utils {
 		}
 		return res;
 	}
+	/**
+	 * Generates a random alphanumeric string of given length.
+	 * @param length 
+	 * @returns 
+	 */
+	public static generateRandomString(length:number):string {
+		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const values = crypto.getRandomValues(new Uint8Array(length));
+		return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+	}
+	/**
+	 * Computes the SHA-256 hash of a string and returns it as an ArrayBuffer.
+	 * @param plain 
+	 * @returns 
+	 */
+	public static sha256 = async (plain: string): Promise<ArrayBuffer> => {
+		const encoder = new TextEncoder()
+		const data = encoder.encode(plain)
+		return window.crypto.subtle.digest('SHA-256', data)
+	}
 }

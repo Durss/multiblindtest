@@ -9,7 +9,7 @@
 				<p class="subtitle" v-html="$t('home.head', {tracksCount:tracksCount})"></p>
 			</div>
 
-			<Button v-if="!loggedIn" :title="$t('home.connectSpotify')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
+			<Button v-if="!loggedIn" :loading="authUrl == ''" :title="$t('home.connectSpotify')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
 			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="require('@/assets/icons/play.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="require('@/assets/icons/solo.svg')" class="button" big />
 			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="require('@/assets/icons/multiplayer.svg')" class="button" big />
@@ -43,23 +43,22 @@ export default class Home extends Vue {
 	@Prop()
 	public from:string;
 
+	public authUrl:string = "";
+
 	public get loggedIn() {
 		return this.$store.state.loggedin;
 	}
 
-	public get authUrl():string {
-		if(this.from) {
-			Store.set("redirect", this.from);
-		}
-		return SpotifyAPI.instance.getAuthUrl();
-	}
 
 	public get tracksCount():number {
 		return Config.MAX_TRACK_COUNT;
 	}
 
-	public mounted():void {
-		
+	public async mounted():Promise<void> {
+		if(this.from) {
+			Store.set("redirect", this.from);
+		}
+		this.authUrl = await SpotifyAPI.instance.getAuthUrl();
 	}
 
 	public beforeDestroy():void {

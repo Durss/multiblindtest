@@ -183,7 +183,7 @@ export default class GroupLobby extends Vue {
 			let res = await Api.get("group/details", {roomId:this.id});
 			this.room = res.room;
 		}catch(error) {
-			this.$store.dispatch("alert", error.message);
+			this.$store.dispatch("alert", (error as {message:string}).message);
 			if(this.$store.state.loggedin) {
 				this.$router.push({name:"playlists", params:{mode:"multi"}});
 			}else{
@@ -219,7 +219,7 @@ export default class GroupLobby extends Vue {
 			this.room = res.room;
 		}catch(error) {
 			this.joining = false;
-			this.$store.dispatch("alert", error.message);
+			this.$store.dispatch("alert", (error as {message:string}).message);
 			return;
 		}
 		res.me.offline = false;

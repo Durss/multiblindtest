@@ -58,7 +58,7 @@
 				<h1>Connect with spotify</h1>
 				<div v-if="spotifyExpired">The spotify token has expired, click the button bellow to generate a new one</div>
 				<div v-if="!spotifyExpired">You now need to connect with spotify so the app can access your playlists and load songs</div>
-				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
+				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:spotifyAuthUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
 			</div>
 		</div>
 	</div>
@@ -101,21 +101,20 @@ export default class TwitchAuth extends Vue {
 	public spotifyExpired:boolean = false;
 	public token:TwitchAuthToken|null = null;
 	public urlOBS:string|null = null;
-
-	public get authUrl():string {
-		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch/auth'}).href);
-		return SpotifyAPI.instance.getAuthUrl();
-	}
+	public spotifyAuthUrl:string|null = null;
 
 	public get twitchExtUrl():string { return Config.TWITCH_EXT_URL; }
 
 	public async mounted():Promise<void> {
+		this.loading = true;
+		Store.set("redirect", document.location.origin+this.$router.resolve({name:'twitch/auth'}).href);
+		this.spotifyAuthUrl = await SpotifyAPI.instance.getAuthUrl();
+		this.loading = false;
 		let token = this.$store.state.twitchOAuthToken;
 		if(this.twitchOAToken) {
 			token = this.twitchOAToken;
 		}
 		if(token) {
-			this.loading = true;
 			this.token = token;
 			let success = await this.submitToken();
 			if(!success) {

@@ -1,6 +1,7 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import { Express, NextFunction } from "express";
+import * as https from "https";
 import * as http from "http";
 import Config from '../utils/Config';
 import Logger from '../utils/Logger';
@@ -23,8 +24,17 @@ export default class HTTPServer {
 	private _rooms:{[id:string]:RoomData} = {};
 
 	constructor(public port:number) {
-		this.app = <Express>express();
-		let server = http.createServer(<any>this.app);
+		this.app = express();
+		let server:http.Server | https.Server;
+		if(fs.existsSync("multiblindtest.local-key.pem") && fs.existsSync("multiblindtest.local.pem")) {
+			const options = {  
+				key: fs.readFileSync("multiblindtest.local-key.pem"),
+				cert: fs.readFileSync("multiblindtest.local.pem"),
+			};
+			server = https.createServer(options, this.app);
+		} else {
+			server = http.createServer(this.app);
+		}
 
 		SocketServer.instance.onUpdateUser = (user:UserData, roomId:string) => {
 			let room = this._rooms[roomId];

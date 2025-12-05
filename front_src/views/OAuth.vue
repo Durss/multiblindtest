@@ -24,23 +24,24 @@ export default class OAuth extends Vue {
 
 	public isError:boolean = false;
 
-	public mounted():void {
-		let error = Utils.getQueryParameterByName("error");
-		if(!error && document.location.hash) {
-
-			//Convert hash to key/value object
-			let vars = JSON.parse('{"' + decodeURI(document.location.hash.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
-			if(vars.access_token) {
-				let redirect = Store.get("redirect");
-				this.$store.dispatch("authenticate", {access_token:vars.access_token, expires_in:vars.expires_in});
-	
-				if(redirect) {
-					Store.remove("redirect");
-					window.location.href = redirect;
-				}else{
-					//Redirect to home
-					this.$router.push({name:"home"});
-				}
+	public async mounted():Promise<void> {
+		const error = Utils.getQueryParameterByName("error");
+		const code = Utils.getQueryParameterByName("code");
+		if(!error && code) {
+			console.log(">>>>1")
+			const authRes = await this.$store.dispatch("authenticate", {code:code});
+			this.isError = !authRes;
+			console.log("error?", this.isError);
+			
+			if(this.isError) return;
+			
+			let redirect = Store.get("redirect");
+			if(redirect) {
+				Store.remove("redirect");
+				window.location.href = redirect;
+			}else{
+				//Redirect to home
+				this.$router.push({name:"home"});
 			}
 		}else{
 			this.isError = true;

@@ -5,6 +5,8 @@ node_modules
 /debug
 credentials.conf
 MultiBlindTest.json
+multiblindtest.local-key.pem
+multiblindtest.local.pem
 
 # local env files
 .env.local

@@ -1,6 +1,7 @@
 import Config from './Config';
 import { Route } from 'vue-router';
 import Store from '@/store/Store';
+import Utils from './Utils';
 
 export default class SpotifyAPI {
 
@@ -83,28 +84,40 @@ export default class SpotifyAPI {
 	/**
 	 * Register the current access token for spotify api calls
 	 */
-	public setToken(token:string):void {
-		this.access_token = token;
-		Store.set("spotify_access_token", token);
+	public initFromStore():boolean {
+		const token = Store.get("spotify_access_token");
+		if(token && token != "undefined") {
+			this.access_token = token;
+			return true;
+		}
+		return false;
 	}
 
 	/**
 	 * Starts OAuth process for user authentication
 	 */
-	public authenticate():void {
-		document.location.href = this.getAuthUrl();
+	public async authenticate():Promise<void> {
+		const url = await this.getAuthUrl();
+		document.location.href = url;
 	}
 
 	/**
 	 * Get OAuth url
 	 */
-	public getAuthUrl():string {
-		let url = document.location.protocol+"//"+document.location.host+"/oauth";
-		url = "https://455b8a5b091d.ngrok-free.app/oauth"
-		let redir = encodeURIComponent(url);
-		let clientID = Config.SPOTIFY_CLIENT_ID;
-		let scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");
-		return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=token";
+	public async getAuthUrl():Promise<string> {
+		const url = document.location.protocol+"//"+document.location.host+"/oauth";
+		const redir = encodeURIComponent(url);
+		const clientID = Config.SPOTIFY_CLIENT_ID;
+		const scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");
+		const codeVerifier = Utils.generateRandomString(64);
+		const hash = await Utils.sha256(codeVerifier);
+		const codeChallenge = btoa(String.fromCharCode(...Array.from(new Uint8Array(hash))))
+					.replace(/=/g, '')
+					.replace(/\+/g, '-')
+					.replace(/\//g, '_');
+		Store.set("code_verifier", codeVerifier);
+		// return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=code";
+		return "https://accounts.spotify.com/authorize?client_id="+clientID+"&scope="+scopes+"&redirect_uri="+redir+"&response_type=code&code_challenge_method=S256&code_challenge="+codeChallenge;
 	}
 
 	/**
@@ -133,6 +146,52 @@ export default class SpotifyAPI {
 		let expirationDate = parseInt(Store.get("expirationDate"));
 		return !expirationDate || isNaN(expirationDate) || (new Date().getTime() + minutesBeforeExpiration * 60 * 1000) > expirationDate;
 
+	}
+
+	/**
+	 * Exchange PKCE code for access token
+	 * @param code 
+	 * @returns 
+	 */
+	public async getToken(code: string): Promise<boolean> {
+		// stored in the previous step
+		const codeVerifier = Store.get("code_verifier");
+		const url = "https://accounts.spotify.com/api/token";
+		const redirectUri = document.location.protocol+"//"+document.location.host+"/oauth";
+		const payload = {
+			method: 'POST',
+			headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({
+				client_id: Config.SPOTIFY_CLIENT_ID,
+				grant_type: 'authorization_code',
+				code,
+				redirect_uri: redirectUri,
+				code_verifier: codeVerifier,
+			}),
+		}
+
+		try {
+			const body = await fetch(url, payload);
+			if(body.status < 200 || body.status > 204) {
+				const response = await body.json();
+				console.log(response)
+				return false;
+			}else{
+				const response = await body.json();
+				if(response.access_token) {
+					this.access_token = response.access_token;
+					let expirationDate:number = new Date().getTime() + parseInt(response.expires_in) * 1000;
+					Store.set("spotify_access_token", response.access_token);
+					Store.set("expirationDate", expirationDate.toString());
+					return true;
+				}
+			}
+		}catch(error) {
+			console.error("Error getting spotify token", error);
+		}
+		return false;
 	}
 
 

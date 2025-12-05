@@ -22,7 +22,6 @@ export default new Vuex.Store({
 		i18n: null,
 		volume: .5,
 		needUserInteraction:false,
-		accessToken:null,
 		playlistsCache:null,
 		userGroupData:null,
 		groupRoomData:null,//This is only used to transmit data from lobby to game view
@@ -51,19 +50,6 @@ export default new Vuex.Store({
 
 
 	mutations: {
-		authenticate(state, payload) {
-			state.loggedin = true;
-			if (payload.access_token) {
-				state.accessToken = payload.access_token;
-				let expirationDate:number = new Date().getTime() + parseInt(payload.expires_in) * 1000;
-				Store.set("spotify_access_token", payload.access_token);
-				Store.set("expirationDate", expirationDate.toString());
-				SpotifyAPI.instance.setToken(payload.access_token);
-			} else {
-				Store.remove("spotify_access_token");
-				Store.remove("expirationDate");
-			}
-		},
 
 		initComplete(state) { state.initComplete = true; },
 
@@ -161,16 +147,15 @@ export default new Vuex.Store({
 			if (startPromise && payload.force !== true) return startPromise;
 			
 			state.initComplete = false;
-			let token = Store.get("spotify_access_token");
-			if(token) {
-				state.loggedin = true;
-				state.accessToken = token;
-				SpotifyAPI.instance.setToken(token);
-				state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
-				if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
-					let me = await SpotifyAPI.instance.call("v1/me");
-					if(me && me.id) {
-						StatsManager.instance.clientId = me.id;
+			if(Store.get("spotify_access_token")) {
+				state.loggedin = SpotifyAPI.instance.initFromStore();
+				if(state.loggedin) {
+					state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
+					if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
+						let me = await SpotifyAPI.instance.call("v1/me");
+						if(me && me.id) {
+							StatsManager.instance.clientId = me.id;
+						}
 					}
 				}
 			}
@@ -221,6 +206,20 @@ export default new Vuex.Store({
 			return startPromise;
 		},
 
+		async authenticate({ state }, payload) {
+			console.log("auth....")
+			if (payload.code) {
+				state.loggedin = await SpotifyAPI.instance.getToken(payload.code);
+				console.log("lOaded")
+				return state.loggedin;
+			} else {
+				state.loggedin = false;
+				Store.remove("spotify_access_token");
+				Store.remove("expirationDate");
+			}
+			return false;
+		},
+
 		setLabels({state}, payload) {
 			for (const lang in payload) {
 				state.i18n.setLocaleMessage(lang, payload[lang]);
@@ -232,8 +231,6 @@ export default new Vuex.Store({
 		closeTooltip({commit}) { commit("closeTooltip", null); },
 
 		confirm({commit}, payload) { commit("confirm", payload); },
-
-		authenticate({commit}, payload) { commit("authenticate", payload); },
 
 		playlistsCache({commit}, payload) { commit("playlistsCache", payload); },
 

@@ -294,7 +294,7 @@ export default class GroupGame extends Vue {
 				this.room = res.room;
 			}catch(error) {
 				//room does not exists
-				this.$store.dispatch("alert", error.message);
+				this.$store.dispatch("alert", (error as {message:string}).message);
 
 				if(this.$store.state.loggedin) {
 					this.$router.push({name:"playlists", params:{mode:"multi"}});
@@ -444,7 +444,7 @@ export default class GroupGame extends Vue {
 			try {
 				await Api.post("group/pass", {userId:this.me.id, roomId:this.room.id});
 			}catch(error) {
-				this.$store.dispatch("alert", error.message);
+				this.$store.dispatch("alert", (error as {message:string}).message);
 			}
 			this.loadingSkip = false;
 			for (let i = 0; i < this.tracksToPlay.length; i++) {

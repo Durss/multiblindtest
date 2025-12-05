@@ -1,7 +1,17 @@
 const htmlwp = require('html-webpack-plugin');
 const webpack = require('webpack');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const fs = require('fs');
 module.exports = {
+	devServer: {
+		https: {
+			key: fs.readFileSync("multiblindtest.local-key.pem"),
+			cert: fs.readFileSync("multiblindtest.local.pem"),
+		},
+		host: '127.0.0.1',
+		port: 8080, // or 3004
+		allowedHosts: ['multiblindtest.local'],
+	},
 	//Uncomment this line before compiling twitch extension
 	// publicPath: './',
 
