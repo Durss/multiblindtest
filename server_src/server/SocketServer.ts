@@ -4,6 +4,7 @@ import Logger, { LogStyle } from "../utils/Logger";
 import UserData from "../vo/UserData";
 import Config from "../utils/Config";
 import { v4 as uuidv4 } from 'uuid';
+import * as http from "http";
 
 /**
  * Created by Durss on 28/03/2019
@@ -11,17 +12,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class SocketServer {
 
-	public onUserDisconnect:Function;
-	public onUserConnect:Function;
-	public onUpdateUser:Function;
+	public onUserDisconnect!:Function;
+	public onUserConnect!:Function;
+	public onUpdateUser!:Function;
 
 	private static _instance: SocketServer;
 	private _DISABLED: boolean = false;
 	private _sockjs: any;
-	private _version:string;
-	private _connections:Connection[];
-	private _connectionToUid:{ [id: string] : string; };
-	private _uidToConnection:{ [id: string] : Connection; };
+	private _version!:string;
+	private _connections!:Connection[];
+	private _connectionToUid!:{ [id: string] : string; };
+	private _uidToConnection!:{ [id: string] : Connection; };
 	private _groupIdToUsers:{[id:string]:UserData[]} = {};
 	private _userIdToGroupId:{[id:string]:string} = {};
 
@@ -118,7 +119,8 @@ export default class SocketServer {
 	 * @param server
 	 * @param scope
 	 */
-	public installHandler(server, scope : ServerOptions) {
+	public installHandler(server:http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
+, scope : ServerOptions) {
 		if(this._DISABLED) return;
 		this.connect();
 		this._sockjs.installHandlers(server, scope);
@@ -227,8 +229,8 @@ export default class SocketServer {
 				}else
 				if(uid && group) {
 					//Message is sent by a valid user on a valid room.
-					let exclude = uid;
-					if(json.includeSelf === true) exclude = null;
+					let exclude:string | undefined = uid;
+					if(json.includeSelf === true) exclude = undefined;
 					json.from = uid;
 					// Logger.info("Socket message : "+LogStyle.Reset+json.action, "for group", group, "excluding", exclude);
 					// console.log(json);
@@ -242,7 +244,7 @@ export default class SocketServer {
 
 			}
 		});
-		conn.on("close", (p) => {
+		conn.on("close", () => {
 			this.onClose(conn);
 			let uid = this._connectionToUid[ conn.id ];
 			if(uid) {
@@ -269,7 +271,7 @@ export default class SocketServer {
 		if(!groupId) groupId = this._userIdToGroupId[uid];
 		let userList = this._groupIdToUsers[groupId];
 		if(userList) {
-			let user:UserData;
+			let user:UserData | undefined = undefined;
 			for (let i = 0; i < userList.length; i++) {
 				if(userList[i].id == uid) {
 					user = userList[i]

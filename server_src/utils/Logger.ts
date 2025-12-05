@@ -16,7 +16,7 @@ export default class Logger  {
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-	public static log(message:any, ...more):void {
+	public static log(message:any, ...more: string[]):void {
 		if(!Config.LOGS_ENABLED) return;
 
 		let chunks:string[] = [message];
@@ -25,7 +25,7 @@ export default class Logger  {
 		this.doLog(chunks.join(" "));
 	}
 
-	public static simpleLog(message:any, ...more):void {
+	public static simpleLog(message:any, ...more: string[]):void {
 		if(!Config.LOGS_ENABLED) return;
 
 		let chunks:string[] = [message];
@@ -33,7 +33,7 @@ export default class Logger  {
 		console.log("                            "+LogStyle.Reset+chunks.join(" ")+LogStyle.Reset);
 	}
 
-	public static info(message:any, ...more):void {
+	public static info(message:any, ...more: string[]):void {
 		if(!Config.LOGS_ENABLED) return;
 
 		let chunks:string[] = [message];
@@ -42,28 +42,28 @@ export default class Logger  {
 		this.doLog(LogStyle.FgCyan+chunks.join(" "));
 	}
 
-	public static warn(message:any, ...more):void {
+	public static warn(message:any, ...more: string[]):void {
 		let chunks:string[] = [message];
 		chunks = chunks.concat(more);
 
 		this.doLog(LogStyle.FgYellow+chunks.join(" "));
 	}
 
-	public static error(message:any, ...more):void {
+	public static error(message:any, ...more: string[]):void {
 		let chunks:string[] = [message];
 		chunks = chunks.concat(more);
 
 		this.doLog(LogStyle.FgRed+chunks.join(" "));
 	}
 
-	public static success(message:any, ...more):void {
+	public static success(message:any, ...more: string[]):void {
 		let chunks:string[] = [message];
 		chunks = chunks.concat(more);
 
 		this.doLog(LogStyle.FgGreen+chunks.join(" "));
 	}
 
-	public static faded(message:any, ...more):void {
+	public static faded(message:any, ...more: string[]):void {
 		let chunks:string[] = [message];
 		chunks = chunks.concat(more);
 
@@ -76,8 +76,8 @@ export default class Logger  {
 	 * PRIVATE METHODS *
 	 *******************/
 	private static convertDate(inputFormat:Date):string {
-		function pad(s) { return (s < 10) ? '0' + s : s; }
-		function pad2(s) { return (s < 10) ? '00' + s : (s < 100) ? '0' + s : s; }
+		function pad(s:number) { return (s < 10) ? '0' + s : s; }
+		function pad2(s:number) { return (s < 10) ? '00' + s : (s < 100) ? '0' + s : s; }
 		let d = new Date(inputFormat);
 		return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')+ " " + [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':')+":"+pad2(d.getMilliseconds());
 	}

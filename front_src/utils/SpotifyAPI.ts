@@ -100,6 +100,7 @@ export default class SpotifyAPI {
 	 */
 	public getAuthUrl():string {
 		let url = document.location.protocol+"//"+document.location.host+"/oauth";
+		url = "https://455b8a5b091d.ngrok-free.app/oauth"
 		let redir = encodeURIComponent(url);
 		let clientID = Config.SPOTIFY_CLIENT_ID;
 		let scopes = encodeURIComponent("playlist-read-private playlist-read-collaborative");

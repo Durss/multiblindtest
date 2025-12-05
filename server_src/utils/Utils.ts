@@ -1,4 +1,3 @@
-import * as os from "os";
 /**
  * Created by Durss
  */
@@ -354,25 +353,6 @@ export default class Utils  {
 				this.diacriticsMap[letters[j]] = this.defaultDiacriticsRemovalMap[i].base;
 			}
 		}
-	}
-
-	/**
-	 * Get the most similar local IP compared to the one given in parameters
-	 */
-	public static getMostSimilarIpFrom(ref:string):string {
-		const getLocalExternalIPs = () => [].concat(...Object.values(os.networkInterfaces()))
-		.filter(details => details.family === 'IPv4' && !details.internal).map(details => details.address);
-		let ips = getLocalExternalIPs();
-		let minDist = 9999999;
-		let selected = null;
-		ips.forEach(ip => {
-			let dist = this.levenshtein(ref, ip);
-			if(dist < minDist) {
-				minDist = dist;
-				selected = ip;
-			}
-		});
-		return selected;
 	}
 
 	public static genCode():string {

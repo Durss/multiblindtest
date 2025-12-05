@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
-import { NextFunction, Request, Response, Express } from "express-serve-static-core";
+import { Express, NextFunction } from "express";
 import * as http from "http";
 import Config from '../utils/Config';
 import Logger from '../utils/Logger';
@@ -14,6 +14,7 @@ import TrackData from "../vo/TrackData";
 import TwitchEBS from "../controllers/TwitchEBS";
 import fetch from "node-fetch";
 import * as fs from "fs";
+import { Request, Response } from "express-serve-static-core";
 
 export default class HTTPServer {
 
@@ -60,7 +61,7 @@ export default class HTTPServer {
 		}
 		SocketServer.instance.installHandler(server, {prefix:"/sock"});
 
-		server.listen(Config.SERVER_PORT, '0.0.0.0', null, ()=> {
+		server.listen(Config.SERVER_PORT, '0.0.0.0', undefined, ()=> {
 			Logger.success("Server ready on port " + Config.SERVER_PORT + " :: server name \"" + Config.SERVER_NAME + "\"");
 		});
 
@@ -74,7 +75,7 @@ export default class HTTPServer {
 					//Avoiding rewrites for API calls and socket
 					from: /.*\/(api|sock)\/?.*$/,
 					to: (context) => {
-						return context.parsedUrl.pathname;
+						return context.parsedUrl.pathname || '';
 					}
 				}
 			],
@@ -92,7 +93,7 @@ export default class HTTPServer {
 		this.app.use(<any>bodyParser.urlencoded({ extended: true }));
 		this.app.use(<any>bodyParser.json({limit: '10mb'}));
 
-		this.app.all(Config.SERVER_NAME+"/*", (req:Request, res:Response, next:NextFunction) => {
+		this.app.all(Config.SERVER_NAME+"/*", (req:Request, res:Response, next?:NextFunction) => {
 			// Set CORS headers
 			res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
 			res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
@@ -102,7 +103,7 @@ export default class HTTPServer {
 				return;
 			}
 			
-			next();
+			if(next) next();
 		});
 		
 		this.app.get("/api", (req, res) => {
@@ -191,7 +192,7 @@ export default class HTTPServer {
 			if(room) {
 				room.gameStepIndex = 0;
 				room.scoreHistory = [];
-				room.currentTracks = null;
+				room.currentTracks = undefined;
 				for (let i = 0; i < room.users.length; i++) {
 					room.users[i].score = 0;
 				}
@@ -280,17 +281,17 @@ export default class HTTPServer {
 			let trackId = req.body.trackId;
 			let uid = req.body.user;
 			let room = this._rooms[roomId];
-			if(!room) {
+			if(!room || !room.currentTracks) {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
 			let score = room.currentTracks.length;
-			let user:UserData;
-			let guessedTrack = null;
+			let user:UserData | undefined = undefined;
+			let guessedTrack: TrackData | null = null;
 			for (let i = 0; i < room.currentTracks.length; i++) {
 				const t:TrackData = room.currentTracks[i];
 				if(t.id == trackId && !t.guessedBy) {
-					user = room.users.find(u => u.id == uid);
+					user = room.users.find(u => u.id == uid)!;
 					t.guessedBy = user;
 					t.enabled = true;
 					guessedTrack = t;
@@ -298,7 +299,9 @@ export default class HTTPServer {
 					score --;
 				}
 			}
-			guessedTrack.score = score;
+			if(guessedTrack) {
+				guessedTrack.score = score;
+			}
 			if(user) {
 				user.score += score;
 			}
@@ -334,7 +337,7 @@ export default class HTTPServer {
 			}
 
 			let pass = passCount > usersOnline/2;
-			if(pass) {
+			if(pass && room.currentTracks) {
 				//Flag all tracks as discovered
 				for (let i = 0; i < room.currentTracks.length; i++) {
 					let t = room.currentTracks[i];

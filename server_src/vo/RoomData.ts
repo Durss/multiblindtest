@@ -4,13 +4,13 @@ import TrackData from "./TrackData";
 
 export default interface RoomData {
     id:string;
-    creator:string;
+    creator:string|null;
     users:UserData[];
     playlists:PlaylistData[];
     tracksCount:number;
     gamesCount:number;
     gameStepIndex:number;
     currentTracks?:TrackData[];
-    expertMode:string[];
+    expertMode:string[]|null;
     scoreHistory:{trackId:string, guesserId:string, score:number}[];
 }
