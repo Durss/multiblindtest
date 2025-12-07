@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="groupuserlist">
 		<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
 			<div class="position">{{index + 1}}</div>
@@ -12,14 +12,14 @@
 					<div class="fill" :style="userScorePercentStyles(u)"></div>
 				</div>
 			</div>
-			<Button :icon="require('@/assets/icons/kick.svg')" class="kick" highlight @click="onClickKick(u)" v-if="canKick && u.id != me.id" />
+			<Button :icon="$getIcon('kick')" class="kick" highlight @click="onClickKick(u)" v-if="canKick && u.id != me.id" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import UserData from '../vo/UserData';
 import Button from './Button.vue';
 

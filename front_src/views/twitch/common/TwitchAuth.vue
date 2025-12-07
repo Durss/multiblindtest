@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<div class="twitchauth">
 		<BouncingLoader
 			v-if="loading"
 			class="loader"
-			:icon="require('@/assets/icons/twitch.svg')"
+			:icon="$getIcon('twitch')"
 			label="Connecting to Twitch..." />
 		
 		<div v-if="!loading">
@@ -15,40 +15,40 @@
 				<Button
 					type="button"
 					title="Generate token"
-					:icon="require('@/assets/icons/twitch.svg')"
+					:icon="$getIcon('twitch')"
 					:loading="authenticating"
 					@click.native="clickGenerate()" />
 			</div>
 
 			<div class="step" v-if="loggedIn && urlOBS">
-				<ToggleBlock class="block" :enabled="false" :icon="require('@/assets/icons/obs.svg')" title="Play on OBS">
+				<ToggleBlock class="block" :enabled="false" :icon="$getIcon('obs')" title="Play on OBS">
 					<div>Configure this URL in the OBS browser params:</div>
 					<div class="url" ref="url">
 						<div class="text" @click="selectText">{{urlOBS}}</div>
-						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
+						<Button :title="$t('global.copy')" :icon="$getIcon('copy')" highlight @click="copyURL()" />
 					</div>
 					<!-- <div class="head">Or continue if you already are on OBS:</div> -->
 					<!-- <Button :to="redirect" :title="$t('twitch.auth.continue')" big /> -->
-					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="require('@/assets/icons/play.svg')" />
+					<Button :to="{name:'playlists', params:{mode:'twitchObs'}}" title="Start game session" :icon="$getIcon('play')" />
 				</ToggleBlock>
 
-				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/twitch.svg')" title="Play with Twitch extension">
+				<ToggleBlock class="block" :closed="true" :icon="$getIcon('twitch')" title="Play with Twitch extension">
 					<div class="twitchExt">
 						<p>A twitch extension has been developped but Twitch won't validate it because of DMCA issues, sorry :(</p>
 						<!-- <div>Install the <strong>Twitch Extension</strong> and start a game:</div>
-						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
+						<Button :to="twitchExtUrl" type="link" title="Install Twitch extension" target="_blank" :icon="$getIcon('twitch')" />
 						<router-link :to="{name:'twitch'}" class="getAccess">- get access -</router-link>
-						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="require('@/assets/icons/play.svg')" /> -->
+						<Button :to="{name:'playlists', params:{mode:'twitchExt'}}" title="Start a game" :icon="$getIcon('play')" /> -->
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock class="block" :closed="true" :icon="require('@/assets/icons/dmca.svg')" title="What about DMCA strike?">
+				<ToggleBlock class="block" :closed="true" :icon="$getIcon('dmca')" title="What about DMCA strike?">
 					<div class="dmca">
 						<!-- <div>The music won't be played on your stream but from within the extension so it will be undetectable by any live DMCA detection and your VOD won't have any trace of the audio.</div> -->
 						<div>At the time of this writting, live DMCA does not exist on twitch and you can configure OBS to have a different audio source for your live and your VOD.</div>
 						<div>This means you can play music live but VOD won't contain it.</div>
 						<div>Learn how to configure this here:</div>
-						<Button href="https://www.youtube.com/watch?v=7vd1EyQXq7A" type="link" title="Configure OBS to split audio sources" target="_blank" :icon="require('@/assets/icons/twitch.svg')" />
+						<Button href="https://www.youtube.com/watch?v=7vd1EyQXq7A" type="link" title="Configure OBS to split audio sources" target="_blank" :icon="$getIcon('twitch')" />
 						<div>Also, the fact that many tracks are playing at the same time might help remaining undetected by any futur live DMCA ¯\_(ツ)_/¯</div>
 					</div>
 				</ToggleBlock>
@@ -58,7 +58,7 @@
 				<h1>Connect with spotify</h1>
 				<div v-if="spotifyExpired">The spotify token has expired, click the button bellow to generate a new one</div>
 				<div v-if="!spotifyExpired">You now need to connect with spotify so the app can access your playlists and load songs</div>
-				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:spotifyAuthUrl}}" :icon="require('@/assets/icons/spotify.svg')" class="button" big />
+				<Button :title="$t('twitch.auth.spotifyConnect')" :to="{name:'redirect', query:{uri:spotifyAuthUrl}}" :icon="$getIcon('spotify')" class="button" big />
 			</div>
 		</div>
 	</div>

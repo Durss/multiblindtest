@@ -62,7 +62,7 @@ export default class Config {
 	
 	public static get API_PATH(): string {
 		return this.getEnvData({
-			dev: "http://localhost:"+this.SERVER_PORT+"/api",
+			dev: document.location.origin.replace('8080', this.SERVER_PORT.toString())+"/api",
 			prod:"/api",
 		});
 	}

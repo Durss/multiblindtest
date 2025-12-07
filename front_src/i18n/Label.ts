@@ -182,6 +182,12 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"12/05/2025",
+						updates: [
+							"Migration to the new Spotify authentication system after the old one was deprecated",
+						]
+					},
+					{
 						date:"01/01/2025",
 						updates: [
 							"Fixing Twitch session failing to start",
@@ -469,6 +475,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"05/12/2025",
+						updates: [
+							"Migration vers le nouveau système d'authentification Spotify après la dépréciation de l'ancien",
+						]
+					},
 					{
 						date:"01/01/2025",
 						updates: [

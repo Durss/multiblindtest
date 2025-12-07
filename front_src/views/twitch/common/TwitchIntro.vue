@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="twitchintro">
 		<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
 		<h1>MultiBlindTest on Twitch</h1>
@@ -8,7 +8,7 @@
 				<p>The MultiBlindTest Twitch mode is for you.</p>
 			</div>
 		</div>
-		<Button :icon="require('@/assets/icons/twitch.svg')" title="Proceed" :to="{name:'twitch/auth'}" />
+		<Button :icon="$getIcon('twitch')" title="Proceed" :to="{name:'twitch/auth'}" />
 	</div>
 </template>
 

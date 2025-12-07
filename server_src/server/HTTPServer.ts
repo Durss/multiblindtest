@@ -1,12 +1,11 @@
-import * as bodyParser from "body-parser";
-import * as express from "express";
-import { Express, NextFunction } from "express";
+import bodyParser from "body-parser";
+import express, { Express, NextFunction } from "express";
 import * as https from "https";
 import * as http from "http";
 import Config from '../utils/Config';
 import Logger from '../utils/Logger';
 import Utils from '../utils/Utils';
-import * as historyApiFallback from 'connect-history-api-fallback';
+import historyApiFallback from 'connect-history-api-fallback';
 import SocketServer, { SOCK_ACTIONS } from "./SocketServer";
 import { v4 as uuidv4 } from 'uuid';
 import RoomData from "../vo/RoomData";

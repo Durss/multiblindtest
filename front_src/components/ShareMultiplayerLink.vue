@@ -1,11 +1,11 @@
-<template>
+﻿<template>
 	<div class="sharemultiplayerlink">
 		<h2 class="title">{{$t('group.lobby.share.title')}}</h2>
 		<div class="content" ref="content">
 			<p>{{$t('group.lobby.share.send')}}</p>
 			<div class="inputs">
-				<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
-				<Button :icon="require('@/assets/icons/copy.svg')" :data-tooltip="$t('group.lobby.share.copy')" class="copy" @click="shareCurrentRoom()" />
+				<input type="text" v-model="shareUrl" class="dark" @focus="setFocus($event)" >
+				<Button :icon="$getIcon('copy')" :data-tooltip="$t('group.lobby.share.copy')" class="copy" @click="shareCurrentRoom()" />
 			</div>
 			<p class="copied" v-if="showCopied" @click="showCopied = false">{{$t('group.lobby.share.copied')}}</p>
 		</div>
@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import gsap from 'gsap';
+import { Component, Vue } from "vue-property-decorator";
 import Utils from '../utils/Utils';
 import Button from './Button.vue';
-import gsap from 'gsap';
 
 @Component({
 	components:{
@@ -52,6 +52,10 @@ export default class ShareMultiplayerLink extends Vue {
 			gsap.set(this.$refs.content, {filter:"brightness(1)"});
 			gsap.from(this.$refs.content, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
 		})
+	}
+
+	public setFocus(e:FocusEvent):void {
+		(e.target as HTMLInputElement).select();
 	}
 
 }

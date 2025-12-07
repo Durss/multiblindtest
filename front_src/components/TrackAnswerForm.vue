@@ -1,11 +1,11 @@
-<template>
+﻿<template>
 	<div :class="classes">
 		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="showForm" @keyup="onKeyUp">
 			<label for="trackName" class="label">{{$t('game.guess')}}</label>
 			<div class="line" ref="inputLine">
-				<Button type="button" :icon="require('@/assets/icons/chat'+(anonMode? '_off' :'')+'.svg')" class="chat" @click="anonMode=!anonMode" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
+				<Button type="button" :icon="$getIcon('chat' + (anonMode ? '_off' : ''))" class="chat" @click="anonMode=!anonMode" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
 
-				<input ref="input" type="text" :placeholder="$t('game.guessPlaceholder')"
+				<input ref="input" type="text" :placeholder="$t('game.guessPlaceholder').toString()"
 					v-model="guess"
 					class="input dark"
 					id="trackName"
@@ -14,7 +14,7 @@
 					maxlength="100"
 				>
 
-				<Button type="submit" :icon="require('@/assets/icons/checkmark_white.svg')" :disabled="guess.length == 0" class="submit" />
+				<Button type="submit" :icon="$getIcon('checkmark_white')" :disabled="guess.length == 0" class="submit" />
 			</div>
 
 			<div ref="stars" class="stars">
@@ -23,22 +23,22 @@
 		</form>
 		
 		<div v-if="shareUrl" class="shareUrl" ref="share">
-			<Button :icon="require('@/assets/icons/cross_white.svg')" class="close" @click="$emit('closeshare')" />
+			<Button :icon="$getIcon('cross_white')" class="close" @click="$emit('closeshare')" />
 			<p class="title">{{$t('group.lobby.share.copied')}}</p>
-			<input type="text" v-model="shareUrl" class="dark" @focus="$event.target.select()">
+			<input type="text" v-model="shareUrl" class="dark" @focus="setFocus($event)">
 		</div>
 		
 		<div class="actions" v-if="!multiplayerMode">
-			<Button @click="onShowAnswers()" class="showAnswers" :icon="require('@/assets/icons/show.svg')" :data-tooltip="$t('game.answerForm.show')" big v-if="showForm" />
-			<Button @click="onShareList()" class="showAnswers" :icon="require('@/assets/icons/share.svg')" :data-tooltip="$t('game.answerForm.share')" big v-if="showShare" />
+			<Button @click="onShowAnswers()" class="showAnswers" :icon="$getIcon('show')" :data-tooltip="$t('game.answerForm.show')" big v-if="showForm" />
+			<Button @click="onShareList()" class="showAnswers" :icon="$getIcon('share')" :data-tooltip="$t('game.answerForm.share')" big v-if="showShare" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Button from './Button.vue';
 import gsap from 'gsap';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import Button from './Button.vue';
 
 @Component({
 	components:{
@@ -161,6 +161,10 @@ export default class TrackAnswerForm extends Vue {
 			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
 			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
 		}
+	}
+	
+	public setFocus(e:FocusEvent):void {
+		(e.target as HTMLInputElement).select();
 	}
 
 }

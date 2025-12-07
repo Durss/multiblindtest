@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from 'vue-property-decorator'
 import gsap from 'gsap';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AlertView extends Vue {
@@ -25,7 +25,7 @@ export default class AlertView extends Vue {
 			this.$nextTick().then(_=> {
 				this.$el.removeAttribute("style");
 				gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
-				setTimeout(_=> this.close(), mess.length/10 * 1000);
+				setTimeout(_=> this.close(), mess.length/10 * 2000);
 			});
 		}else{
 			this.$nextTick().then(_=> {
@@ -46,7 +46,7 @@ export default class AlertView extends Vue {
 .alert {
 	background-color: #c00;
 	color: #fff;
-	padding: 20px 0;
+	padding: 20px;
 	width: 100%;
 	position: absolute;
 	overflow: hidden;

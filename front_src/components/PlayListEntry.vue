@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div :class="classes" @click="onClick($event)">
 		<Button type="checkbox" v-model="selected" class="checkbox" v-if="!data.processingTracks" />
 		<img src="@/assets/loader/loader_white.svg" alt="loader" v-if="data.processingTracks">
@@ -12,7 +12,7 @@
 			<div v-if="reduced === false" class="total" :data-tooltip="$t('playlists.playableTracksInfos')">{{$t('playlists.playableTracks', {count:data.tracks.length})}}</div>
 		</div>
 		
-		<Button class="deleteBt" :icon="require('@/assets/icons/cross.svg')" v-if="data.searchOrigin" @click="onClickDelete($event)" />
+		<Button class="deleteBt" :icon="$getIcon('cross')" v-if="data.searchOrigin" @click="onClickDelete($event)" />
 	</div>
 </template>
 

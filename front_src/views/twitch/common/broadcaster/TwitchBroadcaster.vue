@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="twitchbroadcaster">
 		<img src="@/assets/icons/home_logo_outlined.svg" class="icon">
 		<div class="holder">
@@ -6,7 +6,7 @@
 			<Button class="button" type="link"
 				title="Start Game"
 				:to="url"
-				:icon="require('@/assets/icons/ext_link.svg')"
+				:icon="$getIcon('ext_link')"
 				target="_blank"
 				white />
 			<div class="url">{{url}}</div>

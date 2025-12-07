@@ -1,10 +1,10 @@
-<template>
+﻿<template>
 	<div class="grouplobbyuser" @mouseleave="hover=false" @mouseenter="hover=true">
 		<div :class="classes" v-if="true">
 			<div class="text" @click="clickName()" v-if="!editName">{{data.name}}</div>
 			<div v-if="editName" class="editForm">
 				<input type="text" v-model="data.name" @keyup.enter="submitName()" @keydown.esc="editName=false" maxlength="30" v-focus>
-				<Button :icon="require('@/assets/icons/checkmark.svg')" white @click.stop="submitName()" />
+				<Button :icon="$getIcon('checkmark')" white @click.stop="submitName()" />
 			</div>
 			<div v-if="data.handicap" class="handicap">
 				<img src="@/assets/icons/delay.svg" alt="delay">
@@ -21,11 +21,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import UserData from '../vo/UserData';
-import IncrementForm from './IncrementForm.vue';
-import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import Button from './Button.vue';
+import IncrementForm from './IncrementForm.vue';
 
 @Component({
 	components:{

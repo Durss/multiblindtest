@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<div class="twitchlobby">
 		<BouncingLoader
 			v-if="!ready"
 			class="loader"
-			:icon="require('@/assets/icons/twitch.svg')"
+			:icon="$getIcon('twitch')"
 			label="Connecting to Twitch..." />
 		
 		<div v-if="ready">
@@ -18,7 +18,7 @@
 			<Button :title="$t('group.lobby.start')"
 				class="start"
 				type="button"
-				:icon="require('@/assets/icons/play.svg')"
+				:icon="$getIcon('play')"
 				big
 				@click="startGame()" />
 
@@ -29,7 +29,7 @@
 						<div>Type the following command on your chat to join the game:</div>
 						<input type="text" v-model="command" class="dark small">
 						<div class="info">(customize the command as you wish)</div>
-						<Button class="sendToChat" title="Send instructions to chat" :icon="require('@/assets/icons/twitch.svg')" @click="sendToChat()" :loading="sendingToChat" />
+						<Button class="sendToChat" title="Send instructions to chat" :icon="$getIcon('twitch')" @click="sendToChat()" :loading="sendingToChat" />
 					</div>
 
 					<div class="playersCount">
@@ -72,7 +72,7 @@
 					<div>Configure this URL in the OBS browser params:</div>
 					<div class="url" ref="url">
 						<div class="text" @click="selectText">{{urlOBS}}</div>
-						<Button :title="$t('global.copy')" :icon="require('@/assets/icons/copy.svg')" highlight @click="copyURL()" />
+						<Button :title="$t('global.copy')" :icon="$getIcon('copy')" highlight @click="copyURL()" />
 					</div>
 				</div>
 			</div>

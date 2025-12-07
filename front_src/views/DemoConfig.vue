@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="democonfig">
 		<div class="header">
 			<h1>{{$t("demo.title")}}</h1>
@@ -8,7 +8,7 @@
 		<div class="content">
 			<Button v-for="index in 5" :key="index"
 			class="number"
-			:icon="require('@/assets/icons/song.svg')"
+			:icon="$getIcon('song')"
 			:title="'x '+(index+1)"
 			:to="{name:'demo/play', params:{trackscounts:index+1}}" />
 		</div>
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import Button from '../components/Button.vue';
 
 @Component({

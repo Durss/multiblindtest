@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import Button from './Button.vue';
 
 @Component({
@@ -98,12 +98,12 @@ export default class VolumeButton extends Vue {
 		}
 	}
 
-	public onPress(e:MouseEvent):void {
+	public onPress(e:MouseEvent|TouchEvent):void {
 		this.dragging = true;
 		this.onMove(e);
 	}
 
-	public onRelease(e:MouseEvent):void {
+	public onRelease(e:MouseEvent|TouchEvent):void {
 		this.dragging = false;
 		if(!this.isMouseOver) this.expand = false;
 	}

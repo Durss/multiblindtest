@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "strictNullChecks": false,
@@ -14,8 +14,11 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "baseUrl": ".",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "types": [
-      "webpack-env"
+      "vite/client"
     ],
     "paths": {
       "@/*": [
@@ -34,6 +37,7 @@
     "front_src/**/*.ts",
     "front_src/**/*.tsx",
     "front_src/**/*.vue",
+    "vite.config.ts"
   ],
   "exclude": [
     "node_modules"

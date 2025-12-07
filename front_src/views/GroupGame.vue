@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="groupgame">
 		<SimpleLoader v-if="loading" theme="mainColor_normal" />
 
@@ -31,7 +31,7 @@
 			<Button
 				:title="$t('group.game.giveup')"
 				highlight
-				:icon="require('@/assets/icons/shrug.svg')"
+				:icon="$getIcon('shrug')"
 				class="giveUp"
 				@click="onGiveUp()"
 				:loading="loadingSkip"
@@ -80,23 +80,23 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import GameView from './GameView.vue';
-import RoomData from '../vo/RoomData';
-import Utils from '../utils/Utils';
-import Api from '../utils/Api';
-import TrackData from '../vo/TrackData';
-import SockController, { SOCK_ACTIONS } from '../sock/SockController';
-import SocketEvent from '../vo/SocketEvent';
-import UserData from '../vo/UserData';
-import Button from '../components/Button.vue';
-import ExpertModeState from '../components/ExpertModeState.vue';
-import GroupUserList from '../components/GroupUserList.vue';
-import CountDown from '../components/CountDown.vue';
-import SimpleLoader from '../components/SimpleLoader.vue';
-import ChatWindow from '../components/ChatWindow.vue';
 import TimerRenderer from "@/components/TimerRenderer.vue";
 import PlaylistData from "@/vo/PlaylistData";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import Button from '../components/Button.vue';
+import ChatWindow from '../components/ChatWindow.vue';
+import CountDown from '../components/CountDown.vue';
+import ExpertModeState from '../components/ExpertModeState.vue';
+import GroupUserList from '../components/GroupUserList.vue';
+import SimpleLoader from '../components/SimpleLoader.vue';
+import SockController, { SOCK_ACTIONS } from '../sock/SockController';
+import Api from '../utils/Api';
+import Utils from '../utils/Utils';
+import RoomData from '../vo/RoomData';
+import SocketEvent from '../vo/SocketEvent';
+import TrackData from '../vo/TrackData';
+import UserData from '../vo/UserData';
+import GameView from './GameView.vue';
 
 @Component({
 	components:{

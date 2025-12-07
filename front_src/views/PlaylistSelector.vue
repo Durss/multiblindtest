@@ -1,6 +1,6 @@
-<template>
+﻿<template>
 	<div class="playlistselector">
-		<BouncingLoader v-if="loading" class="loader" :icon="require('@/assets/icons/home_logo.svg')">
+		<BouncingLoader v-if="loading" class="loader" :icon="$getIcon('home_logo')">
 			<h1>{{$t('playlists.loading.title')}}</h1>
 			<p class="infos">{{$t('playlists.loading.description')}}</p>
 		</BouncingLoader>
@@ -13,7 +13,7 @@
 				<Button :title="$t('playlists.refresh')"
 					v-if="loadedFromCache"
 					class="reload"
-					:icon="require('@/assets/icons/refresh.svg')"
+					:icon="$getIcon('refresh')"
 					@click="loadPlaylists()"
 				/>
 			</div>
@@ -55,20 +55,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import BouncingLoader from "@/components/BouncingLoader.vue";
+import Button from '@/components/Button.vue';
+import PlayListEntry from '@/components/PlayListEntry.vue';
+import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
 import Api from "@/utils/Api";
-import Utils from "@/utils/Utils";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import PlaylistData from "@/vo/PlaylistData";
-import PlayListEntry from '@/components/PlayListEntry.vue';
-import Button from '@/components/Button.vue';
 import TrackData from '@/vo/TrackData';
-import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
-import gsap from 'gsap';
-import { v4 as uuidv4 } from 'uuid';
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoPlaylist from '../components/NoPlaylist.vue';
 import SearchPlaylistForm from '../components/SearchPlaylistForm.vue';
-import BouncingLoader from "@/components/BouncingLoader.vue";
 
 @Component({
 	components:{
@@ -185,15 +182,13 @@ export default class PlaylistSelector extends Vue {
 				offset += tracksResult.limit
 			}while(tracksResult.next);
 
-			let data = {
-				id:p.id,
-				name:p.name,
-				owner:p.owner.display_name,
-				cover:jsonCover && jsonCover.length > 0? jsonCover[0].url : require("@/assets/icons/playlist.svg"),
-				tracks:tracksWithPreview,
-			};
-			
-			this.playlists.push(data);
+		let data = {
+			id:p.id,
+			name:p.name,
+			owner:p.owner.display_name,
+			cover:jsonCover && jsonCover.length > 0? jsonCover[0].url : this.$getIcon('playlist'),
+			tracks:tracksWithPreview,
+		};			this.playlists.push(data);
 		}
 
 		if(json.next) {

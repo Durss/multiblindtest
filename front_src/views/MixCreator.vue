@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="mixcreator">
 		<div class="header">
 			<h1>{{$t('create.title')}}</h1>
@@ -11,14 +11,14 @@
 			<div class="title">{{$t('create.selected')}}</div>
 			<div class="trackItem" v-for="(t, index) in selectedTracks" :key="t.id+'_'+index">
 				<SearchTrackResultItem :data="t" class="track" />
-				<Button :icon="require('@/assets/icons/stop_square.svg')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
-				<Button :icon="require('@/assets/icons/delete.svg')" highlight class="deleteBt" @click="removeTrack(t)" />
+				<Button :icon="$getIcon('stop_square')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
+				<Button :icon="$getIcon('delete')" highlight class="deleteBt" @click="removeTrack(t)" />
 			</div>
 		</div>
 
 		<div class="actions">
-			<Button :icon="require('@/assets/icons/'+(testing? 'stop_square' : 'play')+'.svg')" :title="$t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
-			<Button :icon="require('@/assets/icons/checkmark_white.svg')" :title="$t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
+			<Button :icon="$getIcon(testing? 'stop_square' : 'play')" :title="$t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
+			<Button :icon="$getIcon('checkmark_white')" :title="$t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
 		</div>
 
 		<div class="help">
@@ -31,17 +31,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import SpotifyAPI from '@/utils/SpotifyAPI';
-import InfiniteList from '@/components/InfiniteList';
-import TrackData from '@/vo/TrackData';
-import SearchTrackResultItem from '@/components/SearchTrackResultItem.vue';
 import Button from '@/components/Button.vue';
+import SearchTrackResultItem from '@/components/SearchTrackResultItem.vue';
 import Config from '@/utils/Config';
+import TrackData from '@/vo/TrackData';
+import { Component, Vue, Watch } from "vue-property-decorator";
 import AudioPlayer from '../components/AudioPlayer';
-import VolumeButton from '../components/VolumeButton.vue';
-import Utils from '../utils/Utils';
 import AutoCompleteForm from '../components/AutoCompleteForm.vue';
+import VolumeButton from '../components/VolumeButton.vue';
 
 @Component({
 	components:{

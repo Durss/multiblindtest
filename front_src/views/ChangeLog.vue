@@ -1,7 +1,7 @@
 <template>
 	<div class="changelog">
 		<h1 class="header">{{$t('changelog.title')}}</h1>
-		<div v-for="(log, index) in $t('changelog.logs')" :key="'l_'+index" class="log">
+		<div v-for="(log, index) in logs" :key="'l_'+index" class="log">
 			<div class="date">{{log.date}}</div>
 			<ul>
 				<li v-for="(update, index) in log.updates" :key="'u_'+index" v-html="update"></li>
@@ -11,12 +11,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{}
 })
 export default class ChangeLog extends Vue {
+
+	public logs = this.$t('changelog.logs') as unknown as {date:string, updates:string[]}[];
 
 	public mounted():void {
 		

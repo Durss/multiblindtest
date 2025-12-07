@@ -5,6 +5,7 @@ import UserData from "../vo/UserData";
 import Config from "../utils/Config";
 import { v4 as uuidv4 } from 'uuid';
 import * as http from "http";
+import * as https from "https";
 
 /**
  * Created by Durss on 28/03/2019
@@ -119,8 +120,7 @@ export default class SocketServer {
 	 * @param server
 	 * @param scope
 	 */
-	public installHandler(server:http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
-, scope : ServerOptions) {
+	public installHandler(server:http.Server | https.Server, scope : ServerOptions) {
 		if(this._DISABLED) return;
 		this.connect();
 		this._sockjs.installHandlers(server, scope);

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="chatwindow" v-if="messages.length > 0">
 		<div class="list" ref="list" v-if="opened">
 			<div v-for="m in messages" :key="m.id" :class="getClasses(m)">
@@ -6,14 +6,14 @@
 				<div class="message">{{m.message}}</div>
 			</div>
 		</div>
-		<Button :icon="require('@/assets/icons/'+(opened? 'cross_white' : 'chat')+'.svg')" class="close" @click="opened = !opened"/>
+		<Button :icon="$getIcon(opened? 'cross_white' : 'chat')" class="close" @click="opened = !opened"/>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import SocketEvent from '../vo/SocketEvent';
+import { Component, Vue, Watch } from "vue-property-decorator";
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
+import SocketEvent from '../vo/SocketEvent';
 import Button from './Button.vue';
 
 @Component({

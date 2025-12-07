@@ -12,6 +12,8 @@
 		"baseUrl": ".",
 		"outDir": "./server",
 		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
 		"paths": {
 			"@/*": [
 				"server_src/*"

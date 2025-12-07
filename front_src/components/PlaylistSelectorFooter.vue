@@ -21,10 +21,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import PlaylistData from '@/vo/PlaylistData';
 import Button from '@/components/Button.vue';
 import Slider from '@/components/Slider.vue';
+import PlaylistData from '@/vo/PlaylistData';
+import { Component, Prop, Vue } from "vue-property-decorator";
 import Config from '../utils/Config';
 
 @Component({
@@ -102,7 +102,7 @@ export default class PlaylistSelectorFooter extends Vue {
 	.min {
 		font-family: "Futura";
 		background-color: rgba(255,0,0,.5);
-		color: @mainColor_warn;
+		color: white;
 		padding: 10px;
 		display: inline-block;
 		border-radius: 20px;

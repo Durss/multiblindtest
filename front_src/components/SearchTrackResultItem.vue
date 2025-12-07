@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import TrackData from '@/vo/TrackData';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
 	components:{}
@@ -24,7 +24,7 @@ export default class SearchTrackResultItem extends Vue {
 
 	public get picture():string {
 		if(this.data.picture) return this.data.picture;
-		return require("@/assets/icons/song.svg");
+		return this.$getIcon('song');
 	}
 
 	public mounted():void {

@@ -3,7 +3,6 @@ import App from './App.vue'
 import {initRouter} from './router'
 import store from './store'
 import './less/index.less';
-import StatsManager from './utils/StatsManager';
 import { Route, RouterMode } from 'vue-router';
 import SpotifyAPI from './utils/SpotifyAPI';
 import Config from './utils/Config';
@@ -16,9 +15,13 @@ import Utils from './utils/Utils';
 import TwitchExtensionHelper from './twitch/TwitchExtensionHelper';
 import { Buffer } from 'buffer';
 import process from 'process';
+import { getIcon } from './utils/Icons';
 
 globalThis.Buffer = Buffer;
 globalThis.process = process;
+
+// Add global icon helper for templates
+Vue.prototype.$getIcon = getIcon;
 
 Vue.config.productionTip = false;
 Config.init();
@@ -82,10 +85,6 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 
 let disconnectTimeout = null;
 function nextStep(next:Function, to:Route):void {
-	let tag = Utils.getRouteMetaValue(to, "tag");
-	if(tag) {
-		StatsManager.instance.pageView(tag.path, tag.title);
-	}
 	let needsTwitchHelper = Utils.getRouteMetaValue(to, "needsTwitchHelper");
 	if(needsTwitchHelper) {
 		TwitchExtensionHelper.instance.initialize();

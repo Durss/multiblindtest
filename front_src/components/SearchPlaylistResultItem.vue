@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import PlaylistData from '../vo/PlaylistData';
 
 @Component({
@@ -29,7 +29,7 @@ export default class SearchPlaylistResultItem extends Vue {
 
 	public get picture():string {
 		if(this.data.cover) return this.data.cover;
-		return require("@/assets/icons/playlist.svg");
+		return this.$getIcon('playlist');
 	}
 
 	public get owner():string {

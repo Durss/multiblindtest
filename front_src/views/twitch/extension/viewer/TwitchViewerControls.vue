@@ -1,7 +1,7 @@
-<template>
+﻿<template>
 	<div class="twitchviewercontrols">
 		<transition name="slide">
-			<Button ref="openBt" v-if="!opened" :icon="require('@/assets/icons/gear.svg')" class="openBt" @click.prevent.stop="opened = true" />
+			<Button ref="openBt" v-if="!opened" :icon="$getIcon('gear')" class="openBt" @click.prevent.stop="opened = true" />
 		</transition>
 		<transition name="slide">
 			<div v-if="opened" class="content" @click.stop="/*ignore*/">

@@ -27,8 +27,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import gsap from 'gsap';
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component({
 	components:{
@@ -79,9 +79,9 @@ export default class Button extends Vue {
 
 	public get checkMarkIcon():string {
 		if(this.white !== false) {
-			return require('@/assets/icons/checkmark_white.svg');
+			return this.$getIcon('checkmark_white');
 		}else{
-			return require('@/assets/icons/checkmark.svg');
+			return this.$getIcon('checkmark');
 		}
 	}
 

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div :class="classes">
 		<router-view class="content"/>
 		
@@ -6,7 +6,7 @@
 			<Button class="backHome"
 				v-if="showHomeButton"
 				:to="{name:'home'}"
-				:icon="require('@/assets/icons/home.svg')"
+				:icon="$getIcon('home')"
 				big
 			/>
 		</transition>
@@ -73,27 +73,31 @@ export default class App extends Vue {
 		
 		
 		//Preload elements
-		let preloaders = [require.context("@/assets/icons/"), require.context("@/assets/loader/"), require.context("@/assets/images/")];
+		const icons = import.meta.glob('@/assets/icons/*', { eager: true, as: 'url' });
+		const loader = import.meta.glob('@/assets/loader/*', { eager: true, as: 'url' });
+		const images = import.meta.glob('@/assets/images/*', { eager: true, as: 'url' });
+		
+		const preloaders = [icons, loader, images];
 		for (let i = 0; i < preloaders.length; i++) {
-			preloaders[i].keys().forEach(img => {
-				this.preloadedImages.push(preloaders[i](img));
-				let loader = new Image();
-				loader.src = preloaders[i](img);
+			Object.values(preloaders[i]).forEach((url: string) => {
+				this.preloadedImages.push(url);
+				let img = new Image();
+				img.src = url;
 				/*
-				loader.addEventListener("error", (e)=> {
+				img.addEventListener("error", (e)=> {
 					console.error("Loading image failed ! error");
-					console.log(img);
+					console.log(url);
 					console.log(e);
 				})
-				loader.addEventListener("abort", (e)=> {
+				img.addEventListener("abort", (e)=> {
 					console.error("Loading image failed ! abort");
 					console.log(e);
 				})
-				loader.addEventListener("stalled", (e)=> {
+				img.addEventListener("stalled", (e)=> {
 					// console.error("Loading image failed ! stalled");
 					// console.log(e);
 				})
-				loader.addEventListener("load",(e)=> {
+				img.addEventListener("load",(e)=> {
 					// console.log("IMAGE OK");
 				})
 				*/

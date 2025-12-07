@@ -1,12 +1,10 @@
+import Labels from '@/i18n/Label';
+import SockController from '@/sock/SockController';
+import TwitchUtils, { TwitchAuthToken } from '@/twitch/TwitchUtils';
+import SpotifyAPI from '@/utils/SpotifyAPI';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import SpotifyAPI from '@/utils/SpotifyAPI';
-import StatsManager from '@/utils/StatsManager';
-import SockController from '@/sock/SockController';
-import Labels from '@/i18n/Label';
-import RoomData from '@/vo/RoomData';
 import Store from './Store';
-import TwitchUtils, { TwitchAuthToken } from '@/twitch/TwitchUtils';
 
 Vue.use(Vuex)
 
@@ -152,10 +150,7 @@ export default new Vuex.Store({
 				if(state.loggedin) {
 					state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
 					if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
-						let me = await SpotifyAPI.instance.call("v1/me");
-						if(me && me.id) {
-							StatsManager.instance.clientId = me.id;
-						}
+						await SpotifyAPI.instance.call("v1/me");
 					}
 				}
 			}

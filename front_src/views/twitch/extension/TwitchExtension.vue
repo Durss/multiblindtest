@@ -1,7 +1,7 @@
-<template>
+﻿<template>
 	<div class="twitchextension">
 		<div class="frameholder">
-			<BouncingLoader class="loader" :icon="require('@/assets/icons/home_logo.svg')" v-if="!ready" />
+			<BouncingLoader class="loader" :icon="$getIcon('home_logo')" v-if="!ready" />
 			<router-view name="twitch" class="subView"></router-view>
 		</div>
 	</div>

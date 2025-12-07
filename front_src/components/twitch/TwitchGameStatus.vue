@@ -49,7 +49,7 @@ export default class TwitchGameStatus extends Vue {
 		return this.$store.state.twitchExpertMode != null && this.$store.state.twitchExpertMode.length > 0;
 	}
 
-	public get playlists():{name:string,cover:string}[] {
+	public get playlists():{name:string,cover:string,id:string}[] {
 		let list:any[] = JSON.parse(JSON.stringify(this.$store.state.twitchPlaylists));
 		if(!list) return [];
 		return list;
@@ -80,17 +80,17 @@ export default class TwitchGameStatus extends Vue {
 	public beforeDestroy():void {
 	}
 
-	public beforeEnter(el:HTMLDivElement):void {
+	public beforeEnter(el:Element):void {
 		gsap.set(el, {opacity:1});
 	}
 
-	public enter(el:HTMLDivElement):void {
-		let index = parseInt(el.dataset.index) + 1;
+	public enter(el:Element):void {
+		let index = parseInt((el as HTMLElement).dataset.index) + 1;
 		gsap.from(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
 	}
 
-	public leave(el:HTMLDivElement):void {
-		let index = parseInt(el.dataset.index);
+	public leave(el:Element):void {
+		let index = parseInt((el as HTMLElement).dataset.index);
 		gsap.to(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
 	}
 

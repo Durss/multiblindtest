@@ -1,8 +1,8 @@
-<template>
+﻿<template>
 	<div class="incrementform">
 		<label class="title" :for="inputId" v-if="title">{{title}}</label>
 		<div class="content" @mousewheel="onMouseWheel">
-			<Button :icon="require('@/assets/icons/minus2.svg')"
+			<Button :icon="$getIcon('minus2')"
 				@mousedown.native="startIncrement(-10 * step);"
 				@mouseup.native="stopIncrement($event);"
 				@touchstart.native="startIncrement(-10 * step);"
@@ -10,7 +10,7 @@
 				class="button"
 				v-if="tenStep"
 			/>
-			<Button :icon="require('@/assets/icons/minus.svg')"
+			<Button :icon="$getIcon('minus')"
 				@mousedown.native="startIncrement(-step);"
 				@mouseup.native="stopIncrement($event);"
 				@touchstart.native="startIncrement(-step);"
@@ -18,14 +18,14 @@
 				class="button"
 			/>
 			<input type="number" v-model.lazy="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
-			<Button :icon="require('@/assets/icons/plus.svg')"
+			<Button :icon="$getIcon('plus')"
 				@mousedown.native="startIncrement(step);"
 				@mouseup.native="stopIncrement($event);"
 				@touchstart.native="startIncrement(step);"
 				@touchend.native="stopIncrement($event);"
 				class="button"
 			/>
-			<Button :icon="require('@/assets/icons/plus2.svg')"
+			<Button :icon="$getIcon('plus2')"
 				@mousedown.native="startIncrement(10 * step);"
 				@mouseup.native="stopIncrement($event);"
 				@touchstart.native="startIncrement(10 * step);"
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import Button from './Button.vue';
 
 @Component({

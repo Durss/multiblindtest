@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="tracksplayer">
 		<SimpleLoader theme="mainColor_normal"
 			v-if="loading"
@@ -28,7 +28,7 @@
 				<Button
 					class="complete"
 					:title="$t('game.newGame')"
-					:icon="require('@/assets/icons/refresh.svg')"
+					:icon="$getIcon('refresh')"
 					v-if="complete && !tracksMode && !demoMode && !multiplayerMode"
 					highlight
 					big
@@ -38,7 +38,7 @@
 				<Button
 					class="complete"
 					:title="$t('game.newDemo')"
-					:icon="require('@/assets/icons/refresh.svg')"
+					:icon="$getIcon('refresh')"
 					v-if="complete && demoMode && !hideForm"
 					highlight
 					big
@@ -48,7 +48,7 @@
 				<Button
 					class="complete"
 					:title="$t('game.createGame')"
-					:icon="require('@/assets/icons/plus.svg')"
+					:icon="$getIcon('plus')"
 					v-if="complete && tracksMode && !hideForm"
 					highlight
 					big
@@ -86,7 +86,6 @@ import TrackEntry from '@/components/TrackEntry.vue';
 import TrackAnswerForm from '@/components/TrackAnswerForm.vue';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
-import StatsManager from '../utils/StatsManager';
 import AnswerTester from '../utils/AnswerTester';
 import VolumeButton from '../components/VolumeButton.vue';
 import NeedInteractionLayer from '../components/NeedInteractionLayer.vue';
@@ -106,7 +105,7 @@ import { v4 as uuidv4 } from 'uuid';
 	}
 })
 export default class GameView extends Vue {
-	//TODO test if it still works after removing scoreHistory. Make sure tha ttrack.score is populated properly
+	//TODO test if it still works after removing scoreHistory. Make sure that track.score is populated properly
 
 	@Prop({default:""})
 	public tracksids:string;
@@ -416,15 +415,10 @@ export default class GameView extends Vue {
 		if(!goodAnswer) {
 			//Wrong answer, shake the field
 			(<TrackAnswerForm>this.$refs["trackAnswerForm"]).shake();
-			StatsManager.instance.event("play","guess-fail", "Guess track fail");
 		}else{
 			//Good answer, shine and clear the field
 			(<TrackAnswerForm>this.$refs["trackAnswerForm"]).shine();
-			StatsManager.instance.event("play","guess-success", "Guess track success");
 			this.checkComplete();
-			if(this.complete) {
-				StatsManager.instance.event("play","complete", "Game complete");
-			}
 		}
 	}
 	
@@ -449,7 +443,6 @@ export default class GameView extends Vue {
 			this.tracksToPlay[i].enabled = true;
 		}
 		this.complete = true;
-		StatsManager.instance.event("play","show", "Show answers");
 	}
 
 	/**
@@ -461,7 +454,6 @@ export default class GameView extends Vue {
 		let path = this.$router.resolve({name:"player/tracks", params:{tracksids:ids.join(",")}});
 		Utils.copyToClipboard(window.location.protocol+"//"+window.location.host+path.href);
 		this.shareUrl = window.location.protocol+"//"+window.location.host+path.href;
-		StatsManager.instance.event("play","share", "Share current mix");
 	}
 
 	/**

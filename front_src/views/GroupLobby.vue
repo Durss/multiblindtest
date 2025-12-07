@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div class="grouplobby">
 		<SimpleLoader theme="mainColor_normal"
 			v-if="loading"
@@ -17,7 +17,7 @@
 			<Button :title="$t('group.lobby.start')"
 				class="start"
 				type="button"
-				:icon="require('@/assets/icons/play.svg')"
+				:icon="$getIcon('play')"
 				big
 				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
 				v-if="isHost"
@@ -42,7 +42,7 @@
 						<label for="username">{{$t('group.lobby.join')}}</label>
 						<div class="row">
 							<input type="text" id="username" class="dark" v-model="userName" maxlength="30" :placeholder="$t('group.lobby.usernamePlaceholder')" v-focus>
-							<Button :icon="require('@/assets/icons/checkmark_white.svg')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
+							<Button :icon="$getIcon('checkmark_white')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
 						</div>
 					</form>
 				</div>
@@ -73,19 +73,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Api from '../utils/Api';
-import RoomData from '../vo/RoomData';
+import GameParams from "@/components/GameParams.vue";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import Button from '../components/Button.vue';
-import UserData from '../vo/UserData';
-import SockController, { SOCK_ACTIONS } from '../sock/SockController';
-import SocketEvent from '../vo/SocketEvent';
+import ExpertModeForm from '../components/ExpertModeForm.vue';
+import GroupLobbyUser from '../components/GroupLobbyUser.vue';
 import IncrementForm from '../components/IncrementForm.vue';
 import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
-import ExpertModeForm from '../components/ExpertModeForm.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
-import GroupLobbyUser from '../components/GroupLobbyUser.vue';
-import GameParams from "@/components/GameParams.vue";
+import SockController, { SOCK_ACTIONS } from '../sock/SockController';
+import Api from '../utils/Api';
+import RoomData from '../vo/RoomData';
+import SocketEvent from '../vo/SocketEvent';
+import UserData from '../vo/UserData';
 
 @Component({
 	components:{

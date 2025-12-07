@@ -41,7 +41,7 @@
 			<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
 		</div>
 
-		<Button data-tooltip="Copy JSON to clipboard" v-if="showJSONBt" class="copyJSON small" @click="copyJSON()" title="JSON" :icon="require('@/assets/icons/copy.svg')" />
+		<Button data-tooltip="Copy JSON to clipboard" v-if="showJSONBt" class="copyJSON small" @click="copyJSON()" title="JSON" :icon="copyIcon" />
 	</div>
 </template>
 
@@ -58,6 +58,8 @@ import Button from "./Button.vue";
 	}
 })
 export default class TrackEntry extends Vue {
+
+	public get copyIcon():string { return this.$getIcon('copy'); }
 
 	@Prop()
 	public data:TrackData;
