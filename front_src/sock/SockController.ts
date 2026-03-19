@@ -1,7 +1,7 @@
 import getRouter from '@/router';
 import { EventDispatcher } from '@/utils/EventDispatcher';
 import UserData from '@/vo/UserData';
-import * as SockJS from "sockjs-client";
+import SockJS from "sockjs-client";
 import Config from "../utils/Config";
 import SocketEvent from "../vo/SocketEvent";
 

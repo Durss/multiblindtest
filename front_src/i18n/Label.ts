@@ -182,6 +182,12 @@ export default class Labels {
 				title:"Latest updates",
 				logs: [
 					{
+						date:"03/19/2025",
+						updates: [
+							"Fixed broken Twitch overlay",
+						]
+					},
+					{
 						date:"12/05/2025",
 						updates: [
 							"Migration to the new Spotify authentication system after the old one was deprecated",
@@ -475,6 +481,12 @@ export default class Labels {
 			changelog: {
 				title:"Mises à jour",
 				logs: [
+					{
+						date:"19/03/2025",
+						updates: [
+							"Correction de l'overlay Twitch qui était cassé",
+						]
+					},
 					{
 						date:"05/12/2025",
 						updates: [
