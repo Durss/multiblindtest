@@ -28,6 +28,10 @@
     "vue-router": "^3.6.5",
     "vuex": "^3.6.2"
   },
+  "overrides": {
+    "postcss": "^8.4.31",
+    "esbuild": "^0.25.0"
+  },
   "devDependencies": {
     "@types/body-parser": "^1.19.6",
     "@types/connect-history-api-fallback": "^1.5.4",
