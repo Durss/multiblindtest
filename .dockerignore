@@ -1,0 +1,29 @@
+# Dependencies & build artifacts (rebuilt inside the image)
+node_modules
+dist
+server
+public
+
+# Local environment / secrets (provide these at runtime via mounts or env)
+env.conf
+credentials.conf
+*.pem
+
+# VCS & tooling
+.git
+.gitignore
+.github
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Docker files themselves
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Misc
+README.md
+LICENCE.txt
+logo
