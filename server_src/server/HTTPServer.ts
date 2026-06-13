@@ -103,15 +103,20 @@ export default class HTTPServer {
 		this.app.use(<any>bodyParser.json({limit: '10mb'}));
 
 		this.app.all(Config.SERVER_NAME+"/*", (req:Request, res:Response, next?:NextFunction) => {
-			// Set CORS headers
+			// Set CORS headers. Only reflect the Origin back when it is explicitly
+			// allowed, instead of opening the API to any website with "*".
+			const origin = <string>req.headers.origin;
+			if(this.isAllowedOrigin(origin)) {
+				res.header("Access-Control-Allow-Origin", origin);
+				res.header("Vary", "Origin");
+			}
 			res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
 			res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key,X-AUTH-TOKEN');
-			res.header("Access-Control-Allow-Origin", "*");
 			if (req.method == 'OPTIONS') {
 				res.status(200).end();
 				return;
 			}
-			
+
 			if(next) next();
 		});
 		
@@ -132,6 +137,42 @@ export default class HTTPServer {
 
 	}
 	
+	/**
+	 * Tells if a given request Origin is allowed to call the API.
+	 */
+	private isAllowedOrigin(origin?:string):boolean {
+		if(!origin) return false;
+		if(Config.ALLOWED_ORIGINS.indexOf(origin) > -1) return true;
+		//Twitch extension iframes (panel/video/overlay) are served from <id>.ext-twitch.tv
+		if(/^https:\/\/[a-z0-9-]+\.ext-twitch\.tv$/i.test(origin)) return true;
+		//Twitch pages (broadcaster dashboard, etc.)
+		if(/^https:\/\/([a-z0-9-]+\.)?twitch\.tv$/i.test(origin)) return true;
+		//Local dev origins (Vite dev server runs on a different port than the API)
+		if(!Config.IS_PROD && /^https?:\/\/(localhost|127\.0\.0\.1|multiblindtest\.local)(:[0-9]+)?$/i.test(origin)) return true;
+		return false;
+	}
+
+	/**
+	 * Tells if the given user is the host (creator) of the room.
+	 */
+	private isHost(room:RoomData, callerId:string):boolean {
+		return !!callerId && room.creator === callerId;
+	}
+
+	/**
+	 * Tells if the given user is a member of the room.
+	 */
+	private isMember(room:RoomData, callerId:string):boolean {
+		return !!callerId && room.users.some(u => u.id === callerId);
+	}
+
+	/**
+	 * Sends a 403 response for unauthorized room actions.
+	 */
+	private sendUnauthorized(res:Response):void {
+		res.status(403).send(JSON.stringify({success:false, error:"UNAUTHORIZED", message:"You are not allowed to perform this action on this room"}));
+	}
+
 	/**
 	 * Create public endpoints
 	 */
@@ -187,9 +228,30 @@ export default class HTTPServer {
 		 * Updates an existing
 		 */
 		this.app.post("/api/group/update", (req, res) => {
-			let room = req.body.room;
-			this._rooms[room.id] = room;
-			res.status(200).send(JSON.stringify({success:true, room}));
+			let updated = req.body.room;
+			if(!updated || !updated.id) {
+				res.status(500).send(JSON.stringify({success:false, error:"MISSING_ROOM", message:"Room data missing from request"}));
+				return;
+			}
+			let room = this._rooms[updated.id];
+			if(!room) {
+				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			if(room.creator && !this.isHost(room, req.body.callerId)) {
+				this.sendUnauthorized(res);
+				return;
+			}
+			//Only accept game settings from the client. Server-owned state (users,
+			//scores, creator, current tracks, progression) must never be overwritten
+			//by client input, otherwise anyone could replace the whole room.
+			updated.users = room.users;
+			updated.creator = room.creator;
+			updated.scoreHistory = room.scoreHistory;
+			updated.gameStepIndex = room.gameStepIndex;
+			updated.currentTracks = room.currentTracks;
+			this._rooms[updated.id] = updated;
+			res.status(200).send(JSON.stringify({success:true, room:updated}));
 		});
 
 		/**
@@ -199,6 +261,10 @@ export default class HTTPServer {
 			let roomId = req.body.roomId;
 			let room = this._rooms[roomId];
 			if(room) {
+				if(room.creator && !this.isHost(room, req.body.callerId)) {
+					this.sendUnauthorized(res);
+					return;
+				}
 				room.gameStepIndex = 0;
 				room.scoreHistory = [];
 				room.currentTracks = undefined;
@@ -221,6 +287,10 @@ export default class HTTPServer {
 				me = user;
 			}else{
 				let username = req.body.username;
+				if(typeof username != "string" || username.length == 0) {
+					res.status(500).send(JSON.stringify({success:false, error:"MISSING_USERNAME", message:"Username missing from request"}));
+					return;
+				}
 				me = {
 					id: uuidv4(),
 					score :0,
@@ -272,6 +342,10 @@ export default class HTTPServer {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
+			if(room.creator && !this.isHost(room, req.body.callerId)) {
+				this.sendUnauthorized(res);
+				return;
+			}
 			//Reset pass states
 			for (let i = 0; i < room.users.length; i++) {
 				room.users[i].pass = false;
@@ -292,6 +366,10 @@ export default class HTTPServer {
 			let room = this._rooms[roomId];
 			if(!room || !room.currentTracks) {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			if(!this.isMember(room, uid)) {
+				this.sendUnauthorized(res);
 				return;
 			}
 			let score = room.currentTracks.length;
@@ -336,6 +414,10 @@ export default class HTTPServer {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
 				return;
 			}
+			if(!this.isMember(room, userId)) {
+				this.sendUnauthorized(res);
+				return;
+			}
 			let passCount = 0;
 			let usersOnline = 0;
 			for (let i = 0; i < room.users.length; i++) {
@@ -366,6 +448,10 @@ export default class HTTPServer {
 			let room = this._rooms[roomId];
 			if(!room) {
 				res.status(500).send(JSON.stringify({success:false, error:"ROOM_NOT_FOUND", message:"Room not found"}));
+				return;
+			}
+			if(room.creator && !this.isHost(room, req.body.callerId)) {
+				this.sendUnauthorized(res);
 				return;
 			}
 

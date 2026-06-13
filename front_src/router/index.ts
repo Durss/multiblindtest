@@ -19,6 +19,7 @@ import TwitchOBS from '@/views/twitch/obs/TwitchOBS.vue';
 import TwitchLobby from '@/views/twitch/TwitchLobby.vue';
 import Vue from 'vue';
 import VueRouter, { Route, RouterMode } from 'vue-router';
+import store from '@/store';
 
 Vue.use(VueRouter)
 
@@ -153,7 +154,8 @@ const routes = [
 		component: GroupLobby,
 		beforeEnter: async (to:Route, from, next) =>{
 			let roomId = to.params.id;
-			let res = await Api.post("group/restart", {roomId});
+			let callerId = store.state.userGroupData? store.state.userGroupData.id : null;
+			await Api.post("group/restart", {roomId, callerId});
 			next();
 		},
 	},

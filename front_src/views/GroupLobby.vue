@@ -311,7 +311,7 @@ export default class GroupLobby extends Vue {
 		this.room.gameDuration = this.gameDuration;
 		this.room.acceptAlbum = this.acceptAlbum;
 		this.room.expertMode = this.expertMode;
-		Api.post("group/update", {room:this.room});
+		Api.post("group/update", {room:this.room, callerId:this.me.id});
 		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
 	}
 

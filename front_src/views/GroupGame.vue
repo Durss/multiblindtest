@@ -278,7 +278,7 @@ export default class GroupGame extends Vue {
 		}
 		this.room.currentTracks = toPlay;
 
-		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay});
+		Api.post("group/setTracks", {roomId:this.room.id, tracks:toPlay, callerId:this.me.id});
 	}
 
 	/**
@@ -458,7 +458,7 @@ export default class GroupGame extends Vue {
 	 * Called when clicking kick button on a user
 	 */
 	public async onKickUser(user:UserData):Promise<void> {
-		Api.post("group/kick", {roomId:this.room.id, userId:user.id});
+		Api.post("group/kick", {roomId:this.room.id, userId:user.id, callerId:this.me.id});
 	}
 
 	/**
