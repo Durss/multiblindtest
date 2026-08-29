@@ -30,8 +30,9 @@
     "vuex": "^3.6.2"
   },
   "overrides": {
-    "postcss": "^8.4.31",
-    "esbuild": "^0.25.0"
+    "sockjs": {
+      "uuid": "^11.1.1"
+    }
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.6",
@@ -39,9 +40,10 @@
     "@types/express": "^4.17.25",
     "@types/glob": "^8.1.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^22.19.15",
+    "@types/node": "^22.20.1",
     "@types/sockjs": "^0.3.36",
     "@types/tmi.js": "^1.8.6",
+    "@vitejs/plugin-vue2": "^2.3.4",
     "buffer": "^6.0.3",
     "concurrently": "^6.5.1",
     "fuse.js": "^6.6.2",
@@ -51,9 +53,7 @@
     "sockjs-client": "^1.6.1",
     "tmi.js": "^1.8.5",
     "typescript": "^5.9.3",
-    "vite": "^4.5.14",
-    "vite-plugin-vue2": "^2.0.3",
-    "vue-i18n": "^8.28.2",
-    "vue-template-compiler": "^2.7.16"
+    "vite": "^7.3.6",
+    "vue-i18n": "^8.28.2"
   }
 }

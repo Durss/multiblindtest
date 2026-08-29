@@ -1,15 +1,12 @@
 import { defineConfig } from 'vite';
-import { createVuePlugin } from 'vite-plugin-vue2';
+import vue from '@vitejs/plugin-vue2';
 import path from 'path';
 import fs from 'fs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    createVuePlugin({
-      jsx: false,
-      vueTemplateOptions: {}
-    })
+    vue()
   ],
   resolve: {
     alias: {
