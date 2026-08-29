@@ -8,5 +8,5 @@ services:
       - "3004:3004"
     # Twitch credentials are optional - the core multiplayer game runs without
     # them. Mount your real file to enable the Twitch extension features.
-    # volumes:
-    #   - ./credentials.conf:/app/credentials.conf:ro
+    volumes:
+      - ./credentials.conf:/app/credentials.conf:ro
