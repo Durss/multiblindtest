@@ -77,7 +77,15 @@ router.beforeEach(async (to:Route, from:Route, next:Function) => {
 		//If needs spotify auth to access this page, check if a valid token is
 		//loaded. If not, the user will be redirected to oAuth process.
 		if(Utils.getRouteMetaValue(to, "needAuth") === true) {
-			await SpotifyAPI.instance.refreshTokenIfNecessary(to);
+			try {
+				await SpotifyAPI.instance.refreshTokenIfNecessary(to);
+			}catch(error) {
+				if(!SpotifyAPI.instance.hasAccessToken) {
+					await store.dispatch("authenticate", {});
+					next({name:"home", params:{from:document.location.href}});
+				}
+				return;
+			}
 		}
 		nextStep(next, to);
 	}

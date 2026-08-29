@@ -149,8 +149,18 @@ export default new Vuex.Store({
 				state.loggedin = SpotifyAPI.instance.initFromStore();
 				if(state.loggedin) {
 					state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
-					if(payload.route.meta.needAuth && !SpotifyAPI.instance.isTokenExpired()) {
-						await SpotifyAPI.instance.call("v1/me");
+					if(payload.route.meta.needAuth) {
+						try {
+							if(SpotifyAPI.instance.isTokenExpired()) {
+								await SpotifyAPI.instance.refreshToken();
+							}
+							await SpotifyAPI.instance.call("v1/me");
+						}catch(error) {
+							//Token is dead and couldn't be renewed. SpotifyAPI already
+							//started an OAuth process, unless it detected a loop in which
+							//case it cleared the credentials.
+							state.loggedin = SpotifyAPI.instance.hasAccessToken;
+						}
 					}
 				}
 			}
