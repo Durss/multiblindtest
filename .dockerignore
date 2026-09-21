@@ -2,7 +2,6 @@
 node_modules
 dist
 server
-public
 
 # Local environment / secrets (provide these at runtime via mounts or env)
 env.conf
