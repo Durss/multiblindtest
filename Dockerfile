@@ -3,7 +3,7 @@
 ###############################################################################
 # Stage 1 - build the frontend (Vite -> dist/) and the server (tsc -> server/)
 ###############################################################################
-FROM node:20-alpine AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN npm run build
 ###############################################################################
 # Stage 2 - lean runtime image
 ###############################################################################
-FROM node:20-alpine AS runtime
+FROM node:lts-alpine AS runtime
 
 ENV NODE_ENV=production
 WORKDIR /app
