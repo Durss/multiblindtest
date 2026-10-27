@@ -6,61 +6,50 @@
 			</svg>
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner">
 		</div>
-		<span v-html="label" class="label" :style="labelStyle"></span>
+		<span v-html="props.label" class="label" :style="labelStyle"></span>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
 import Utils from '../utils/Utils';
 
-@Component({
-	components:{}
-})
-export default class SimpleLoader extends Vue {
+const props = withDefaults(defineProps<{
+	label?:string;
+	theme?:string;
+	big?:boolean;
+}>(), {
+	label:"Loading...",
+	big:false,
+});
 
-	@Prop({default:"Loading..."})
-	public label:string;
+const localColor = ref<string>(null);
 
-	@Prop()
-	public theme:string;
+const classes = computed(():string[] => {
+	let res = ["SimpleLoader"];
+	if(props.big !== false) res.push("big");
+	return res;
+});
 
-	@Prop({default:false})
-	public big:boolean;
-
-	public localColor:string = null;
-
-	public get classes():string[] {
-		let res = ["SimpleLoader"];
-		if(this.big !== false) res.push("big");
-		return res;
+const bgLoaderStyle = computed(():any => {
+	return {
+		fill:localColor.value,
 	}
+});
 
-	public get bgLoaderStyle():any {
-		return {
-			fill:this.localColor,
-		}
+const labelStyle = computed(():any => {
+	return {
+		backgroundColor:localColor.value,
 	}
+});
 
-	public get labelStyle():any {
-		return {
-			backgroundColor:this.localColor,
-		}
+onMounted(() => {
+	if(!props.theme) {
+		localColor.value = Utils.getLessVars().mainColor_warn;
+	}else{
+		localColor.value = Utils.getLessVars()[props.theme];
 	}
+});
 
-	public mounted():void {
-		if(!this.theme) {
-			this.localColor = Utils.getLessVars().mainColor_warn;
-		}else{
-			this.localColor = Utils.getLessVars()[this.theme];
-		}
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

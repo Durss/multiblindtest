@@ -1,6 +1,6 @@
 <template>
 	<div class="changelog">
-		<h1 class="header">{{$t('changelog.title')}}</h1>
+		<h1 class="header">{{t('changelog.title')}}</h1>
 		<div v-for="(log, index) in logs" :key="'l_'+index" class="log">
 			<div class="date">{{log.date}}</div>
 			<ul>
@@ -9,26 +9,20 @@
 		</div>
 	</div>
 </template>
+<script setup lang="ts">
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-<script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+const { t, tm, rt } = useI18n();
 
-@Component({
-	components:{}
-})
-export default class ChangeLog extends Vue {
+const logs = computed(():{date:string, updates:string[]}[] => {
+	const rawLogs = tm('changelog.logs') as unknown as {date:string, updates:string[]}[];
+	return rawLogs.map(log => ({
+		date:rt(log.date),
+		updates:log.updates.map(u => rt(u)),
+	}));
+});
 
-	public logs = this.$t('changelog.logs') as unknown as {date:string, updates:string[]}[];
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">
@@ -44,7 +38,7 @@ export default class ChangeLog extends Vue {
 			li {
 				margin-bottom: 5px;
 
-				::v-deep a > {
+				:deep(a) {
 					background-color: fade(@mainColor_highlight, 10%);
 					padding: 0 5px;
 					border-radius: 5px;

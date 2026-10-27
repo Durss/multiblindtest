@@ -2,43 +2,32 @@
 	<div class="twitchbroadcaster">
 		<img src="@/assets/icons/home_logo_outlined.svg" class="icon">
 		<div class="holder">
-			<div class="title">Start a game session from multiblindtest.com</div>
+			<div class="title">{{t('twitch.broadcaster.title')}}</div>
 			<Button class="button" type="link"
-				title="Start Game"
+				:title="t('twitch.broadcaster.startGame')"
 				:to="url"
-				:icon="$getIcon('ext_link')"
+				:icon="getIcon('ext_link')"
 				target="_blank"
 				white />
 			<div class="url">{{url}}</div>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from "@/components/Button.vue";
 import Config from "@/utils/Config";
-import { Component, Vue } from "vue-property-decorator";
+import { getIcon } from "@/utils/Icons";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class TwitchBroadcaster extends Vue {
+const { t } = useI18n();
+const router = useRouter();
 
-	public get url():string {
-		return Config.BASE_URL+this.$router.resolve({name:"twitch"}).href.replace("#", "");
-	}
+const url = computed(():string => {
+	return Config.BASE_URL+router.resolve({name:"twitch"}).href.replace("#", "");
+});
 
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

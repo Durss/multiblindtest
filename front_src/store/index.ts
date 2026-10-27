@@ -1,276 +1,228 @@
+import { i18n } from '@/i18n';
 import Labels from '@/i18n/Label';
 import SockController from '@/sock/SockController';
 import TwitchUtils, { TwitchAuthToken } from '@/twitch/TwitchUtils';
 import SpotifyAPI from '@/utils/SpotifyAPI';
-import Vue from 'vue';
-import Vuex from 'vuex';
+import PlaylistData from '@/vo/PlaylistData';
+import RoomData from '@/vo/RoomData';
+import UserData from '@/vo/UserData';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import type { RouteLocationNormalized } from 'vue-router';
 import Store from './Store';
-
-Vue.use(Vuex)
 
 let startPromise: Promise<any>;
 
-export default new Vuex.Store({
-	state: {
-		initComplete: false,
-		loggedin:false,
-		tooltip: null,
-		alert: null,
-		lang: null,
-		i18n: null,
-		volume: .5,
-		needUserInteraction:false,
-		playlistsCache:null,
-		userGroupData:null,
-		groupRoomData:null,//This is only used to transmit data from lobby to game view
-		
-		twitchLogin:null,
-		twitchOAuthToken:null as TwitchAuthToken|null,
-		twitchAllowedUsers:null,
-		twitchPlaylists:null,
-		twitchExpertMode:false,
-		twitchGameState:null,
-		twitchLeaderboard:null,
-		twitchJoin:null,
-		hideBackground:null,//for OBS
+export interface ConfirmData {
+	title:string;
+	description?:string;
+	confirmCallback?:()=>void;
+	cancelCallback?:()=>void;
+}
 
-		confirm:{
-			title:null,
-			description:null,
-			confirmCallback:null,
-			cancelCallback:null,
-		},
-	},
+export const useStoreMain = defineStore("main", () => {
+	const initComplete = ref<boolean>(false);
+	const loggedin = ref<boolean>(false);
+	const tooltip = ref<string>(null);
+	const alert = ref<string>(null);
+	const lang = ref<string>(null);
+	const volume = ref<number>(.5);
+	const needUserInteraction = ref<boolean>(false);
+	const playlistsCache = ref<PlaylistData[]>(null);
+	const userGroupData = ref<UserData>(null);
+	const groupRoomData = ref<RoomData>(null);//This is only used to transmit data from lobby to game view
 
+	const twitchLogin = ref<string>(null);
+	const twitchOAuthToken = ref<TwitchAuthToken|null>(null);
+	const twitchAllowedUsers = ref<any>(null);
+	const twitchPlaylists = ref<{name:string, cover:string, id:string}[]>(null);
+	const twitchExpertMode = ref<string[]>(null);
+	const twitchGameState = ref<any>(null);
+	const twitchLeaderboard = ref<any>(null);
+	const twitchJoin = ref<any>(null);
+	const hideBackground = ref<boolean>(null);//for OBS
 
-
-
-
-
-	mutations: {
-
-		initComplete(state) { state.initComplete = true; },
-
-		openTooltip(state, payload) { state.tooltip = payload; },
-		
-		closeTooltip(state) { state.tooltip = null; },
-
-		confirm(state, payload) { state.confirm = payload; },
-
-		playlistsCache(state, payload) {
-			state.playlistsCache = payload;
-			try {
-				Store.set("playlistsCache", JSON.stringify(payload));
-			}catch(error) {
-				state.alert = "Maximum cache space reached, cannot cache your playlists sorry :("
-			}
-		},
-
-		alert(state, payload) { state.alert = payload; },
-
-		setUserGroupData(state, payload) { 
-			state.userGroupData = payload;
-			SockController.instance.user = payload;
-			Store.set("userGroupData", JSON.stringify(payload));
-		},
-
-		setGroupRoomData(state, payload) { state.groupRoomData = payload; },
-
-		setLanguageCode(state, payload) {
-			state.lang = payload;
-			// moment.locale(payload);
-			if(state.i18n){
-				state.i18n.locale = payload;
-			}
-		},
-
-		setVolume(state, payload) {
-			state.volume = payload;
-			Store.set("volume", payload.toString())
-		},
-
-		setNeedUserInteraction(state, payload) { state.needUserInteraction = payload; },
-
-		setUserName(state, payload) {
-			state.userGroupData.name = payload;
-			Store.set("userGroupData", JSON.stringify(state.userGroupData));
-		},
-
-		setTwitchOAuthToken(state, payload:TwitchAuthToken) {
-			state.twitchOAuthToken = payload;
-			Store.set("twitchOAuthToken", JSON.stringify(state.twitchOAuthToken));
-		},
-
-		setTwitchLogin(state, payload) {
-			state.twitchLogin = payload;
-			Store.set("twitchLogin", state.twitchLogin);
-		},
-
-		setTwitchAllowedUsers(state, payload) {
-			state.twitchAllowedUsers = payload;
-			Store.set("twitchAllowedUsers", JSON.stringify(state.twitchAllowedUsers));
-		},
-
-		setHideBackground(state, payload) { state.hideBackground = payload; },
-
-		setTwitchPlaylists(state, payload) { state.twitchPlaylists = payload; },
-
-		setTwitchExpertMode(state, payload) { state.twitchExpertMode = payload; },
-
-		setTwitchGameState(state, payload) { state.twitchGameState = payload; },
-
-		setTwitchLeaderboard(state, payload) { state.twitchLeaderboard = payload; },
-
-		setTwitchJoin(state, payload) { state.twitchJoin = payload; },
-
-		async refreshTwitchToken(state, callback) {
-			const token = await TwitchUtils.refreshToken(state.twitchOAuthToken.refresh_token);
-			if(token.access_token) {
-				state.twitchOAuthToken = token;
-				Store.set("twitchOAuthToken", JSON.stringify(token));
-			}
-			callback();
-		}
-
-	},
+	const confirm = ref<ConfirmData>({
+		title:null,
+		description:null,
+		confirmCallback:null,
+		cancelCallback:null,
+	});
 
 
 
+	async function startApp(payload:{route:RouteLocationNormalized, force?:boolean}):Promise<any> {
+		//Security to make sure startApp isn't executed twice if changing URL while loading
+		if (startPromise && payload.force !== true) return startPromise;
 
-
-
-	actions: {
-		async startApp({ commit, state, dispatch }, payload) {
-			//Security to make sure startApp isn't executed twice if changing URL while loading
-			if (startPromise && payload.force !== true) return startPromise;
-			
-			state.initComplete = false;
-			if(Store.get("spotify_access_token")) {
-				state.loggedin = SpotifyAPI.instance.initFromStore();
-				if(state.loggedin) {
-					state.playlistsCache = JSON.parse( Store.get("playlistsCache") );
-					if(payload.route.meta.needAuth) {
-						try {
-							if(SpotifyAPI.instance.isTokenExpired()) {
-								await SpotifyAPI.instance.refreshToken();
-							}
-							await SpotifyAPI.instance.call("v1/me");
-						}catch(error) {
-							//Token is dead and couldn't be renewed. SpotifyAPI already
-							//started an OAuth process, unless it detected a loop in which
-							//case it cleared the credentials.
-							state.loggedin = SpotifyAPI.instance.hasAccessToken;
+		initComplete.value = false;
+		if(Store.get("spotify_access_token")) {
+			loggedin.value = SpotifyAPI.instance.initFromStore();
+			if(loggedin.value) {
+				playlistsCache.value = JSON.parse( Store.get("playlistsCache") );
+				if(payload.route.meta.needAuth) {
+					try {
+						if(SpotifyAPI.instance.isTokenExpired()) {
+							await SpotifyAPI.instance.refreshToken();
 						}
+						await SpotifyAPI.instance.call("v1/me");
+					}catch(error) {
+						//Token is dead and couldn't be renewed. SpotifyAPI already
+						//started an OAuth process, unless it detected a loop in which
+						//case it cleared the credentials.
+						loggedin.value = SpotifyAPI.instance.hasAccessToken;
 					}
 				}
 			}
+		}
 
-			if(payload.i18n) {
-				//Load labels and init i18n
-				// let labels = await Api.get("public/labels");
-				state.i18n = payload.i18n;
-				dispatch("setLabels", Labels.json)
+		//Load labels
+		// let labels = await Api.get("public/labels");
+		setLabels(Labels.json);
+
+		let twitchToken = Store.get("twitchOAuthToken");
+		try {
+			if(twitchToken) twitchOAuthToken.value = JSON.parse(twitchToken);
+			if(twitchOAuthToken.value.refresh_token) {
+				await refreshTwitchToken();
 			}
-			
-			let twitchToken = Store.get("twitchOAuthToken");
-			try {
-				if(twitchToken) state.twitchOAuthToken = JSON.parse(twitchToken);
-				if(state.twitchOAuthToken.refresh_token) {
-					await new Promise((resolve)=>{
-						commit("refreshTwitchToken", resolve);
-					})
-				}
-			}catch(error) {
-				//Failed parsing token, probably an old one when i was only storing
-				//an access token as a simple string instead of an full serialized
-				//auth token object
-			}
-			let twitchLogin = Store.get("twitchLogin");
-			if(twitchLogin) state.twitchLogin = twitchLogin;
-			let twitchAllowedUsers = Store.get("twitchAllowedUsers");
-			if(twitchAllowedUsers) state.twitchAllowedUsers = JSON.parse(twitchAllowedUsers);
+		}catch(error) {
+			//Failed parsing token, probably an old one when i was only storing
+			//an access token as a simple string instead of an full serialized
+			//auth token object
+		}
+		let storedTwitchLogin = Store.get("twitchLogin");
+		if(storedTwitchLogin) twitchLogin.value = storedTwitchLogin;
+		let storedTwitchAllowedUsers = Store.get("twitchAllowedUsers");
+		if(storedTwitchAllowedUsers) twitchAllowedUsers.value = JSON.parse(storedTwitchAllowedUsers);
 
-			let volume = Store.get("volume");
-			if(volume != null) {
-				state.volume = parseFloat(volume);
-			}else{
-				state.volume = .5;
-			}
-			
-			let user = Store.get("userGroupData");
-			if(user) {
-				//load last group user from storage
-				commit("setUserGroupData", JSON.parse(user));
-			}
+		let storedVolume = Store.get("volume");
+		if(storedVolume != null) {
+			volume.value = parseFloat(storedVolume);
+		}else{
+			volume.value = .5;
+		}
 
-			startPromise = new Promise(async (resolve, reject) => {
-				commit("initComplete", true);
-				resolve(null);
-			});
+		let user = Store.get("userGroupData");
+		if(user) {
+			//load last group user from storage
+			setUserGroupData(JSON.parse(user));
+		}
 
-			return startPromise;
-		},
+		startPromise = new Promise(async (resolve, reject) => {
+			initComplete.value = true;
+			resolve(null);
+		});
 
-		async authenticate({ state }, payload) {
-			console.log("auth....")
-			if (payload.code) {
-				state.loggedin = await SpotifyAPI.instance.getToken(payload.code);
-				console.log("lOaded")
-				return state.loggedin;
-			} else {
-				state.loggedin = false;
-				Store.remove("spotify_access_token");
-				Store.remove("expirationDate");
-			}
-			return false;
-		},
-
-		setLabels({state}, payload) {
-			for (const lang in payload) {
-				state.i18n.setLocaleMessage(lang, payload[lang]);
-			}
-		},
-
-		openTooltip({commit}, payload) { commit("openTooltip", payload); },
-		
-		closeTooltip({commit}) { commit("closeTooltip", null); },
-
-		confirm({commit}, payload) { commit("confirm", payload); },
-
-		playlistsCache({commit}, payload) { commit("playlistsCache", payload); },
-
-		alert({commit}, payload) { commit("alert", payload); },
-
-		setUserGroupData({commit}, payload) { commit("setUserGroupData", payload); },
-		
-		setGroupRoomData({commit}, payload) { commit("setGroupRoomData", payload); },
-
-		setLanguageCode({commit}, payload) { commit("setLanguageCode", payload); },
-
-		setVolume({commit}, payload) { commit("setVolume", payload); },
-
-		setNeedUserInteraction({commit}, payload) { commit("setNeedUserInteraction", payload); },
-
-		setUserName({commit}, payload) { commit("setUserName", payload); },
-
-		setTwitchOAuthToken({commit}, payload:TwitchAuthToken) { commit("setTwitchOAuthToken", payload); },
-
-		setTwitchLogin({commit}, payload) { commit("setTwitchLogin", payload); },
-
-		setTwitchAllowedUsers({commit}, payload) { commit("setTwitchAllowedUsers", payload); },
-
-		setHideBackground({commit}, payload) { commit("setHideBackground", payload); },
-
-		setTwitchPlaylists({commit}, payload) { commit("setTwitchPlaylists", payload); },
-
-		setTwitchExpertMode({commit}, payload) { commit("setTwitchExpertMode", payload); },
-
-		setTwitchGameState({commit}, payload) { commit("setTwitchGameState", payload); },
-
-		setTwitchLeaderboard({commit}, payload) { commit("setTwitchLeaderboard", payload); },
-
-		setTwitchJoin({commit}, payload) { commit("setTwitchJoin", payload); },
-
-		refreshTwitchToken({commit}, callback) { commit("refreshTwitchToken", callback); },
+		return startPromise;
 	}
-})
+
+	async function authenticate(payload:{code?:string}):Promise<boolean> {
+		console.log("auth....")
+		if (payload.code) {
+			loggedin.value = await SpotifyAPI.instance.getToken(payload.code);
+			console.log("lOaded")
+			return loggedin.value;
+		} else {
+			loggedin.value = false;
+			Store.remove("spotify_access_token");
+			Store.remove("expirationDate");
+		}
+		return false;
+	}
+
+	function setLabels(payload:any):void {
+		for (const locale in payload) {
+			i18n.global.setLocaleMessage(locale, payload[locale]);
+		}
+	}
+
+	function setPlaylistsCache(payload:PlaylistData[]):void {
+		playlistsCache.value = payload;
+		try {
+			Store.set("playlistsCache", JSON.stringify(payload));
+		}catch(error) {
+			alert.value = "Maximum cache space reached, cannot cache your playlists sorry :("
+		}
+	}
+
+	function setUserGroupData(payload:UserData):void {
+		userGroupData.value = payload;
+		SockController.instance.user = payload;
+		Store.set("userGroupData", JSON.stringify(payload));
+	}
+
+	function setLanguageCode(payload:string):void {
+		lang.value = payload;
+		// moment.locale(payload);
+		i18n.global.locale.value = payload;
+	}
+
+	function setVolume(payload:number):void {
+		volume.value = payload;
+		Store.set("volume", payload.toString())
+	}
+
+	function setUserName(payload:string):void {
+		userGroupData.value.name = payload;
+		Store.set("userGroupData", JSON.stringify(userGroupData.value));
+	}
+
+	function setTwitchOAuthToken(payload:TwitchAuthToken):void {
+		twitchOAuthToken.value = payload;
+		Store.set("twitchOAuthToken", JSON.stringify(twitchOAuthToken.value));
+	}
+
+	function setTwitchLogin(payload:string):void {
+		twitchLogin.value = payload;
+		Store.set("twitchLogin", twitchLogin.value);
+	}
+
+	function setTwitchAllowedUsers(payload:any):void {
+		twitchAllowedUsers.value = payload;
+		Store.set("twitchAllowedUsers", JSON.stringify(twitchAllowedUsers.value));
+	}
+
+	async function refreshTwitchToken():Promise<void> {
+		const token = await TwitchUtils.refreshToken(twitchOAuthToken.value.refresh_token);
+		if(token.access_token) {
+			twitchOAuthToken.value = token;
+			Store.set("twitchOAuthToken", JSON.stringify(token));
+		}
+	}
+
+	return {
+		initComplete,
+		loggedin,
+		tooltip,
+		alert,
+		lang,
+		volume,
+		needUserInteraction,
+		playlistsCache,
+		userGroupData,
+		groupRoomData,
+		twitchLogin,
+		twitchOAuthToken,
+		twitchAllowedUsers,
+		twitchPlaylists,
+		twitchExpertMode,
+		twitchGameState,
+		twitchLeaderboard,
+		twitchJoin,
+		hideBackground,
+		confirm,
+		startApp,
+		authenticate,
+		setLabels,
+		setPlaylistsCache,
+		setUserGroupData,
+		setLanguageCode,
+		setVolume,
+		setUserName,
+		setTwitchOAuthToken,
+		setTwitchLogin,
+		setTwitchAllowedUsers,
+		refreshTwitchToken,
+	};
+});

@@ -7,12 +7,14 @@
     "build": "npm run front/build && npm run server/build",
     "front/serve": "vite",
     "front/build": "vite build",
+    "front/typecheck": "vue-tsc --noEmit -p ./tsconfig.json",
     "server/watch": "tsc -w -p ./tsconfig_server.json",
     "server/build": "tsc -p ./tsconfig_server.json",
     "server/start": "pm2 start bootstrap-pm2.json"
   },
   "dependencies": {
     "@types/node-fetch": "^2.6.13",
+    "@vue/devtools-api": "^8.2.1",
     "body-parser": "^1.20.4",
     "connect-history-api-fallback": "^1.6.0",
     "express": "^4.22.1",
@@ -20,14 +22,12 @@
     "glob": "^7.2.3",
     "jsonwebtoken": "^9.0.3",
     "node-fetch": "^2.7.0",
+    "pinia": "^4.1.0",
     "sockjs": "^0.3.24",
     "tslib": "^2.8.1",
     "uuid": "^11.1.0",
-    "vue": "^2.7.16",
-    "vue-class-component": "^7.2.6",
-    "vue-property-decorator": "^9.1.2",
-    "vue-router": "^3.6.5",
-    "vuex": "^3.6.2"
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
   },
   "overrides": {
     "sockjs": {
@@ -42,7 +42,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/sockjs": "^0.3.36",
     "@types/tmi.js": "^1.8.6",
-    "@vitejs/plugin-vue2": "^2.3.4",
+    "@vitejs/plugin-vue": "^6.0.10",
     "buffer": "^6.0.3",
     "concurrently": "^6.5.1",
     "fuse.js": "^6.6.2",
@@ -52,7 +52,8 @@
     "sockjs-client": "^1.6.1",
     "tmi.js": "^1.8.5",
     "typescript": "^5.9.3",
-    "vite": "^7.3.6",
-    "vue-i18n": "^8.28.2"
+    "vite": "^8.3.5",
+    "vue-i18n": "^11.4.16",
+    "vue-tsc": "^3.3.13"
   }
 }

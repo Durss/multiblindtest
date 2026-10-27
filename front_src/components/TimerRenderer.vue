@@ -1,121 +1,119 @@
 <template>
 	<div :class="classes">
 		<canvas ref="canvas"></canvas>
-		<div class="time" ref="time" :style="timeStyles" v-if="timerPercent!=1">{{textDuration}}</div>
+		<div class="time" ref="time" :style="timeStyles" v-if="props.timerPercent!=1">{{textDuration}}</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Utils from "@/utils/Utils";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
 
-@Component({
-	components:{}
-})
-export default class TimerRenderer extends Vue {
+const props = withDefaults(defineProps<{
+	timerPercent?:number;
+	duration?:number;
+}>(), {
+	timerPercent:0,
+	duration:0,
+});
 
-	@Prop({default:0})
-	public timerPercent:number;
+const canvas = useTemplateRef<HTMLCanvasElement>("canvas");
+const time = useTemplateRef<HTMLDivElement>("time");
 
-	@Prop({default:0})
-	public duration:number;
+let cnv:HTMLCanvasElement;
+let ctx:CanvasRenderingContext2D;
 
-	private cnv:HTMLCanvasElement;
-	private ctx:CanvasRenderingContext2D;
+let radius:number = 0;
+let center:{x:number,y:number} = null
+const blink = ref<boolean>(false);
+let disposed:boolean = false;
+let lastBlinkTime:number = 0;
 
-	private radius:number = 0;
-	private center:{x:number,y:number} = null
-	private blink:boolean = false;
-	private disposed:boolean = false;
-	private lastBlinkTime:number = 0;
+const classes = computed(():string[] => {
+	let res = ["timerrenderer"];
+	if(blink.value) res.push("blink");
+	return res;
+});
 
-	public get classes():string[] {
-		let res = ["timerrenderer"];
-		if(this.blink) res.push("blink");
-		return res;
+const timeStyles = computed(():any => {
+	let res:any = {};
+	return res;
+	if(!center || !time.value) return res;
+
+	let a = Math.PI*2 * props.timerPercent-Math.PI/2;
+	let bounds = time.value.getBoundingClientRect();
+	let px = ((center.x + Math.cos(a) * (radius+30) - bounds.width/2).toFixed(1))+"px";
+	let py = ((center.y + Math.sin(a) * (radius+30) - bounds.height/2).toFixed(1))+"px";
+	res.top = 0;
+	res.left = 0;
+	res.transform = 'translate3d('+px+', '+py+', 0)';
+	return res;
+});
+
+const textDuration = computed(():string => {
+	let d = new Date(Math.ceil(props.duration * (1-props.timerPercent)) * 1000);
+	if((
+		(d.getTime()/1000 < 20 && d.getSeconds()%5 == 0)
+		|| d.getTime()/1000 <= 5
+	)
+	&& d.getSeconds() != lastBlinkTime) {
+		lastBlinkTime = d.getSeconds();
+		blink.value = true;
+	}else{
+		blink.value = false;
 	}
+	return Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds());
+});
 
-	public get timeStyles():any {
-		let res:any = {};
-		return res;
-		if(!this.center || !this.$refs.time) return res;
+onMounted(() => {
+	cnv = canvas.value;
+	ctx = cnv.getContext("2d");
+	let bounds = cnv.getBoundingClientRect();
+	cnv.width = bounds.width;
+	cnv.height = bounds.height;
+	renderFrame();
+});
 
-		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
-		let bounds = (<HTMLDivElement>this.$refs.time).getBoundingClientRect();
-		let px = ((this.center.x + Math.cos(a) * (this.radius+30) - bounds.width/2).toFixed(1))+"px";
-		let py = ((this.center.y + Math.sin(a) * (this.radius+30) - bounds.height/2).toFixed(1))+"px";
-		res.top = 0;
-		res.left = 0;
-		res.transform = 'translate3d('+px+', '+py+', 0)';
-		return res;
-	}
+onBeforeUnmount(() => {
+	disposed = true;
+});
 
-	public get textDuration():string {
-		let d = new Date(Math.ceil(this.duration * (1-this.timerPercent)) * 1000);
-		if((
-			(d.getTime()/1000 < 20 && d.getSeconds()%5 == 0)
-			|| d.getTime()/1000 <= 5
-		)
-		&& d.getSeconds() != this.lastBlinkTime) {
-			this.lastBlinkTime = d.getSeconds();
-			this.blink = true;
-		}else{
-			this.blink = false;
-		}
-		return Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds());
-	}
+function renderFrame():void {
+	if(disposed) return;
+	requestAnimationFrame(_ => renderFrame());
 
-	public mounted():void {
-		this.cnv = <HTMLCanvasElement>this.$refs.canvas;
-		this.ctx = this.cnv.getContext("2d");
-		let bounds = this.cnv.getBoundingClientRect();
-		this.cnv.width = bounds.width;
-		this.cnv.height = bounds.height;
-		this.renderFrame();
-	}
+	ctx.clearRect(0,0,cnv.width,cnv.height);
 
-	public beforeDestroy():void {
-		this.disposed = true;
-	}
+	let thickness = 5;
+	center = {x:cnv.width/2, y:cnv.height/2};
+	radius = Math.min(cnv.width, cnv.height) / 2 - thickness / 2;
 
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(_ => this.renderFrame());
+	ctx.beginPath();
+	ctx.strokeStyle = "rgba(255,255,255,.35";
+	ctx.lineWidth = thickness;
+	ctx.lineCap = "round";
+	ctx.arc(cnv.width*.5, cnv.height*.5,radius,0, Math.PI*2);
+	ctx.stroke();
 
-		this.ctx.clearRect(0,0,this.cnv.width,this.cnv.height);
+	ctx.beginPath();
+	ctx.strokeStyle = "#ffffff";
+	ctx.lineWidth = thickness;
+	ctx.lineCap = "round";
+	ctx.arc(cnv.width*.5, cnv.height*.5,radius,-Math.PI/2, Math.PI*2*props.timerPercent-Math.PI/2);
+	ctx.stroke();
 
-		let thickness = 5;
-		this.center = {x:this.cnv.width/2, y:this.cnv.height/2};
-		this.radius = Math.min(this.cnv.width, this.cnv.height) / 2 - thickness / 2;
+	let res:any = {};
 
-		this.ctx.beginPath();
-		this.ctx.strokeStyle = "rgba(255,255,255,.35";
-		this.ctx.lineWidth = thickness;
-		this.ctx.lineCap = "round";
-		this.ctx.arc(this.cnv.width*.5, this.cnv.height*.5,this.radius,0, Math.PI*2);
-		this.ctx.stroke();
+	if(!time.value) return res;
 
-		this.ctx.beginPath();
-		this.ctx.strokeStyle = "#ffffff";
-		this.ctx.lineWidth = thickness;
-		this.ctx.lineCap = "round";
-		this.ctx.arc(this.cnv.width*.5, this.cnv.height*.5,this.radius,-Math.PI/2, Math.PI*2*this.timerPercent-Math.PI/2);
-		this.ctx.stroke();
-		
-		let res:any = {};
-		
-		if(!this.$refs.time) return;
-
-		let a = Math.PI*2 * this.timerPercent-Math.PI/2;
-		let div = <HTMLDivElement>this.$refs.time;
-		let bounds = div.getBoundingClientRect();
-		let px = ((this.center.x + Math.cos(a) * (this.radius+bounds.width*.25) - bounds.width/2))+"px";
-		let py = ((this.center.y + Math.sin(a) * (this.radius+bounds.height*.25) - bounds.height/2))+"px";
-		div.style.transform = 'translate3d('+px+', '+py+', 0)';
-		return res;
-	}
-
+	let a = Math.PI*2 * props.timerPercent-Math.PI/2;
+	let div = time.value;
+	let bounds = div.getBoundingClientRect();
+	let px = ((center.x + Math.cos(a) * (radius+bounds.width*.25) - bounds.width/2))+"px";
+	let py = ((center.y + Math.sin(a) * (radius+bounds.height*.25) - bounds.height/2))+"px";
+	div.style.transform = 'translate3d('+px+', '+py+', 0)';
+	return res;
 }
+
 </script>
 
 <style scoped lang="less">

@@ -153,7 +153,7 @@ export default class SockController extends EventDispatcher {
 	private registerCurrentUser():void {
 		if(this._verbose) console.log("SC :: REGISTER USER");
 		this.sendMessage({action:SOCK_ACTIONS.DEFINE_UID, data:this._user});
-		if(getRouter().currentRoute.meta.needGroupAuth) {
+		if(getRouter().currentRoute.value.meta.needGroupAuth) {
 			this.sendMessage({action:SOCK_ACTIONS.JOIN_ROOM, data:{user:this._user}});
 		}
 	}

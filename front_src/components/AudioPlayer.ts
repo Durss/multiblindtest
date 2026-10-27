@@ -1,5 +1,5 @@
 import TrackData from '@/vo/TrackData';
-import store from '@/store';
+import { useStoreMain } from '@/store';
 
 export default class AudioPlayer {
 
@@ -149,7 +149,7 @@ export default class AudioPlayer {
 			let elem = new Audio();
 			elem.loop = true;
 			elem.autoplay = false;
-			elem.volume = Math.max(0, Math.min(1, store.state.volume * this.volumeFactor));
+			elem.volume = Math.max(0, Math.min(1, useStoreMain().volume * this.volumeFactor));
 			elem.addEventListener("canplaythrough", this.loadCompleteHandler);
 			elem.addEventListener("error", this.loadErrorHandler);
 			this.audioObjects.push(elem);

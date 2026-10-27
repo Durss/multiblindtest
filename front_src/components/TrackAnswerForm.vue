@@ -1,11 +1,11 @@
 ﻿<template>
 	<div :class="classes">
-		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="showForm" @keyup="onKeyUp">
-			<label for="trackName" class="label">{{$t('game.guess')}}</label>
+		<form @submit.prevent="onSubmitGuess($event)" class="form" v-if="props.showForm" @keyup="onKeyUp">
+			<label for="trackName" class="label">{{t('game.guess')}}</label>
 			<div class="line" ref="inputLine">
-				<Button type="button" :icon="$getIcon('chat' + (anonMode ? '_off' : ''))" class="chat" @click="anonMode=!anonMode" :data-tooltip="$t('game.answerForm.chat')" v-if="multiplayerMode" />
+				<Button type="button" :icon="getIcon('chat' + (anonMode ? '_off' : ''))" class="chat" @click="anonMode=!anonMode" :data-tooltip="t('game.answerForm.chat')" v-if="props.multiplayerMode" />
 
-				<input ref="input" type="text" :placeholder="$t('game.guessPlaceholder').toString()"
+				<input ref="input" type="text" :placeholder="t('game.guessPlaceholder')"
 					v-model="guess"
 					class="input dark"
 					id="trackName"
@@ -14,160 +14,168 @@
 					maxlength="100"
 				>
 
-				<Button type="submit" :icon="$getIcon('checkmark_white')" :disabled="guess.length == 0" class="submit" />
+				<Button type="submit" :icon="getIcon('checkmark_white')" :disabled="guess.length == 0" class="submit" />
 			</div>
 
 			<div ref="stars" class="stars">
 				<img src="@/assets/icons/star.svg" alt="star" ref="star" v-for="i in 30" :key="i">
 			</div>
 		</form>
-		
-		<div v-if="shareUrl" class="shareUrl" ref="share">
-			<Button :icon="$getIcon('cross_white')" class="close" @click="$emit('closeshare')" />
-			<p class="title">{{$t('group.lobby.share.copied')}}</p>
-			<input type="text" v-model="shareUrl" class="dark" @focus="setFocus($event)">
+
+		<div v-if="props.shareUrl" class="shareUrl" ref="share">
+			<Button :icon="getIcon('cross_white')" class="close" @click="emit('closeshare')" />
+			<p class="title">{{t('group.lobby.share.copied')}}</p>
+			<input type="text" :value="props.shareUrl" class="dark" @focus="setFocus($event)">
 		</div>
-		
-		<div class="actions" v-if="!multiplayerMode">
-			<Button @click="onShowAnswers()" class="showAnswers" :icon="$getIcon('show')" :data-tooltip="$t('game.answerForm.show')" big v-if="showForm" />
-			<Button @click="onShareList()" class="showAnswers" :icon="$getIcon('share')" :data-tooltip="$t('game.answerForm.share')" big v-if="showShare" />
+
+		<div class="actions" v-if="!props.multiplayerMode">
+			<Button @click="onShowAnswers()" class="showAnswers" :icon="getIcon('show')" :data-tooltip="t('game.answerForm.show')" big v-if="props.showForm" />
+			<Button @click="onShareList()" class="showAnswers" :icon="getIcon('share')" :data-tooltip="t('game.answerForm.share')" big v-if="props.showShare" />
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
+import { getIcon } from '@/utils/Icons';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class TrackAnswerForm extends Vue {
+const props = withDefaults(defineProps<{
+	showForm?:boolean;
+	canGuess?:boolean;
+	showShare?:boolean;
+	multiplayerMode?:boolean;
+	shareUrl?:string;
+}>(), {
+	showForm:true,
+	canGuess:true,
+	showShare:true,
+	multiplayerMode:true,
+});
 
-	@Prop({default:true})
-	public showForm:boolean;
+const emit = defineEmits<{
+	guess:[value:string];
+	sendToChat:[value:string];
+	showAnswers:[];
+	share:[];
+	closeshare:[];
+}>();
 
-	@Prop({default:true})
-	public canGuess:boolean;
+const { t } = useI18n();
 
-	@Prop({default:true})
-	public showShare:boolean;
+const inputLine = useTemplateRef<HTMLDivElement>("inputLine");
+const input = useTemplateRef<HTMLInputElement>("input");
+const share = useTemplateRef<HTMLDivElement>("share");
+const star = useTemplateRef<HTMLImageElement[]>("star");
 
-	@Prop({default:true})
-	public multiplayerMode:boolean;
+const guess = ref<string>("");
+const error = ref<boolean>(false);
+const success = ref<boolean>(false);
+const anonMode = ref<boolean>(false);
+let focusHandler:any;
 
-	@Prop()
-	public shareUrl:string;
+const classes = computed(():string[] => {
+	let res = ["trackanswerform"]
+	if(error.value) res.push("error");
+	if(success.value) res.push("success");
+	if(props.multiplayerMode) res.push("multiplayermode");
+	return res;
+});
 
-	public guess:string = "";
-	public error:boolean = false;
-	public success:boolean = false;
-	public anonMode:boolean = false;
-	public focusHandler:any;
+onMounted(() => {
+	focusHandler = (e)=>onFocus();
+	document.addEventListener("keydown", focusHandler);
+	document.addEventListener("mouseup", focusHandler);
+});
 
-	public get classes():string[] {
-		let res = ["trackanswerform"]
-		if(this.error) res.push("error");
-		if(this.success) res.push("success");
-		if(this.multiplayerMode) res.push("multiplayermode");
-		return res;
-	}
+onBeforeUnmount(() => {
+	document.removeEventListener("keydown", focusHandler);
+	document.removeEventListener("mouseup", focusHandler);
+});
 
-	public mounted():void {
-		this.focusHandler = (e)=>this.onFocus();
-		document.addEventListener("keydown", this.focusHandler);
-		document.addEventListener("mouseup", this.focusHandler);
-	}
-
-	public beforeDestroy():void {
-		document.removeEventListener("keydown", this.focusHandler);
-		document.removeEventListener("mouseup", this.focusHandler);
-	}
-
-	private onFocus():void {
-		if(!this.$refs.input) return;
-		(<HTMLInputElement>this.$refs.input).focus();
-	}
-
-	public shake():void {
-		this.error = true;
-		gsap.killTweensOf(this.$refs.inputLine);
-		gsap.set(this.$refs.inputLine, {left:0});
-		gsap.to(this.$refs.inputLine, {duration:.05, left:"-10px", repeat:5, ease:"Sine.easeInOut", onComplete:()=> {
-				this.error = false
-		}}).yoyo(true);
-	}
-
-	public shine():void {
-		this.guess = "";
-		// gsap.set(this.$refs.input, {filter:"brightness(1)"});
-		// gsap.from(this.$refs.input, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
-		this.burstParticles();
-		this.success = true;
-		gsap.to(this.$refs.inputLine, {duration:.1, scale:"1.025", repeat:1, ease:"Sine.easeInOut", onComplete:()=> {
-			this.success = false;
-		}}).yoyo(true);
-	}
-
-	public onSubmitGuess(event):void {
-		if(this.canGuess) {
-			this.$emit("guess", this.guess);
-		}
-
-		if(!this.anonMode) {
-			this.sendChatMessage();
-		}
-	}
-
-	public onKeyUp(event:KeyboardEvent):void {
-		//Manage ctrl+Enter to submit chat message
-		if(event.keyCode == 13 && event.ctrlKey && this.guess.length > 0) {
-			this.sendChatMessage();
-		}
-		//Escape key
-		if(event.keyCode == 27) {
-			this.guess = "";
-		}
-	}
-
-	public sendChatMessage():void {
-		if(this.guess.trim().length == 0) return;
-		this.$emit("sendToChat", this.guess);
-		this.guess = "";
-	}
-
-	public onShowAnswers():void {
-		this.$emit("showAnswers");
-	}
-
-	public onShareList():void {
-		this.$emit("share");
-		this.$nextTick().then(_=> {
-			gsap.set(this.$refs.share, {filter:"brightness(1)"});
-			gsap.from(this.$refs.share, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
-		})
-	}
-
-	public burstParticles():void {
-		let stars = <Element[]>this.$refs.star;
-		for (let i = 0; i < stars.length; i++) {
-			const s = stars[i];
-			gsap.killTweensOf(s);
-			let px = Math.random() * 400 + 40;
-			let py = Math.random() * 40 - 40;
-			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
-			gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
-		}
-	}
-	
-	public setFocus(e:FocusEvent):void {
-		(e.target as HTMLInputElement).select();
-	}
-
+function onFocus():void {
+	if(!input.value) return;
+	input.value.focus();
 }
+
+function shake():void {
+	error.value = true;
+	gsap.killTweensOf(inputLine.value);
+	gsap.set(inputLine.value, {left:0});
+	gsap.to(inputLine.value, {duration:.05, left:"-10px", repeat:5, ease:"Sine.easeInOut", onComplete:()=> {
+			error.value = false
+	}}).yoyo(true);
+}
+
+function shine():void {
+	guess.value = "";
+	// gsap.set(input.value, {filter:"brightness(1)"});
+	// gsap.from(input.value, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
+	burstParticles();
+	success.value = true;
+	gsap.to(inputLine.value, {duration:.1, scale:"1.025", repeat:1, ease:"Sine.easeInOut", onComplete:()=> {
+		success.value = false;
+	}}).yoyo(true);
+}
+
+function onSubmitGuess(event):void {
+	if(props.canGuess) {
+		emit("guess", guess.value);
+	}
+
+	if(!anonMode.value) {
+		sendChatMessage();
+	}
+}
+
+function onKeyUp(event:KeyboardEvent):void {
+	//Manage ctrl+Enter to submit chat message
+	if(event.keyCode == 13 && event.ctrlKey && guess.value.length > 0) {
+		sendChatMessage();
+	}
+	//Escape key
+	if(event.keyCode == 27) {
+		guess.value = "";
+	}
+}
+
+function sendChatMessage():void {
+	if(guess.value.trim().length == 0) return;
+	emit("sendToChat", guess.value);
+	guess.value = "";
+}
+
+function onShowAnswers():void {
+	emit("showAnswers");
+}
+
+function onShareList():void {
+	emit("share");
+	nextTick().then(_=> {
+		gsap.set(share.value, {filter:"brightness(1)"});
+		gsap.from(share.value, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
+	})
+}
+
+function burstParticles():void {
+	let stars = star.value;
+	for (let i = 0; i < stars.length; i++) {
+		const s = stars[i];
+		gsap.killTweensOf(s);
+		let px = Math.random() * 400 + 40;
+		let py = Math.random() * 40 - 40;
+		gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
+		gsap.to(s, {opacity:0, rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad", x:px + (Math.random()-Math.random()) * 200, y:py + (Math.random()-Math.random()) * 100, scale:0, duration:1.25});
+	}
+}
+
+function setFocus(e:FocusEvent):void {
+	(e.target as HTMLInputElement).select();
+}
+
+defineExpose({ shake, shine });
+
 </script>
 
 <style scoped lang="less">
@@ -227,11 +235,9 @@ export default class TrackAnswerForm extends Vue {
 				border-bottom-left-radius: 0;
 				border: 1px solid @mainColor_dark;
 				border-left: none;
-				::v-deep {
-					img {
-						width: 100%;
-						min-width: 20px;
-					}
+				:deep(img) {
+					width: 100%;
+					min-width: 20px;
 				}
 			}
 			.chat {
@@ -243,11 +249,9 @@ export default class TrackAnswerForm extends Vue {
 				border: 1px solid @mainColor_dark;
 				border-right: none;
 				border-bottom: none;
-				::v-deep {
-					img {
-						width: 100%;
-						min-width: 20px;
-					}
+				:deep(img) {
+					width: 100%;
+					min-width: 20px;
 				}
 			}
 		}

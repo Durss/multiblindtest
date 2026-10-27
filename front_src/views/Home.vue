@@ -4,68 +4,54 @@
 			<img src="@/assets/icons/home_logo.svg" class="logo">
 
 			<div class="head">
-				<h1>{{$t('home.title')}}</h1>
-				<p class="light">{{$t('home.subtitle')}}</p>
-				<p class="subtitle" v-html="$t('home.head', {tracksCount:tracksCount})"></p>
+				<h1>{{t('home.title')}}</h1>
+				<p class="light">{{t('home.subtitle')}}</p>
+				<p class="subtitle" v-html="t('home.head', {tracksCount:tracksCount})"></p>
 			</div>
 
-			<Button v-if="!loggedIn" :loading="authUrl == ''" :title="$t('home.connectSpotify')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="$getIcon('spotify')" class="button" big />
-			<Button v-if="!loggedIn" :title="$t('home.demo')" :to="{name:'demo'}" :icon="$getIcon('play')" class="button" big />
-			<Button v-if="loggedIn" :title="$t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="$getIcon('solo')" class="button" big />
-			<Button v-if="loggedIn" :title="$t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="$getIcon('multiplayer')" class="button" big />
+			<Button v-if="!loggedIn" :loading="authUrl == ''" :title="t('home.connectSpotify')" :to="{name:'redirect', query:{uri:authUrl}}" :icon="getIcon('spotify')" class="button" big />
+			<Button v-if="!loggedIn" :title="t('home.demo')" :to="{name:'demo'}" :icon="getIcon('play')" class="button" big />
+			<Button v-if="loggedIn" :title="t('home.solo')" :to="{name:'playlists', params:{mode:'solo'}}" :icon="getIcon('solo')" class="button" big />
+			<Button v-if="loggedIn" :title="t('home.multi')" :to="{name:'playlists', params:{mode:'multi'}}" :icon="getIcon('multiplayer')" class="button" big />
 			<div class="twitch" v-if="loggedIn">
-				<Button v-if="loggedIn" :title="$t('home.twitch')" :to="{name:'twitch'}" :icon="$getIcon('twitch')" class="button" big />
+				<Button v-if="loggedIn" :title="t('home.twitch')" :to="{name:'twitch'}" :icon="getIcon('twitch')" class="button" big />
 				<!-- <div class="beta">BETA!</div> -->
 			</div>
-			<Button v-if="loggedIn" :title="$t('home.create')" :to="{name:'create'}" :icon="$getIcon('playlist')" class="button" big />
+			<Button v-if="loggedIn" :title="t('home.create')" :to="{name:'create'}" :icon="getIcon('playlist')" class="button" big />
 		</div>
 		<div class="footer">
-			<router-link to="/changelog" class="changelog">{{$t('home.changelog')}}</router-link>
-			<div v-html="$t('home.footer')"></div>
+			<router-link to="/changelog" class="changelog">{{t('home.changelog')}}</router-link>
+			<div v-html="t('home.footer')"></div>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from '@/components/Button.vue';
-import Store from "@/store/Store";
+import { useStoreMain } from '@/store';
 import Config from '@/utils/Config';
+import { getIcon } from '@/utils/Icons';
 import SpotifyAPI from '@/utils/SpotifyAPI';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class Home extends Vue {
+const { t } = useI18n();
+const storeMain = useStoreMain();
 
-	@Prop()
-	public from:string;
+const authUrl = ref<string>("");
 
-	public authUrl:string = "";
-
-	public get loggedIn() {
-		return this.$store.state.loggedin;
-	}
+const loggedIn = computed(() => {
+	return storeMain.loggedin;
+});
 
 
-	public get tracksCount():number {
-		return Config.MAX_TRACK_COUNT;
-	}
+const tracksCount = computed(():number => {
+	return Config.MAX_TRACK_COUNT;
+});
 
-	public async mounted():Promise<void> {
-		if(this.from) {
-			Store.set("redirect", this.from);
-		}
-		this.authUrl = await SpotifyAPI.instance.getAuthUrl();
-	}
+onMounted(async () => {
+	authUrl.value = await SpotifyAPI.instance.getAuthUrl();
+});
 
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">
@@ -133,7 +119,7 @@ export default class Home extends Vue {
 		width: 100%;
 		font-style: italic;
 
-		::v-deep a > {
+		:deep(a) {
 			background-color: fade(@mainColor_highlight, 10%);
 			padding: 0 5px;
 			border-radius: 5px;

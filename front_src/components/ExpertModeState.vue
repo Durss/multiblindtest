@@ -2,58 +2,46 @@
 	<div class="expertmodestate">
 		<div class="head">
 			<img src="@/assets/icons/elite.svg" alt="expert mode" class="icon">
-			<div>{{$t('group.game.expertMode.title')}}</div>
+			<div>{{t('group.game.expertMode.title')}}</div>
 		</div>
 		<div :class="classes(acceptArtist)">
 			<img src="@/assets/icons/checkmark_white.svg" alt="check" v-if="acceptArtist" class="icon">
 			<img src="@/assets/icons/cross.svg" alt="check" v-if="!acceptArtist" class="icon">
-			<p v-if="acceptArtist">{{$t('group.game.expertMode.acceptArtist')}}</p>
-			<p v-if="!acceptArtist">{{$t('group.game.expertMode.refuseArtist')}}</p>
+			<p v-if="acceptArtist">{{t('group.game.expertMode.acceptArtist')}}</p>
+			<p v-if="!acceptArtist">{{t('group.game.expertMode.refuseArtist')}}</p>
 		</div>
 		<div :class="classes(acceptTitle)">
 			<img src="@/assets/icons/checkmark_white.svg" alt="check" v-if="acceptTitle" class="icon">
 			<img src="@/assets/icons/cross.svg" alt="check" v-if="!acceptTitle" class="icon">
-			<p v-if="acceptTitle">{{$t('group.game.expertMode.acceptTitle')}}</p>
-			<p v-if="!acceptTitle">{{$t('group.game.expertMode.refuseTitle')}}</p>
+			<p v-if="acceptTitle">{{t('group.game.expertMode.acceptTitle')}}</p>
+			<p v-if="!acceptTitle">{{t('group.game.expertMode.refuseTitle')}}</p>
 		</div>
 	</div>
 </template>
+<script setup lang="ts">
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import RoomData from '../vo/RoomData';
+const props = defineProps<{
+	data?:string[];
+}>();
 
-@Component({
-	components:{}
-})
-export default class ExpertModeState extends Vue {
+const { t } = useI18n();
 
-	@Prop()
-	public data:string[];
+const acceptArtist = computed(():boolean => {
+	return props.data.indexOf('artist')>-1
+});
 
-	public get acceptArtist():boolean {
-		return this.data.indexOf('artist')>-1
-	}
+const acceptTitle = computed(():boolean => {
+	return props.data.indexOf('title')>-1
+});
 
-	public get acceptTitle():boolean {
-		return this.data.indexOf('title')>-1
-	}
-
-	public classes(accept:boolean):string[] {
-		let res = ["state"];
-		if(!accept) res.push("refuse");
-		return res;
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
+function classes(accept:boolean):string[] {
+	let res = ["state"];
+	if(!accept) res.push("refuse");
+	return res;
 }
+
 </script>
 
 <style scoped lang="less">

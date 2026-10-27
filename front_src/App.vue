@@ -1,125 +1,117 @@
 ﻿<template>
 	<div :class="classes">
 		<router-view class="content"/>
-		
+
 		<transition name="slide" appear>
 			<Button class="backHome"
 				v-if="showHomeButton"
 				:to="{name:'home'}"
-				:icon="$getIcon('home')"
+				:icon="getIcon('home')"
 				big
 			/>
 		</transition>
 		<Alert />
 		<Tooltip />
 		<Confirm />
-		<NeedInteractionLayer v-if="$store.state.needUserInteraction" />
-		<div :class="socketStatusClasses" v-if="$route.meta.needGroupAuth || socketConnected">{{$t('global.'+(socketConnected?'online':'offline'))}}</div>
+		<NeedInteractionLayer v-if="storeMain.needUserInteraction" />
+		<div :class="socketStatusClasses" v-if="route.meta.needGroupAuth || socketConnected">{{t('global.'+(socketConnected?'online':'offline'))}}</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import Button from './components/Button.vue';
 import NeedInteractionLayer from './components/NeedInteractionLayer.vue';
 import Tooltip from "./components/Tooltip.vue";
 import SockController, { SOCK_ACTIONS } from './sock/SockController';
+import { useStoreMain } from "./store";
+import { getIcon } from "./utils/Icons";
 import Utils from "./utils/Utils";
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import SocketEvent from './vo/SocketEvent';
 
-@Component({
-	components:{
-		Alert,
-		Tooltip,
-		Confirm,
-		Button,
-		NeedInteractionLayer,
+const { t } = useI18n();
+const route = useRoute();
+const storeMain = useStoreMain();
+
+let preloadedImages:string[] = [];
+const socketConnected = ref<boolean>(false);
+
+const classes = computed(():string[] => {
+	let res = ["app"];
+	if(storeMain.hideBackground) res.push("noBg");
+	return res;
+});
+
+const showHomeButton = computed(():boolean => {
+	if(route.name == null) return false;
+	return Utils.getRouteMetaValue(route, "hideHomeBt") !== true;
+});
+
+onMounted(() => {
+	//This hacks plays an empty sound on first click to avoid "click to play"
+	//layer when starting a multiplayer blindtest and we're not the host
+	let handler = (e) => {
+		let elem = new Audio();
+		elem.loop = false;
+		elem.autoplay = false;
+		elem.volume = 1;
+		elem.setAttribute("src", "/mp3/silence.mp3");
+		elem.play();
+		document.removeEventListener("click", handler);
 	}
-})
-export default class App extends Vue {
+	document.addEventListener("click", handler);
+	socketConnected.value = SockController.instance.connected;
+	SockController.instance.addEventListener(SOCK_ACTIONS.ONLINE, (e)=>onSockStateChange(e));
+	SockController.instance.addEventListener(SOCK_ACTIONS.OFFLINE, (e)=>onSockStateChange(e));
 
-	private preloadedImages:string[] = [];
-	private socketConnected:boolean = false;
 
-	public get classes():string[] {
-		let res = ["app"];
-		if(this.$store.state.hideBackground) res.push("noBg");
-		return res;
+	//Preload elements
+	const icons = import.meta.glob<string>('@/assets/icons/*', { eager: true, query: '?url', import: 'default' });
+	const loader = import.meta.glob<string>('@/assets/loader/*', { eager: true, query: '?url', import: 'default' });
+	const images = import.meta.glob<string>('@/assets/images/*', { eager: true, query: '?url', import: 'default' });
+
+	const preloaders = [icons, loader, images];
+	for (let i = 0; i < preloaders.length; i++) {
+		Object.values(preloaders[i]).forEach((url: string) => {
+			preloadedImages.push(url);
+			let img = new Image();
+			img.src = url;
+			/*
+			img.addEventListener("error", (e)=> {
+				console.error("Loading image failed ! error");
+				console.log(url);
+				console.log(e);
+			})
+			img.addEventListener("abort", (e)=> {
+				console.error("Loading image failed ! abort");
+				console.log(e);
+			})
+			img.addEventListener("stalled", (e)=> {
+				// console.error("Loading image failed ! stalled");
+				// console.log(e);
+			})
+			img.addEventListener("load",(e)=> {
+				// console.log("IMAGE OK");
+			})
+			*/
+		});
 	}
+});
 
-	public get showHomeButton():boolean {
-		if(this.$route.name == null) return false;
-		return Utils.getRouteMetaValue(this.$route, "hideHomeBt") !== true;
-	}
+const socketStatusClasses = computed(():string[] => {
+	let res = ["sockStatus"];
+	if(socketConnected.value) res.push("online");
+	return res;
+});
 
-	public mounted():void {
-		//This hacks plays an empty sound on first click to avoid "click to play"
-		//layer when starting a multiplayer blindtest and we're not the host
-		let handler = (e) => {
-			let elem = new Audio();
-			elem.loop = false;
-			elem.autoplay = false;
-			elem.volume = 1;
-			elem.setAttribute("src", "/mp3/silence.mp3");
-			elem.play();
-			document.removeEventListener("click", handler);
-		}
-		document.addEventListener("click", handler);
-		this.socketConnected = SockController.instance.connected;
-		SockController.instance.addEventListener(SOCK_ACTIONS.ONLINE, (e)=>this.onSockStateChange(e));
-		SockController.instance.addEventListener(SOCK_ACTIONS.OFFLINE, (e)=>this.onSockStateChange(e));
-		
-		
-		//Preload elements
-		const icons = import.meta.glob('@/assets/icons/*', { eager: true, as: 'url' });
-		const loader = import.meta.glob('@/assets/loader/*', { eager: true, as: 'url' });
-		const images = import.meta.glob('@/assets/images/*', { eager: true, as: 'url' });
-		
-		const preloaders = [icons, loader, images];
-		for (let i = 0; i < preloaders.length; i++) {
-			Object.values(preloaders[i]).forEach((url: string) => {
-				this.preloadedImages.push(url);
-				let img = new Image();
-				img.src = url;
-				/*
-				img.addEventListener("error", (e)=> {
-					console.error("Loading image failed ! error");
-					console.log(url);
-					console.log(e);
-				})
-				img.addEventListener("abort", (e)=> {
-					console.error("Loading image failed ! abort");
-					console.log(e);
-				})
-				img.addEventListener("stalled", (e)=> {
-					// console.error("Loading image failed ! stalled");
-					// console.log(e);
-				})
-				img.addEventListener("load",(e)=> {
-					// console.log("IMAGE OK");
-				})
-				*/
-			});
-		}
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public get socketStatusClasses():string[] {
-		let res = ["sockStatus"];
-		if(this.socketConnected) res.push("online");
-		return res;
-	}
-
-	private onSockStateChange(e:SocketEvent):void {
-		this.socketConnected = e.getType() == SOCK_ACTIONS.ONLINE;
-	}
-
+function onSockStateChange(e:SocketEvent):void {
+	socketConnected.value = e.getType() == SOCK_ACTIONS.ONLINE;
 }
+
 </script>
 
 <style scoped lang="less">
@@ -157,7 +149,7 @@ export default class App extends Vue {
 			transition: all .5s;
 			transform: translate(0, 0);
 		}
-		&.slide-enter, &.slide-leave-to {
+		&.slide-enter-from, &.slide-leave-to {
 			transform: translate(-100%, -100%);
 		}
 	}

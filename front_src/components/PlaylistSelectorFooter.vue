@@ -2,70 +2,63 @@
 	<div class="playlistselectorfooter">
 		<div class="playlists">
 			<img src="@/assets/icons/playlist.svg" alt="check">
-			<span>{{$t('playlists.footer.playlistCount', {count:playlists.length})}}</span>
+			<span>{{t('playlists.footer.playlistCount', {count:props.playlists.length})}}</span>
 		</div>
 
 		<div class="tracks">
 			<img src="@/assets/icons/song.svg" alt="check">
-			<span>{{$t('playlists.footer.tracksCount', {count:totalTracks})}}</span>
+			<span>{{t('playlists.footer.tracksCount', {count:totalTracks})}}</span>
 		</div>
 
-		<Slider v-if="mode == 'solo'" class="slider" :label="$t('playlists.footer.difficulty')" :min="1" :max="maxTracks" v-model="tracksCount" />
-		
-		<div class="min" v-if="totalTracks < 20">{{$t('playlists.footer.notEnough')}}</div>
+		<Slider v-if="props.mode == 'solo'" class="slider" :label="t('playlists.footer.difficulty')" :min="1" :max="maxTracks" v-model="tracksCount" />
+
+		<div class="min" v-if="totalTracks < 20">{{t('playlists.footer.notEnough')}}</div>
 
 		<div class="buttons">
-			<Button :title="$t('playlists.footer.start')" big class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
+			<Button :title="t('playlists.footer.start')" big class="submit" @click="startBlindtest()" white v-if="totalTracks >= 20" />
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from '@/components/Button.vue';
 import Slider from '@/components/Slider.vue';
 import PlaylistData from '@/vo/PlaylistData';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import Config from '../utils/Config';
 
-@Component({
-	components:{
-		Button,
-		Slider,
+const props = withDefaults(defineProps<{
+	playlists?:PlaylistData[];
+	mode?:string;
+}>(), {
+	playlists:null,
+});
+
+const emit = defineEmits<{
+	start:[];
+}>();
+
+const { t } = useI18n();
+
+const tracksCount = ref<number>(4);
+
+const maxTracks = computed(():number => { return Config.MAX_TRACK_COUNT; });
+
+const totalTracks = computed(():number => {
+	let res = 0;
+	for (let i = 0; i < props.playlists.length; i++) {
+		const p = props.playlists[i];
+		res += p.tracks.length;
 	}
-})
-export default class PlaylistSelectorFooter extends Vue {
+	return res;
+});
 
-	@Prop({default:null})
-	public playlists:PlaylistData[];
-	@Prop()
-	public mode:string;
-
-	public tracksCount:number = 4;
-
-	public get maxTracks():number { return Config.MAX_TRACK_COUNT; }
-
-	public get totalTracks():number {
-		let res = 0;
-		for (let i = 0; i < this.playlists.length; i++) {
-			const p = this.playlists[i];
-			res += p.tracks.length;
-		}
-		return res;
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public startBlindtest():void {
-		this.$emit("start");
-	}
-
+function startBlindtest():void {
+	emit("start");
 }
+
+defineExpose({ tracksCount });
+
 </script>
 
 <style scoped lang="less">

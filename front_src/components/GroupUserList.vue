@@ -1,8 +1,8 @@
 ﻿<template>
 	<div class="groupuserlist">
-		<div v-for="(u, index) in users" :key="u.id" :class="userClasses(u)">
+		<div v-for="(u, index) in props.users" :key="u.id" :class="userClasses(u)">
 			<div class="position">{{index + 1}}</div>
-			<div class="pass" v-if="u.pass && !gameComplete">{{$t('group.game.gaveup')}}</div>
+			<div class="pass" v-if="u.pass && !props.gameComplete">{{t('group.game.gaveup')}}</div>
 			<div class="content">
 				<div class="info">
 					<div class="username">{{u.name}}</div>
@@ -12,79 +12,66 @@
 					<div class="fill" :style="userScorePercentStyles(u)"></div>
 				</div>
 			</div>
-			<Button :icon="$getIcon('kick')" class="kick" highlight @click="onClickKick(u)" v-if="canKick && u.id != me.id" />
+			<Button :icon="getIcon('kick')" class="kick" highlight @click="onClickKick(u)" v-if="canKick && u.id != props.me.id" />
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { getIcon } from '@/utils/Icons';
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import RoomData from '../vo/RoomData';
 import UserData from '../vo/UserData';
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class GroupUserList extends Vue {
+const props = defineProps<{
+	users?:UserData[];
+	me?:UserData;
+	room?:RoomData;
+	gameComplete?:boolean;
+}>();
 
-	@Prop()
-	public users;
+const emit = defineEmits<{
+	kick:[user:UserData];
+}>();
 
-	@Prop()
-	public me;
+const { t } = useI18n();
 
-	@Prop()
-	public room;
+const canKick = computed(():boolean => { return props.me.id == props.room.creator; });
 
-	@Prop()
-	public gameComplete;
-
-	public get canKick():boolean { return this.me.id == this.room.creator; }
-
-	public userClasses(u:UserData):string[] {
-		let res = ["player"];
-		if(u.id == this.me.id) res.push("me");
-		if(u.id == this.room.creator && !u.offline) res.push("host");
-		if(u.offline) res.push("offline");
-		if(u.pass && !this.gameComplete) res.push("passed");
-		return res;
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	/**
-	 * Compute the size of a user's bar
-	 */
-	public userScorePercentStyles(user:UserData):any {
-		let maxScore = 0;
-		for (let i = 0; i < this.room.tracksCount; i++) maxScore += i+1;
-		maxScore *= this.room.gamesCount;
-		let w = (user.score/maxScore*100)+"%";
-		return {
-			width:w,
-		}
-	}
-
-	/**
-	 * Called when clicking Kick button
-	 */
-	public onClickKick(u:UserData):void {
-		Utils.confirm(this.$t('group.game.kickConfirm.title').toString(), null, this.$t('group.game.kickConfirm.description').toString())
-		.then( _=> {
-			this.$emit("kick", u);
-		}).catch(_=>{/*don't care*/});
-	}
-
+function userClasses(u:UserData):string[] {
+	let res = ["player"];
+	if(u.id == props.me.id) res.push("me");
+	if(u.id == props.room.creator && !u.offline) res.push("host");
+	if(u.offline) res.push("offline");
+	if(u.pass && !props.gameComplete) res.push("passed");
+	return res;
 }
+
+/**
+ * Compute the size of a user's bar
+ */
+function userScorePercentStyles(user:UserData):any {
+	let maxScore = 0;
+	for (let i = 0; i < props.room.tracksCount; i++) maxScore += i+1;
+	maxScore *= props.room.gamesCount;
+	let w = (user.score/maxScore*100)+"%";
+	return {
+		width:w,
+	}
+}
+
+/**
+ * Called when clicking Kick button
+ */
+function onClickKick(u:UserData):void {
+	Utils.confirm(t('group.game.kickConfirm.title'), null, t('group.game.kickConfirm.description'))
+	.then( _=> {
+		emit("kick", u);
+	}).catch(_=>{/*don't care*/});
+}
+
 </script>
 
 <style scoped lang="less">
@@ -188,7 +175,7 @@ export default class GroupUserList extends Vue {
 			width: 40px;
 			height: 40px;
 			transition: right .24s;
-			/deep/ .icon {
+			:deep(.icon) {
 				width: 100%;
 				height: 100%;
 				max-width: 100%;

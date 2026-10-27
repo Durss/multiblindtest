@@ -1,42 +1,36 @@
 <template>
 	<div class="bouncingloader">
 		<img src="@/assets/loader/loader.svg" class="loader">
-		<img :src="icon" class="icon" ref="icon">
+		<img :src="props.icon" class="icon" ref="icon">
 		<div class="title">
-			<span v-if="label">{{label}}</span>
+			<span v-if="props.label">{{ props.label }}</span>
 			<slot></slot>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import gsap from "gsap";
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+import { onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 
-@Component({
-	components:{}
-})
-export default class BouncingLoader extends Vue {
+const props = defineProps<{
+	icon?: string;
+	label?: string;
+}>();
 
-	@Prop()
-	public icon:string;
+const icon = useTemplateRef<HTMLImageElement>("icon");
 
-	@Prop()
-	public label:string;
+onMounted(() => {
+	gsap.to(icon.value, { duration: 1, ease: "Elastic.easeIn", scale: 1.2, repeat: -1 }).yoyo(true);
+});
 
-	public mounted():void {
-		gsap.to(this.$refs.icon, {duration: 1, ease:"Elastic.easeIn", scale:1.2, repeat:-1}).yoyo(true);
-	}
+onBeforeUnmount(() => {
+	gsap.killTweensOf(icon.value);
+});
 
-	public beforeDestroy():void {
-		gsap.killTweensOf(this.$refs.icon);
-	}
-
-}
 </script>
 
 <style scoped lang="less">
-.bouncingloader{
+.bouncingloader {
 	margin: auto;
 	position: relative;
 

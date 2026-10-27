@@ -1,51 +1,38 @@
 <template>
 	<div class="slider">
-		<div class="label" v-html="label"></div>
+		<div class="label" v-html="props.label"></div>
 		<div class="gauge">
-			<div v-for="(i, index) in (max-min+1)" :key="i" :class="classes(index+min)" @click="clicItem(index+min)">{{index+min}}</div>
+			<div v-for="(i, index) in (props.max-props.min+1)" :key="i" :class="classes(index+props.min)" @click="clicItem(index+props.min)">{{index+props.min}}</div>
 		</div>
 	</div>
 </template>
+<script setup lang="ts">
 
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+const props = withDefaults(defineProps<{
+	label?:string;
+	modelValue?:number;
+	min?:number;
+	max?:number;
+}>(), {
+	modelValue:6,
+	min:0,
+	max:10,
+});
 
-@Component({
-	components:{}
-})
-export default class Slider extends Vue {
+const emit = defineEmits<{
+	"update:modelValue":[value:number];
+}>();
 
-	@Prop()
-	public label:string;
-	
-	@Prop({default:6})
-	public value:number;
-	
-	@Prop({default:0})
-	public min:number;
-	
-	@Prop({default:10})
-	public max:number;
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public classes(index:number):string[] {
-		let res = ["item"];
-		if(this.value == index) res.push("selected");
-		return res
-	}
-
-	public clicItem(index:number):void {
-		this.$emit("input", index);
-	}
-
+function classes(index:number):string[] {
+	let res = ["item"];
+	if(props.modelValue == index) res.push("selected");
+	return res
 }
+
+function clicItem(index:number):void {
+	emit("update:modelValue", index);
+}
+
 </script>
 
 <style scoped lang="less">
@@ -54,12 +41,10 @@ export default class Slider extends Vue {
 		font-family: "Futura";
 		font-weight: bold;
 		text-align: center;
-		::v-deep {
-			i {
-				font-family: "FuturaLight";
-				font-weight: normal;
-				font-size: 16px;
-			}
+		:deep(i) {
+			font-family: "FuturaLight";
+			font-weight: normal;
+			font-size: 16px;
 		}
 	}
 	.gauge {

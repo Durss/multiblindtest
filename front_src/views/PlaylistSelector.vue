@@ -1,19 +1,19 @@
 ﻿<template>
 	<div class="playlistselector">
-		<BouncingLoader v-if="loading" class="loader" :icon="$getIcon('home_logo')">
-			<h1>{{$t('playlists.loading.title')}}</h1>
-			<p class="infos">{{$t('playlists.loading.description')}}</p>
+		<BouncingLoader v-if="loading" class="loader" :icon="getIcon('home_logo')">
+			<h1>{{t('playlists.loading.title')}}</h1>
+			<p class="infos">{{t('playlists.loading.description')}}</p>
 		</BouncingLoader>
 
 		<div class="playlists" v-if="!loading">
 			<div class="header">
-				<img src="@/assets/icons/twitch.svg" alt="Twitch" class="icon" v-if="mode=='twitch'">
-				<h1>{{$t('playlists.title')}}</h1>
-				<p>{{$t('playlists.subtitle')}}</p>
-				<Button :title="$t('playlists.refresh')"
+				<img src="@/assets/icons/twitch.svg" alt="Twitch" class="icon" v-if="props.mode=='twitch'">
+				<h1>{{t('playlists.title')}}</h1>
+				<p>{{t('playlists.subtitle')}}</p>
+				<Button :title="t('playlists.refresh')"
 					v-if="loadedFromCache"
 					class="reload"
-					:icon="$getIcon('refresh')"
+					:icon="getIcon('refresh')"
 					@click="loadPlaylists()"
 				/>
 			</div>
@@ -31,7 +31,7 @@
 
 			<NoPlaylist v-if="filteredPlaylists.length == 0" />
 
-			<div class="header refused" v-if="refusedPlaylists.length > 0">{{$t('playlists.noTrack')}}</div>
+			<div class="header refused" v-if="refusedPlaylists.length > 0">{{t('playlists.noTrack')}}</div>
 
 			<PlayListEntry
 				v-for="p in refusedPlaylists"
@@ -45,7 +45,7 @@
 		<transition name="slide">
 			<PlaylistSelectorFooter class="footer"
 				:playlists="selectedPlaylists"
-				:mode="mode"
+				:mode="props.mode"
 				v-if="selectedPlaylists.length > 0"
 				@start="startBlindtest()"
 				ref="footer"
@@ -53,224 +53,219 @@
 		</transition>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import BouncingLoader from "@/components/BouncingLoader.vue";
 import Button from '@/components/Button.vue';
 import PlayListEntry from '@/components/PlayListEntry.vue';
 import PlaylistSelectorFooter from '@/components/PlaylistSelectorFooter.vue';
+import { useStoreMain } from "@/store";
 import Api from "@/utils/Api";
+import { getIcon } from "@/utils/Icons";
 import SpotifyAPI from "@/utils/SpotifyAPI";
 import PlaylistData from "@/vo/PlaylistData";
 import TrackData from '@/vo/TrackData';
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import NoPlaylist from '../components/NoPlaylist.vue';
 import SearchPlaylistForm from '../components/SearchPlaylistForm.vue';
 
-@Component({
-	components:{
-		Button,
-		NoPlaylist,
-		PlayListEntry,
-		BouncingLoader,
-		SearchPlaylistForm,
-		PlaylistSelectorFooter,
-	}
-})
-export default class PlaylistSelector extends Vue {
+const props = defineProps<{
+	mode?:string;
+}>();
 
-	@Prop()
-	public mode:string;
+const { t } = useI18n();
+const router = useRouter();
+const storeMain = useStoreMain();
 
-	private minTracksPerPlaylist:number = 1;
+const footer = useTemplateRef<InstanceType<typeof PlaylistSelectorFooter>>("footer");
 
-	public playlists:PlaylistData[] = [];
-	public loading = false;
-	public disposed = false;
-	public loadedFromCache = false;
-	public selectedPlaylists:any[] = [];
-	public numberOfTracks:number = 0;
+let minTracksPerPlaylist:number = 1;
 
-	public get filteredPlaylists():PlaylistData[] {
-		let playlists = this.playlists.concat();
-		playlists.sort((a:PlaylistData, b:PlaylistData)=> {
-			if(a.searchOrigin && !b.searchOrigin) return -1;
-			if(!a.searchOrigin && b.searchOrigin) return 1;
-			if(a.tracks.length > b.tracks.length) return -1;
-			if(a.tracks.length > b.tracks.length) return 1;
-			return 0;
-		})
-		for (let i = 0; i < playlists.length; i++) {
-			const p = playlists[i];
-			if(p.tracks.length < this.minTracksPerPlaylist && !p.searchOrigin) {
-				playlists.splice(i,1);
-				i--;
-			}
-		}
-		return playlists;
-	}
+const playlists = ref<PlaylistData[]>([]);
+const loading = ref<boolean>(false);
+let disposed:boolean = false;
+const loadedFromCache = ref<boolean>(false);
+const selectedPlaylists = ref<any[]>([]);
+const numberOfTracks = ref<number>(0);
 
-	public get refusedPlaylists():PlaylistData[] {
-		let playlists = this.playlists.concat();
-		playlists.sort((a:PlaylistData, b:PlaylistData)=> {
-			if(a.tracks.length > b.tracks.length) return -1;
-			if(a.tracks.length > b.tracks.length) return 1;
-			return 0;
-		})
-		for (let i = 0; i < playlists.length; i++) {
-			const p = playlists[i];
-			if(p.tracks.length >= this.minTracksPerPlaylist || p.searchOrigin) {
-				playlists.splice(i,1);
-				i--;
-			}
-		}
-		return playlists;
-	}
-
-	public mounted():void {
-		if(this.$store.state.playlistsCache) {
-			this.playlists = this.$store.state.playlistsCache;
-			this.loadedFromCache = true;
-		}else{
-			this.loadPlaylists();
+const filteredPlaylists = computed(():PlaylistData[] => {
+	let list = playlists.value.concat();
+	list.sort((a:PlaylistData, b:PlaylistData)=> {
+		if(a.searchOrigin && !b.searchOrigin) return -1;
+		if(!a.searchOrigin && b.searchOrigin) return 1;
+		if(a.tracks.length > b.tracks.length) return -1;
+		if(a.tracks.length > b.tracks.length) return 1;
+		return 0;
+	})
+	for (let i = 0; i < list.length; i++) {
+		const p = list[i];
+		if(p.tracks.length < minTracksPerPlaylist && !p.searchOrigin) {
+			list.splice(i,1);
+			i--;
 		}
 	}
+	return list;
+});
 
-	public beforeDestroy():void {
-		this.disposed = true;
-	}
-
-	/**
-	 * Loads playlists, covers and tracks from spotify
-	 */
-	public async loadPlaylists(offset:number = 0):Promise<void> {
-		if(offset==0) {
-			this.playlists = [];
-			this.selectedPlaylists = [];
+const refusedPlaylists = computed(():PlaylistData[] => {
+	let list = playlists.value.concat();
+	list.sort((a:PlaylistData, b:PlaylistData)=> {
+		if(a.tracks.length > b.tracks.length) return -1;
+		if(a.tracks.length > b.tracks.length) return 1;
+		return 0;
+	})
+	for (let i = 0; i < list.length; i++) {
+		const p = list[i];
+		if(p.tracks.length >= minTracksPerPlaylist || p.searchOrigin) {
+			list.splice(i,1);
+			i--;
 		}
-		let playlistsPerBatch = 50;
-		this.loading = true;
-		//Load a batch of playlists
-		let json = await SpotifyAPI.instance.call("v1/me/playlists", {offset:(offset*playlistsPerBatch), limit:playlistsPerBatch});
-		for (let i = 0; i < json.items.length; i++) {
-			if(this.disposed) return;
-			//Load tracks from the playlists 
-			const p = json.items[i];
-			let tracksResult, offset=0;
-			let tracksWithPreview:TrackData[] = [];
-			let jsonCover = await SpotifyAPI.instance.call("v1/playlists/"+p.id+"/images");
-			do {
-				//Load a batch of tracks of the current playlist
-				tracksResult = await SpotifyAPI.instance.call("v1/playlists/"+p.id+"/tracks", {offset, limit:100});
-				
-				for (let j = 0; j < tracksResult.items.length; j++) {
-					if(this.disposed) return;
-					let track = tracksResult.items[j].track;
-					if(!track) continue;
-					if(track.preview_url) {
-						let trackInfos:TrackData = {
-							id:track.id,
-							enabled:false,
-							name:track.name,
-							artist:track.artists[0].name,
-							album:track.album?.name,
-							audioPath:track.preview_url,
-						};
-						tracksWithPreview.push(trackInfos);
-					}
+	}
+	return list;
+});
+
+onMounted(() => {
+	if(storeMain.playlistsCache) {
+		playlists.value = storeMain.playlistsCache;
+		loadedFromCache.value = true;
+	}else{
+		loadPlaylists();
+	}
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+});
+
+/**
+ * Loads playlists, covers and tracks from spotify
+ */
+async function loadPlaylists(offset:number = 0):Promise<void> {
+	if(offset==0) {
+		playlists.value = [];
+		selectedPlaylists.value = [];
+	}
+	let playlistsPerBatch = 50;
+	loading.value = true;
+	//Load a batch of playlists
+	let json = await SpotifyAPI.instance.call("v1/me/playlists", {offset:(offset*playlistsPerBatch), limit:playlistsPerBatch});
+	for (let i = 0; i < json.items.length; i++) {
+		if(disposed) return;
+		//Load tracks from the playlists
+		const p = json.items[i];
+		let tracksResult, offset=0;
+		let tracksWithPreview:TrackData[] = [];
+		let jsonCover = await SpotifyAPI.instance.call("v1/playlists/"+p.id+"/images");
+		do {
+			//Load a batch of tracks of the current playlist
+			tracksResult = await SpotifyAPI.instance.call("v1/playlists/"+p.id+"/tracks", {offset, limit:100});
+
+			for (let j = 0; j < tracksResult.items.length; j++) {
+				if(disposed) return;
+				let track = tracksResult.items[j].track;
+				if(!track) continue;
+				if(track.preview_url) {
+					let trackInfos:TrackData = {
+						id:track.id,
+						enabled:false,
+						name:track.name,
+						artist:track.artists[0].name,
+						album:track.album?.name,
+						audioPath:track.preview_url,
+					};
+					tracksWithPreview.push(trackInfos);
 				}
-				offset += tracksResult.limit
-			}while(tracksResult.next);
-
-		let data = {
-			id:p.id,
-			name:p.name,
-			owner:p.owner.display_name,
-			cover:jsonCover && jsonCover.length > 0? jsonCover[0].url : this.$getIcon('playlist'),
-			tracks:tracksWithPreview,
-		};			this.playlists.push(data);
-		}
-
-		if(json.next) {
-			//Load next page
-			this.loadPlaylists(offset+1);
-		}else{
-			this.loading = false;
-			// this.$store.dispatch("playlistsCache", this.playlists);
-		}
-	}
-
-	/**
-	 * Called anytime playlists changes.
-	 * Caches the playlists to the store.
-	 */
-	@Watch("playlists", {immediate: false, deep:true})
-	public onUpdatePlaylists(newValue, oldValue):void {
-		this.$store.dispatch("playlistsCache", this.playlists);
-	}
-
-	/**
-	 * Called when clicking a playlist.
-	 * Toggles its selection state
-	 */
-	public async selectPlaylist(data:PlaylistData):Promise<any> {
-		if(data.processingTracks) return;
-
-		for (let i = 0; i < this.selectedPlaylists.length; i++) {
-			if(this.selectedPlaylists[i].id == data.id) {
-				this.selectedPlaylists.splice(i, 1);
-				return;
 			}
-			
-		}
-		this.selectedPlaylists.push(data);
+			offset += tracksResult.limit
+		}while(tracksResult.next);
+
+	let data = {
+		id:p.id,
+		name:p.name,
+		owner:p.owner.display_name,
+		cover:jsonCover && jsonCover.length > 0? jsonCover[0].url : getIcon('playlist'),
+		tracks:tracksWithPreview,
+	};			playlists.value.push(data);
 	}
 
-	/**
-	 * Starts the multi blindtest
-	 */
-	public async startBlindtest():Promise<any> {
-		if(this.mode == "solo") {
-			let ids = this.selectedPlaylists.map(p => p.id);
-			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
-			this.$router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
-			
-		}else if(this.mode == "twitchExt" || this.mode == "twitchObs") {
-			let ids = this.selectedPlaylists.map(p => p.id);
-			let trackscounts = (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString();
-			this.$router.push({name:"twitch/lobby", params:{playlistids:ids.join(","), trackscounts, mode:this.mode}});
-
-		}else{
-			let playlists = JSON.parse(JSON.stringify(this.selectedPlaylists));
-			playlists.forEach(p => delete p.tracks);
-			let data = {
-				playlists,
-				tracksCounts: (<PlaylistSelectorFooter>this.$refs["footer"]).tracksCount.toString(),
-			}
-			let res = await Api.post("group/create", data);
-			this.$router.push({name:"group", params:{id:res.roomId}});
-		}
+	if(json.next) {
+		//Load next page
+		loadPlaylists(offset+1);
+	}else{
+		loading.value = false;
+		// storeMain.setPlaylistsCache(playlists.value);
 	}
-
-	public onDeletePlaylist(data:PlaylistData):void {
-		//delete from local cache
-		for (let i = 0; i < this.playlists.length; i++) {
-			const p = this.playlists[i];
-			if(p.id == data.id) {
-				this.playlists.splice(i, 1);
-			}
-		}
-
-		//delete from selected list
-		for (let i = 0; i < this.selectedPlaylists.length; i++) {
-			const p = this.selectedPlaylists[i];
-			if(p.id == data.id) {
-				this.selectedPlaylists.splice(i, 1);
-			}
-		}
-	}
-
 }
+
+/**
+ * Called anytime playlists changes.
+ * Caches the playlists to the store.
+ */
+watch(playlists, (newValue, oldValue) => {
+	storeMain.setPlaylistsCache(playlists.value);
+}, {immediate: false, deep:true});
+
+/**
+ * Called when clicking a playlist.
+ * Toggles its selection state
+ */
+async function selectPlaylist(data:PlaylistData):Promise<any> {
+	if(data.processingTracks) return;
+
+	for (let i = 0; i < selectedPlaylists.value.length; i++) {
+		if(selectedPlaylists.value[i].id == data.id) {
+			selectedPlaylists.value.splice(i, 1);
+			return;
+		}
+
+	}
+	selectedPlaylists.value.push(data);
+}
+
+/**
+ * Starts the multi blindtest
+ */
+async function startBlindtest():Promise<any> {
+	if(props.mode == "solo") {
+		let ids = selectedPlaylists.value.map(p => p.id);
+		let trackscounts = footer.value.tracksCount.toString();
+		router.push({name:"player/playlists", params:{playlistids:ids.join(","), trackscounts}});
+
+	}else if(props.mode == "twitchExt" || props.mode == "twitchObs") {
+		let ids = selectedPlaylists.value.map(p => p.id);
+		router.push({name:"twitch/lobby", params:{playlistids:ids.join(","), mode:props.mode}});
+
+	}else{
+		let list = JSON.parse(JSON.stringify(selectedPlaylists.value));
+		list.forEach(p => delete p.tracks);
+		let data = {
+			playlists:list,
+			tracksCounts: footer.value.tracksCount.toString(),
+		}
+		let res = await Api.post("group/create", data);
+		router.push({name:"group", params:{id:res.roomId}});
+	}
+}
+
+function onDeletePlaylist(data:PlaylistData):void {
+	//delete from local cache
+	for (let i = 0; i < playlists.value.length; i++) {
+		const p = playlists.value[i];
+		if(p.id == data.id) {
+			playlists.value.splice(i, 1);
+		}
+	}
+
+	//delete from selected list
+	for (let i = 0; i < selectedPlaylists.value.length; i++) {
+		const p = selectedPlaylists.value[i];
+		if(p.id == data.id) {
+			selectedPlaylists.value.splice(i, 1);
+		}
+	}
+}
+
 </script>
 
 <style scoped lang="less">
@@ -284,7 +279,7 @@ export default class PlaylistSelector extends Vue {
 	.loader {
 		.center();
 		position: absolute;
-		/deep/ .icon {
+		:deep(.icon) {
 			top: 12px;
 			width: 70px;
 			height: 70px;
@@ -349,7 +344,7 @@ export default class PlaylistSelector extends Vue {
 		&.slide-enter-active, &.slide-leave-active {
 			transition: all .5s;
 		}
-		&.slide-enter, &.slide-leave-to {
+		&.slide-enter-from, &.slide-leave-to {
 			transform: translate(-50%, 100%);
 		}
 	}

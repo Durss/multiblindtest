@@ -1,43 +1,29 @@
 ﻿<template>
 	<div class="twitchintro">
 		<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
-		<h1>MultiBlindTest on Twitch</h1>
+		<h1>{{t('twitch.intro.title')}}</h1>
 		<div class="content">
 			<div class="head">
-				<p>You're a streamer and you want to play with your viewers?</p>
-				<p>The MultiBlindTest Twitch mode is for you.</p>
+				<p>{{t('twitch.intro.head1')}}</p>
+				<p>{{t('twitch.intro.head2')}}</p>
 			</div>
 		</div>
-		<Button :icon="$getIcon('twitch')" title="Proceed" :to="{name:'twitch/auth'}" />
+		<Button :icon="getIcon('twitch')" :title="t('twitch.intro.proceed')" :to="{name:'twitch/auth'}" />
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from "@/components/Button.vue";
-import Api from "@/utils/Api";
-import { Component, Vue } from "vue-property-decorator";
+import { getIcon } from "@/utils/Icons";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class TwitchIntro extends Vue {
+const { t } = useI18n();
 
-	public twitchName:string = "";
-	public error:boolean = false;
-	public success:boolean = false;
-	public sendingTwitchName:boolean = false;
+const twitchName = ref<string>("");
+const error = ref<boolean>(false);
+const success = ref<boolean>(false);
+const sendingTwitchName = ref<boolean>(false);
 
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

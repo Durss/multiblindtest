@@ -1,131 +1,135 @@
 ﻿<template>
 	<div class="twitchviewercontrols">
 		<transition name="slide">
-			<Button ref="openBt" v-if="!opened" :icon="$getIcon('gear')" class="openBt" @click.prevent.stop="opened = true" />
+			<Button ref="openBt" v-if="!opened" :icon="getIcon('gear')" class="openBt" @click.prevent.stop="opened = true" />
 		</transition>
 		<transition name="slide">
-			<div v-if="opened" class="content" @click.stop="/*ignore*/">
-				<Button white :loading="loading" title="Start" v-if="section=='playlists'" @click="startGame()" />
-				<Button white :loading="loading" title="End this round" v-if="section=='game' && !roundComplete" @click="endRound()" />
-				<Button white :loading="loading" title="Next round" v-if="section=='game' && roundComplete && !gameComplete" @click="nextRound()" />
-				<Button white :loading="loading" title="Show results" v-if="section=='game' && gameComplete" @click="showResults()" />
-				<Button white :loading="loading" title="Replay" v-if="section=='leaderboard'" @click="replay()" />
+			<div v-if="opened" class="content" @click.stop>
+				<Button white :loading="loading" :title="t('twitch.controls.start')" v-if="props.section=='playlists'" @click="startGame()" />
+				<Button white :loading="loading" :title="t('twitch.controls.endRound')" v-if="props.section=='game' && !roundComplete" @click="endRound()" />
+				<Button white :loading="loading" :title="t('twitch.controls.nextRound')" v-if="props.section=='game' && roundComplete && !gameComplete" @click="nextRound()" />
+				<Button white :loading="loading" :title="t('twitch.controls.showResults')" v-if="props.section=='game' && gameComplete" @click="showResults()" />
+				<Button white :loading="loading" :title="t('twitch.controls.replay')" v-if="props.section=='leaderboard'" @click="replay()" />
 			</div>
 		</transition>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from "@/components/Button.vue";
 import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
+import { useStoreMain } from "@/store";
 import TwitchExtensionHelper from "@/twitch/TwitchExtensionHelper";
+import { getIcon } from "@/utils/Icons";
 import Utils from "@/utils/Utils";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
-@Component({
-	components:{
-		Button
+const props = withDefaults(defineProps<{
+	section?:string;
+}>(), {
+	section:"",
+});
+
+const { t } = useI18n();
+const route = useRoute();
+const storeMain = useStoreMain();
+
+const loading = ref<boolean>(false);
+const opened = ref<boolean>(false);
+const roundComplete = ref<boolean>(false);
+const gameComplete = ref<boolean>(false);
+let clickHandler:any;
+
+const socketName = computed(():string => {
+	if(Utils.getRouteMetaValue(route, "obsMode")) {
+		return storeMain.twitchLogin
+	}else{
+		return TwitchExtensionHelper.instance.auth.channelId;
 	}
-})
-export default class TwitchViewerControls extends Vue {
+});
 
-	@Prop({default:""})
-	public section:string;
+onMounted(async () => {
+	clickHandler = (e:MouseEvent) => onClickOutside(e);
+	document.body.addEventListener("click", clickHandler);
+	// IRCClient.instance.sendMessage("test")
 
-	public loading:boolean = false;
-	public opened:boolean = false;
-	public roundComplete:boolean = false;
-	public gameComplete:boolean = false;
-	public clickHandler:any;
-
-	public get socketName():string {
-		if(Utils.getRouteMetaValue(this.$route, "obsMode")) {
-			return this.$store.state.twitchLogin
-		}else{
-			return TwitchExtensionHelper.instance.auth.channelId;
-		}
-	}
-
-	public async mounted():Promise<void> {
-		this.clickHandler = (e:MouseEvent) => this.onClickOutside(e);
-		document.body.addEventListener("click", this.clickHandler);
-		// IRCClient.instance.sendMessage("test")
-
-		if(!Utils.getRouteMetaValue(this.$route, "obsMode")) {
-			await TwitchExtensionHelper.instance.onConnect();
-		}
-
-		SockController.instance.connect();
-		SockController.instance.user = {
-											name:"stream",
-											id:this.socketName+"_ext",
-											offline:false,
-											score:0,
-											handicap:0,
-										};
-		this.onGameStateChange();
+	if(!Utils.getRouteMetaValue(route, "obsMode")) {
+		await TwitchExtensionHelper.instance.onConnect();
 	}
 
-	public beforeDestroy():void {
-		SockController.instance.disconnect();
-		document.body.removeEventListener("click", this.clickHandler);
-	}
+	SockController.instance.connect();
+	SockController.instance.user = {
+										name:"stream",
+										id:socketName.value+"_ext",
+										offline:false,
+										score:0,
+										handicap:0,
+									};
+	onGameStateChange();
+});
 
-	public startGame():void {
-		this.sendMessage("!start");
-	}
+onBeforeUnmount(() => {
+	SockController.instance.disconnect();
+	document.body.removeEventListener("click", clickHandler);
+});
 
-	public endRound():void {
-		this.sendMessage("!skip");
-	}
-	
-	public nextRound():void {
-		this.sendMessage("!next");
-	}
-
-	public showResults():void {
-		this.sendMessage("!results");
-	}
-
-	public replay():void {
-		this.sendMessage("!replay");
-	}
-
-	private async sendMessage(message:string):Promise<void> {
-		let data = {
-			target:this.socketName+"_ctrl",
-			data:{action:SOCK_ACTIONS.SEND_TO_UID, data:message}
-		};
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data});
-		this.loading = true;
-		setTimeout(_=> {
-			this.loading = false;
-		}, 1000)
-		// let params = {
-		// 	token:TwitchExtensionHelper.instance.auth.token,
-		// 	channel:TwitchExtensionHelper.instance.auth.channelId,
-		// 	clientId:TwitchExtensionHelper.instance.auth.clientId,
-		// 	message
-		// }
-		// try {
-		// 	await Api.post("twitch/sendToChat", params);
-		// }catch(e){}
-		// this.loading = false;
-	}
-
-	public onClickOutside(e:MouseEvent):void {
-		this.opened = false;
-	}
-
-	@Watch("$store.state.twitchGameState", { immediate: true, deep: true })
-	public onGameStateChange():void {
-		let gameState = this.$store.state.twitchGameState;
-		if(!gameState) return;
-		this.roundComplete = gameState.roundComplete
-		this.gameComplete = gameState.gameComplete
-
-	}
+function startGame():void {
+	sendMessage("!start");
 }
+
+function endRound():void {
+	sendMessage("!skip");
+}
+
+function nextRound():void {
+	sendMessage("!next");
+}
+
+function showResults():void {
+	sendMessage("!results");
+}
+
+function replay():void {
+	sendMessage("!replay");
+}
+
+async function sendMessage(message:string):Promise<void> {
+	let data = {
+		target:socketName.value+"_ctrl",
+		data:{action:SOCK_ACTIONS.SEND_TO_UID, data:message}
+	};
+	SockController.instance.sendMessage({action:SOCK_ACTIONS.SEND_TO_UID, data});
+	loading.value = true;
+	setTimeout(_=> {
+		loading.value = false;
+	}, 1000)
+	// let params = {
+	// 	token:TwitchExtensionHelper.instance.auth.token,
+	// 	channel:TwitchExtensionHelper.instance.auth.channelId,
+	// 	clientId:TwitchExtensionHelper.instance.auth.clientId,
+	// 	message
+	// }
+	// try {
+	// 	await Api.post("twitch/sendToChat", params);
+	// }catch(e){}
+	// loading.value = false;
+}
+
+function onClickOutside(e:MouseEvent):void {
+	opened.value = false;
+}
+
+watch(() => storeMain.twitchGameState, () => onGameStateChange(), { immediate: true, deep: true });
+
+function onGameStateChange():void {
+	let gameState = storeMain.twitchGameState;
+	if(!gameState) return;
+	roundComplete.value = gameState.roundComplete
+	gameComplete.value = gameState.gameComplete
+
+}
+
 </script>
 
 <style scoped lang="less">
@@ -152,7 +156,7 @@ export default class TwitchViewerControls extends Vue {
 		transition: all .5s;
 		transform: translate(0, 0);
 	}
-	.slide-enter, .slide-leave-to {
+	.slide-enter-from, .slide-leave-to {
 		transform: translate(-100%, 0);
 	}
 }
