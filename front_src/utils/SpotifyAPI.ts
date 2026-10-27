@@ -1,5 +1,5 @@
 import Config from './Config';
-import { Route } from 'vue-router';
+import type { RouteLocationNormalized } from 'vue-router';
 import Store from '@/store/Store';
 import Utils from './Utils';
 
@@ -152,7 +152,7 @@ export default class SpotifyAPI {
 	 * Refresh the access token if it expired.
 	 * Falls back on a full OAuth process if it cannot be refreshed.
 	 */
-	public async refreshTokenIfNecessary(redirTo:Route):Promise<void> {
+	public async refreshTokenIfNecessary(redirTo:RouteLocationNormalized):Promise<void> {
 		if(!this.isTokenExpired()) return;
 
 		//Try a silent refresh first, the user won't notice anything

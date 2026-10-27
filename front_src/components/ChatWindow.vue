@@ -6,62 +6,57 @@
 				<div class="message">{{m.message}}</div>
 			</div>
 		</div>
-		<Button :icon="$getIcon(opened? 'cross_white' : 'chat')" class="close" @click="opened = !opened"/>
+		<Button :icon="getIcon(opened? 'cross_white' : 'chat')" class="close" @click="opened = !opened"/>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+<script setup lang="ts">
+import { useStoreMain } from '@/store';
+import { getIcon } from '@/utils/Icons';
+import { nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
 import SocketEvent from '../vo/SocketEvent';
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class ChatWindow extends Vue {
+const storeMain = useStoreMain();
 
-	public messages:any[] = [];
-	public opened:boolean = true;
+const list = useTemplateRef<HTMLDivElement>("list");
 
-	private messageHandler:any;
+const messages = ref<any[]>([]);
+const opened = ref<boolean>(true);
 
-	public getClasses(m):string[] {
-		let res = ["line"];
-		if(m.user.id == this.$store.state.userGroupData.id) res.push("isme");
-		return res;
-	}
+let messageHandler:any;
 
-	public mounted():void {
-		this.messageHandler = (e:SocketEvent) => this.onMessage(e);
-		SockController.instance.addEventListener(SOCK_ACTIONS.CHAT_MESSAGE, this.messageHandler);
-	}
-
-	public beforeDestroy():void {
-		SockController.instance.removeEventListener(SOCK_ACTIONS.CHAT_MESSAGE, this.messageHandler);
-	}
-
-	private onMessage(e:SocketEvent):any {
-		this.messages.push(e.data);
-		if(this.messages.length > 100) this.messages.shift();
-		this.scrollToBottom();
-	}
-
-	@Watch("opened")
-	private onOpenToggle():void {
-		this.scrollToBottom();
-	}
-
-	private async scrollToBottom():Promise<void> {
-		await this.$nextTick();
-		let list = <HTMLDivElement>this.$refs.list;
-		if(!list) return;
-		list.scrollTo(0, list.scrollHeight);
-	}
-
+function getClasses(m):string[] {
+	let res = ["line"];
+	if(m.user.id == storeMain.userGroupData.id) res.push("isme");
+	return res;
 }
+
+onMounted(() => {
+	messageHandler = (e:SocketEvent) => onMessage(e);
+	SockController.instance.addEventListener(SOCK_ACTIONS.CHAT_MESSAGE, messageHandler);
+});
+
+onBeforeUnmount(() => {
+	SockController.instance.removeEventListener(SOCK_ACTIONS.CHAT_MESSAGE, messageHandler);
+});
+
+function onMessage(e:SocketEvent):any {
+	messages.value.push(e.data);
+	if(messages.value.length > 100) messages.value.shift();
+	scrollToBottom();
+}
+
+watch(opened, () => {
+	scrollToBottom();
+});
+
+async function scrollToBottom():Promise<void> {
+	await nextTick();
+	if(!list.value) return;
+	list.value.scrollTo(0, list.value.scrollHeight);
+}
+
 </script>
 
 <style scoped lang="less">

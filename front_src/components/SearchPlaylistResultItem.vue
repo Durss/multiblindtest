@@ -1,50 +1,38 @@
 <template>
-	<div class="SearchTrackResultItem" v-if="data" :class="selected? 'hover': ''">
+	<div class="SearchTrackResultItem" v-if="props.data" :class="props.selected? 'hover': ''">
 		<img :src="picture" alt="track" class="icon">
 		<span class="tracks">
 			<img src="@/assets/icons/song.svg" alt="song">x
-			<span>{{data.tracks.length}}</span>
+			<span>{{props.data.tracks.length}}</span>
 		</span>
 		<div class="label">
-			<span class="titme">{{data.name}}</span>
+			<span class="titme">{{props.data.name}}</span>
 			<span class="owner">{{owner}}</span>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+<script setup lang="ts">
+import { getIcon } from '@/utils/Icons';
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import PlaylistData from '../vo/PlaylistData';
 
-@Component({
-	components:{}
-})
-export default class SearchPlaylistResultItem extends Vue {
+const props = defineProps<{
+	data?:PlaylistData;
+	selected?:boolean;
+}>();
 
-	@Prop()
-	public data:PlaylistData;
+const { t } = useI18n();
 
-	@Prop()
-	public selected:boolean;
+const picture = computed(():string => {
+	if(props.data.cover) return props.data.cover;
+	return getIcon('playlist');
+});
 
-	public get picture():string {
-		if(this.data.cover) return this.data.cover;
-		return this.$getIcon('playlist');
-	}
+const owner = computed(():string => {
+	return t('playlists.owner', {owner:props.data.owner});
+});
 
-	public get owner():string {
-		return this.$store.state.i18n.t('playlists.owner', {owner:this.data.owner}).toString();
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

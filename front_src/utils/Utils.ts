@@ -1,6 +1,6 @@
-import store from '@/store';
+import { useStoreMain, type ConfirmData } from '@/store';
 import TrackData from '@/vo/TrackData';
-import { Route } from 'vue-router';
+import type { RouteLocationNormalized } from 'vue-router';
 
 /**
  * Created by Durss
@@ -497,8 +497,7 @@ export default class Utils {
 	 */
 	public static confirm<T>(title:string, data?:T, description?:string):Promise<T> {
 		let prom = <Promise<T>>new Promise((resolve, reject) => {
-			let confirmData:any = {}
-			confirmData.title = title;
+			let confirmData:ConfirmData = {title}
 			confirmData.description = description;
 			confirmData.confirmCallback = ()=> {
 				resolve(data);
@@ -506,7 +505,7 @@ export default class Utils {
 			confirmData.cancelCallback = ()=> {
 				reject(data);
 			};
-			store.dispatch("confirm", confirmData);
+			useStoreMain().confirm = confirmData;
 		});
 		prom.catch((error)=>{/*ignore*/});//Avoid uncaugh error if not catched externally
 		return prom;
@@ -789,7 +788,7 @@ export default class Utils {
 	 * @param route 
 	 * @param metaKey 
 	 */
-	public static getRouteMetaValue(route:Route, metaKey:string):any {
+	public static getRouteMetaValue(route:RouteLocationNormalized, metaKey:string):any {
 		let res = null;
 		for (let i = route.matched.length-1; i >= 0; i--) {
 			const v = route.matched[i].meta[metaKey];

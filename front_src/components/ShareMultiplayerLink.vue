@@ -1,64 +1,53 @@
 ﻿<template>
 	<div class="sharemultiplayerlink">
-		<h2 class="title">{{$t('group.lobby.share.title')}}</h2>
+		<h2 class="title">{{t('group.lobby.share.title')}}</h2>
 		<div class="content" ref="content">
-			<p>{{$t('group.lobby.share.send')}}</p>
+			<p>{{t('group.lobby.share.send')}}</p>
 			<div class="inputs">
-				<input type="text" v-model="shareUrl" class="dark" @focus="setFocus($event)" >
-				<Button :icon="$getIcon('copy')" :data-tooltip="$t('group.lobby.share.copy')" class="copy" @click="shareCurrentRoom()" />
+				<input type="text" :value="shareUrl" class="dark" @focus="setFocus($event)" >
+				<Button :icon="getIcon('copy')" :data-tooltip="t('group.lobby.share.copy')" class="copy" @click="shareCurrentRoom()" />
 			</div>
-			<p class="copied" v-if="showCopied" @click="showCopied = false">{{$t('group.lobby.share.copied')}}</p>
+			<p class="copied" v-if="showCopied" @click="showCopied = false">{{t('group.lobby.share.copied')}}</p>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
+import { getIcon } from '@/utils/Icons';
 import gsap from 'gsap';
-import { Component, Vue } from "vue-property-decorator";
+import { computed, nextTick, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import Utils from '../utils/Utils';
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class ShareMultiplayerLink extends Vue {
+const { t } = useI18n();
 
-	public showCopied:boolean = false;
+const content = useTemplateRef<HTMLDivElement>("content");
 
-	public get shareUrl():string {
-		return window.location.href;
-	}
+const showCopied = ref<boolean>(false);
 
-	public mounted():void {
-		
-	}
+const shareUrl = computed(():string => {
+	return window.location.href;
+});
 
-	public beforeDestroy():void {
-		
-	}
-
-	/**
-	 * Copies the current link to share it with people
-	 */
-	public shareCurrentRoom():void {
-		Utils.copyToClipboard(window.location.href);
-		this.showCopied = true;
-		setTimeout(() => {
-			this.showCopied = false;
-		}, 5000);
-		this.$nextTick().then(_=> {
-			gsap.set(this.$refs.content, {filter:"brightness(1)"});
-			gsap.from(this.$refs.content, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
-		})
-	}
-
-	public setFocus(e:FocusEvent):void {
-		(e.target as HTMLInputElement).select();
-	}
-
+/**
+ * Copies the current link to share it with people
+ */
+function shareCurrentRoom():void {
+	Utils.copyToClipboard(window.location.href);
+	showCopied.value = true;
+	setTimeout(() => {
+		showCopied.value = false;
+	}, 5000);
+	nextTick().then(_=> {
+		gsap.set(content.value, {filter:"brightness(1)"});
+		gsap.from(content.value, {duration:.25, filter:"brightness(2)", ease:"Sine.easeOut"});
+	})
 }
+
+function setFocus(e:FocusEvent):void {
+	(e.target as HTMLInputElement).select();
+}
+
 </script>
 
 <style scoped lang="less">

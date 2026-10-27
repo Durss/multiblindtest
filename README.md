@@ -34,6 +34,11 @@ npm run front/serve
 npm run front/build
 ```
 
+### Type check front
+```
+npm run front/typecheck
+```
+
 ### Compile server with hot-reloads for development
 ```
 npm run server/watch
@@ -83,7 +88,7 @@ Now, the service should automatically start on boot
 ## Build for Twitch Extension
 To build the project so it works on twitch hosting services the files must all have relative PATHS.
 Problem is this is incompatible with the "history" mode of the router used by the actual website.
-Before building for twitch the following line must be uncommented on the **vue.config.js** file:
+Before building for twitch the following line must be added to the **vite.config.mts** file:
 ```
-publicPath: './',
+base: './',
 ```

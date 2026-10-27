@@ -6,31 +6,25 @@
 				<img src="@/assets/icons/unmute.svg" alt="sound" class="icon" ref="icon">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader">
 			</div>
-			<p class="text">{{$t("global.playback")}}</p>
+			<p class="text">{{t("global.playback")}}</p>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+<script setup lang="ts">
 import gsap from 'gsap';
+import { nextTick, onMounted, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{}
-})
-export default class NeedInteractionLayer extends Vue {
+const { t } = useI18n();
 
-	public mounted():void {
-		this.$nextTick().then(()=>{
-			gsap.from(this.$refs.icon, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:-1}).yoyo(true);
-		})
-	}
+const icon = useTemplateRef<HTMLImageElement>("icon");
 
-	public beforeDestroy():void {
-		
-	}
+onMounted(() => {
+	nextTick().then(()=>{
+		gsap.from(icon.value, {duration: 1, ease:"Elastic.easeOut", scale:1.2, repeat:-1}).yoyo(true);
+	})
+});
 
-}
 </script>
 
 <style scoped lang="less">

@@ -7,24 +7,24 @@
 
 		<div v-if="!loading && !serverReboot" class="holder">
 			<div class="playlists header">
-				<h1>{{$t('group.lobby.title')}}</h1>
+				<h1>{{t('group.lobby.title')}}</h1>
 				<div v-for="p in sortedPlaylists" :key="p.id" class="playlist">
 					<img :src="p.cover" :alt="p.name" class="cover">
 					<span class="label">{{p.name}}</span>
 				</div>
 			</div>
 
-			<Button :title="$t('group.lobby.start')"
+			<Button :title="t('group.lobby.start')"
 				class="start"
 				type="button"
-				:icon="$getIcon('play')"
+				:icon="getIcon('play')"
 				big
 				:disabled="room.users.length < 2 || (expertMode != null && expertMode.length == 0)"
 				v-if="isHost"
 				@click="startGame()" />
 
 			<div class="users">
-				<h2 class="highlight">{{$t('group.lobby.players')}}</h2>
+				<h2 class="highlight">{{t('group.lobby.players')}}</h2>
 				<div class="content">
 					<div class="list" v-if="room.users.length > 0">
 						<GroupLobbyUser
@@ -39,10 +39,10 @@
 					</div>
 
 					<form @submit.prevent="onSubmit()" class="form" v-if="!me">
-						<label for="username">{{$t('group.lobby.join')}}</label>
+						<label for="username">{{t('group.lobby.join')}}</label>
 						<div class="row">
-							<input type="text" id="username" class="dark" v-model="userName" maxlength="30" :placeholder="$t('group.lobby.usernamePlaceholder')" v-focus>
-							<Button :icon="$getIcon('checkmark_white')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
+							<input type="text" id="username" class="dark" v-model="userName" maxlength="30" :placeholder="t('group.lobby.usernamePlaceholder')" v-focus>
+							<Button :icon="getIcon('checkmark_white')" class="submit" type="submit" :disabled="userName.length < 3" :loading="joining" />
 						</div>
 					</form>
 				</div>
@@ -50,35 +50,36 @@
 
 
 			<GameParams v-if="isHost" class="params"
-				:gamesCount.sync="gamesCount"
-				:gameDuration.sync="gameDuration"
-				:tracksCount.sync="tracksCount"
-				:acceptAlbum.sync="acceptAlbum"
-				:expertMode.sync="expertMode">
+				v-model:gamesCount="gamesCount"
+				v-model:gameDuration="gameDuration"
+				v-model:tracksCount="tracksCount"
+				v-model:acceptAlbum="acceptAlbum"
+				v-model:expertMode="expertMode">
 			</GameParams>
 
 			<SimpleLoader theme="mainColor_normal"
 				v-if="!isHost && room.users.length > 0"
 				class="waitHost"
-				:label="$t('group.lobby.wait', {hostName:hostName})" />
+				:label="t('group.lobby.wait', {hostName:hostName})" />
 
 			<ShareMultiplayerLink v-if="room" class="shareUrl" />
 		</div>
 
 		<div v-if="serverReboot" class="serverReboot">
-			<div v-html="$t('group.game.serverReboot')"></div>
-			<Button :title="$t('global.back')" class="back" white :to="{name:'home'}" />
+			<div v-html="t('group.game.serverReboot')"></div>
+			<Button :title="t('global.back')" class="back" white :to="{name:'home'}" />
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import GameParams from "@/components/GameParams.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { useStoreMain } from "@/store";
+import { getIcon } from "@/utils/Icons";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 import Button from '../components/Button.vue';
-import ExpertModeForm from '../components/ExpertModeForm.vue';
 import GroupLobbyUser from '../components/GroupLobbyUser.vue';
-import IncrementForm from '../components/IncrementForm.vue';
 import ShareMultiplayerLink from '../components/ShareMultiplayerLink.vue';
 import SimpleLoader from '../components/SimpleLoader.vue';
 import SockController, { SOCK_ACTIONS } from '../sock/SockController';
@@ -87,258 +88,250 @@ import RoomData from '../vo/RoomData';
 import SocketEvent from '../vo/SocketEvent';
 import UserData from '../vo/UserData';
 
-@Component({
-	components:{
-		Button,
-		GameParams,
-		SimpleLoader,
-		IncrementForm,
-		ExpertModeForm,
-		GroupLobbyUser,
-		ShareMultiplayerLink,
-	}
-})
-export default class GroupLobby extends Vue {
+const props = defineProps<{
+	id?:string;
+}>();
 
-	@Prop()
-	public id:string;
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const storeMain = useStoreMain();
 
-	public gamesCount:number = 5;
-	public tracksCount:number = 4;
-	public gameDuration:number = 60;
-	public acceptAlbum:boolean = false;
-	public expertMode:string[] = null;
-	public showCopied:boolean = false;
-	public loading:boolean = true;
-	public joining:boolean = false;
-	public serverReboot:boolean = false;
-	public room:RoomData = null;
-	public userName:string = "";
+const gamesCount = ref<number>(5);
+const tracksCount = ref<number>(4);
+const gameDuration = ref<number>(60);
+const acceptAlbum = ref<boolean>(false);
+const expertMode = ref<string[]>(null);
+const showCopied = ref<boolean>(false);
+const loading = ref<boolean>(true);
+const joining = ref<boolean>(false);
+const serverReboot = ref<boolean>(false);
+const room = ref<RoomData>(null);
+const userName = ref<string>("");
 
-	public joinHandler:any;
-	public leaveHandler:any;
-	public startGameHandler:any;
-	public handicapHandler:any;
-	public updateUserNameHandler:any;
-	public serverRebootHandler:any;
+let joinHandler:any;
+let leaveHandler:any;
+let startGameHandler:any;
+let handicapHandler:any;
+let updateUserNameHandler:any;
+let serverRebootHandler:any;
 
-	//Sort playlists by name size for a better looking list rendering
-	public get sortedPlaylists():any[] {
-		return this.room.playlists.sort((a, b) => {
-			if(a.name > b.name) return 1;
-			if(a.name < b.name) return -1;
-			return 0;
-		})
-	}
+//Sort playlists by name size for a better looking list rendering
+const sortedPlaylists = computed(():any[] => {
+	return room.value.playlists.concat().sort((a, b) => {
+		if(a.name > b.name) return 1;
+		if(a.name < b.name) return -1;
+		return 0;
+	})
+});
 
-	public get isHost():boolean {
-		if(!this.me) return false;
-		return this.room.creator == this.me.id;
-	}
+const isHost = computed(():boolean => {
+	if(!me.value) return false;
+	return room.value.creator == me.value.id;
+});
 
-	public get me():UserData {
-		return this.$store.state.userGroupData;
-	}
+const me = computed(():UserData => {
+	return storeMain.userGroupData;
+});
 
-	public get hostName():string {
-		for (let i = 0; i < this.room.users.length; i++) {
-			if(this.room.creator == this.room.users[i].id) {
-				return this.room.users[i].name;
-			}
-		}
-		return null;
-	}
-
-	public mounted():void {
-		this.joinHandler = (e) => this.onJoin(e);
-		this.leaveHandler = (e) => this.onLeave(e);
-		this.startGameHandler = (e) => this.onStartGame(e);
-		this.handicapHandler = (e) => this.onHandicap(e);
-		this.updateUserNameHandler = (e) => this.onUserName(e);
-		this.serverRebootHandler = (e) => this.onServerReboot(e);
-		SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
-		SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
-		SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
-		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
-		SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
-		SockController.instance.addEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
-		this.loadDetails();
-	}
-
-	public beforeDestroy():void {
-		//Cleanup listeners
-		SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, this.joinHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, this.leaveHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, this.startGameHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, this.handicapHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_USERNAME, this.updateUserNameHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.SERVER_REBOOT, this.serverRebootHandler);
-	}
-
-	/**
-	 * Load group's details
-	 */
-	public async loadDetails():Promise<void> {
-		try {
-			let res = await Api.get("group/details", {roomId:this.id});
-			this.room = res.room;
-		}catch(error) {
-			this.$store.dispatch("alert", (error as {message:string}).message);
-			if(this.$store.state.loggedin) {
-				this.$router.push({name:"playlists", params:{mode:"multi"}});
-			}else{
-				this.$router.push({name:"home"});
-			}
-			return;
-		}
-		this.loading = false;
-		if(this.me) {
-			this.onSubmit();//Auto join room
-		}
-		if(this.room) {
-			SockController.instance.groupId = this.room.id;
+const hostName = computed(():string => {
+	for (let i = 0; i < room.value.users.length; i++) {
+		if(room.value.creator == room.value.users[i].id) {
+			return room.value.users[i].name;
 		}
 	}
+	return null;
+});
 
-	/**
-	 * Called when subitting username form
-	 */
-	public async onSubmit():Promise<void> {
-		this.joining = true;
-		var res;
-		let data:any = {
-				username:this.userName,
-				roomId:this.room.id
-			};
-		if(this.me) {
-			delete data.username;
-			data.user = this.me;
+onMounted(() => {
+	joinHandler = (e) => onJoin(e);
+	leaveHandler = (e) => onLeave(e);
+	startGameHandler = (e) => onStartGame(e);
+	handicapHandler = (e) => onHandicap(e);
+	updateUserNameHandler = (e) => onUserName(e);
+	serverRebootHandler = (e) => onServerReboot(e);
+	SockController.instance.addEventListener(SOCK_ACTIONS.JOIN_ROOM, joinHandler);
+	SockController.instance.addEventListener(SOCK_ACTIONS.LEAVE_ROOM, leaveHandler);
+	SockController.instance.addEventListener(SOCK_ACTIONS.START_GROUP_GAME, startGameHandler);
+	SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, handicapHandler);
+	SockController.instance.addEventListener(SOCK_ACTIONS.UPDATE_USERNAME, updateUserNameHandler);
+	SockController.instance.addEventListener(SOCK_ACTIONS.SERVER_REBOOT, serverRebootHandler);
+	loadDetails();
+});
+
+onBeforeUnmount(() => {
+	//Cleanup listeners
+	SockController.instance.removeEventListener(SOCK_ACTIONS.JOIN_ROOM, joinHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.LEAVE_ROOM, leaveHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.START_GROUP_GAME, startGameHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_HANDICAP, handicapHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.UPDATE_USERNAME, updateUserNameHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.SERVER_REBOOT, serverRebootHandler);
+});
+
+/**
+ * Load group's details
+ */
+async function loadDetails():Promise<void> {
+	try {
+		let res = await Api.get("group/details", {roomId:props.id});
+		room.value = res.room;
+	}catch(error) {
+		storeMain.alert = (error as {message:string}).message;
+		if(storeMain.loggedin) {
+			router.push({name:"playlists", params:{mode:"multi"}});
+		}else{
+			router.push({name:"home"});
 		}
-		try {
-			res = await Api.post("group/join", data);
-			this.room = res.room;
-		}catch(error) {
-			this.joining = false;
-			this.$store.dispatch("alert", (error as {message:string}).message);
-			return;
-		}
-		res.me.offline = false;
-		this.$store.dispatch("setUserGroupData", res.me);
-		this.joining = false;
-		if(this.room.currentTracks) {
-			this.onStartGame();
-		}
-		if(this.room) {
-			SockController.instance.groupId = this.room.id;
-		}
-
-		if(this.$route.meta.restartMode) {
-			SockController.instance.sendMessage({action:SOCK_ACTIONS.RESTART_GROUP_GAME, data:{roomId:this.room.id}})
-		}
+		return;
 	}
-
-	/**
-	 * Called when someone joins the room
-	 */
-	public onJoin(e:SocketEvent):void {
-		if(!this.room) return;
-		let found = false;
-		for (let i = 0; i < this.room.users.length; i++) {
-			if(this.room.users[i].id == e.data.user.id) {
-				found = true;
-				this.room.users[i].offline = false;
-			}
-		}
-		if(!found) {
-			this.room.users.push(e.data.user);
-		}
+	loading.value = false;
+	if(me.value) {
+		onSubmit();//Auto join room
 	}
-	
-	/**
-	 * Called when someone leaves the room
-	 */
-	public onLeave(e:SocketEvent):void {
-		if(!this.room) return;
-		for (let i = 0; i < this.room.users.length; i++) {
-			const u = this.room.users[i];
-			if(u.id == e.data.user.id) {
-				this.room.users[i].offline = true;
-			}
-		}
+	if(room.value) {
+		SockController.instance.groupId = room.value.id;
 	}
-
-	/**
-	 * Called when socket tells to start the game
-	 */
-	public onStartGame(e?:SocketEvent):void {
-		let data = e? e.data : this.room;
-		this.$store.dispatch("setGroupRoomData", data);//This is only used to transmit data to game view
-		this.$router.push({name:"group/play"});
-	}
-
-	/**
-	 * Called when a user's handicap is updated
-	 */
-	public onHandicap(e:SocketEvent):void {
-		for (let i = 0; i < this.room.users.length; i++) {
-			const u = this.room.users[i];
-			if(u.id == e.data.user.id) {
-				Vue.set(u, "handicap", e.data.handicap);
-			}
-		}
-	}
-
-	/**
-	 * Called when a user's name is updated
-	 */
-	public onUserName(e:SocketEvent):void {
-		for (let i = 0; i < this.room.users.length; i++) {
-			const u = this.room.users[i];
-			if(u.id == e.data.user.id) {
-				Vue.set(u, "name", e.data.user.name);
-			}
-		}
-	}
-
-	/**
-	 * Called when clicking "start" button.
-	 * It sends a socket event to all users including self
-	 * See onStartGame() method
-	 */
-	public startGame():void {
-		this.room.tracksCount = this.tracksCount;
-		this.room.gamesCount = this.gamesCount;
-		this.room.gameDuration = this.gameDuration;
-		this.room.acceptAlbum = this.acceptAlbum;
-		this.room.expertMode = this.expertMode;
-		Api.post("group/update", {room:this.room, callerId:this.me.id});
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:this.room});
-	}
-
-	/**
-	 * Handicap of a user updated
-	 */
-	public onUpdateUserHandicap(user:UserData, handicap:number):void {
-		user.handicap = handicap;
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_HANDICAP, data:{user:user, handicap:handicap, groupId:this.room.id}});
-	}
-
-	/**
-	 * Called when a user updates her/his nickname
-	 */
-	public onUpdateUserName(user:UserData):void {
-		this.$store.dispatch("setUserName", user.name);
-		SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_USERNAME, data:{user:user, groupId:this.room.id}});
-	}
-
-	/**
-	 * Called when server has reboot
-	 */
-	public onServerReboot(e:SocketEvent):void {
-		this.serverReboot = true;
-	}
-
 }
+
+/**
+ * Called when subitting username form
+ */
+async function onSubmit():Promise<void> {
+	joining.value = true;
+	var res;
+	let data:any = {
+			username:userName.value,
+			roomId:room.value.id
+		};
+	if(me.value) {
+		delete data.username;
+		data.user = me.value;
+	}
+	try {
+		res = await Api.post("group/join", data);
+		room.value = res.room;
+	}catch(error) {
+		joining.value = false;
+		storeMain.alert = (error as {message:string}).message;
+		return;
+	}
+	res.me.offline = false;
+	storeMain.setUserGroupData(res.me);
+	joining.value = false;
+	if(room.value.currentTracks) {
+		onStartGame();
+	}
+	if(room.value) {
+		SockController.instance.groupId = room.value.id;
+	}
+
+	if(route.meta.restartMode) {
+		SockController.instance.sendMessage({action:SOCK_ACTIONS.RESTART_GROUP_GAME, data:{roomId:room.value.id}})
+	}
+}
+
+/**
+ * Called when someone joins the room
+ */
+function onJoin(e:SocketEvent):void {
+	if(!room.value) return;
+	let found = false;
+	for (let i = 0; i < room.value.users.length; i++) {
+		if(room.value.users[i].id == e.data.user.id) {
+			found = true;
+			room.value.users[i].offline = false;
+		}
+	}
+	if(!found) {
+		room.value.users.push(e.data.user);
+	}
+}
+
+/**
+ * Called when someone leaves the room
+ */
+function onLeave(e:SocketEvent):void {
+	if(!room.value) return;
+	for (let i = 0; i < room.value.users.length; i++) {
+		const u = room.value.users[i];
+		if(u.id == e.data.user.id) {
+			room.value.users[i].offline = true;
+		}
+	}
+}
+
+/**
+ * Called when socket tells to start the game
+ */
+function onStartGame(e?:SocketEvent):void {
+	let data = e? e.data : room.value;
+	storeMain.groupRoomData = data;//This is only used to transmit data to game view
+	router.push({name:"group/play"});
+}
+
+/**
+ * Called when a user's handicap is updated
+ */
+function onHandicap(e:SocketEvent):void {
+	for (let i = 0; i < room.value.users.length; i++) {
+		const u = room.value.users[i];
+		if(u.id == e.data.user.id) {
+			u.handicap = e.data.handicap;
+		}
+	}
+}
+
+/**
+ * Called when a user's name is updated
+ */
+function onUserName(e:SocketEvent):void {
+	for (let i = 0; i < room.value.users.length; i++) {
+		const u = room.value.users[i];
+		if(u.id == e.data.user.id) {
+			u.name = e.data.user.name;
+		}
+	}
+}
+
+/**
+ * Called when clicking "start" button.
+ * It sends a socket event to all users including self
+ * See onStartGame() method
+ */
+function startGame():void {
+	room.value.tracksCount = tracksCount.value;
+	room.value.gamesCount = gamesCount.value;
+	room.value.gameDuration = gameDuration.value;
+	room.value.acceptAlbum = acceptAlbum.value;
+	room.value.expertMode = expertMode.value;
+	Api.post("group/update", {room:room.value, callerId:me.value.id});
+	SockController.instance.sendMessage({action:SOCK_ACTIONS.START_GROUP_GAME, includeSelf:true, data:room.value});
+}
+
+/**
+ * Handicap of a user updated
+ */
+function onUpdateUserHandicap(user:UserData, handicap:number):void {
+	user.handicap = handicap;
+	SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_HANDICAP, data:{user:user, handicap:handicap, groupId:room.value.id}});
+}
+
+/**
+ * Called when a user updates her/his nickname
+ */
+function onUpdateUserName(user:UserData):void {
+	storeMain.setUserName(user.name);
+	SockController.instance.sendMessage({action:SOCK_ACTIONS.UPDATE_USERNAME, data:{user:user, groupId:room.value.id}});
+}
+
+/**
+ * Called when server has reboot
+ */
+function onServerReboot(e:SocketEvent):void {
+	serverReboot.value = true;
+}
+
 </script>
 
 <style scoped lang="less">

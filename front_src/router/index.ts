@@ -17,13 +17,10 @@ import TwitchViewer from '@/views/twitch/extension/viewer/TwitchViewer.vue';
 import TwitchExtension from '@/views/twitch/extension/TwitchExtension.vue';
 import TwitchOBS from '@/views/twitch/obs/TwitchOBS.vue';
 import TwitchLobby from '@/views/twitch/TwitchLobby.vue';
-import Vue from 'vue';
-import VueRouter, { Route, RouterMode } from 'vue-router';
-import store from '@/store';
+import { createRouter, createWebHashHistory, createWebHistory, type RouteRecordRaw, type Router } from 'vue-router';
+import { useStoreMain } from '@/store';
 
-Vue.use(VueRouter)
-
-const routes = [
+const routes:RouteRecordRaw[] = [
 	{
 		path: '/',
 		name: 'home',
@@ -152,11 +149,11 @@ const routes = [
 			}
 		},
 		component: GroupLobby,
-		beforeEnter: async (to:Route, from, next) =>{
+		beforeEnter: async (to) =>{
+			const storeMain = useStoreMain();
 			let roomId = to.params.id;
-			let callerId = store.state.userGroupData? store.state.userGroupData.id : null;
+			let callerId = storeMain.userGroupData? storeMain.userGroupData.id : null;
 			await Api.post("group/restart", {roomId, callerId});
-			next();
 		},
 	},
 	{
@@ -184,8 +181,8 @@ const routes = [
 		component: ChangeLog
 	},
 	{
-		path: "*",
-		redirect:{name:"home"},
+		path: "/:pathMatch(.*)*",
+		redirect:{name:"home", params:{}},
 	},
 
 
@@ -251,7 +248,6 @@ const routes = [
 			{
 				path: "broadcaster",
 				name: "twitchext/broadcaster",
-				props:true,
 				components: {
 					twitch:TwitchBroadcaster
 				},
@@ -259,7 +255,6 @@ const routes = [
 			{
 				path: "viewer/:isBroadcaster?",
 				name: "twitchext/viewer",
-				props:true,
 				components: {
 					twitch:TwitchViewer
 				},
@@ -278,7 +273,6 @@ const routes = [
 			{
 				path: "broadcaster",
 				name: "twitchobs/broadcaster",
-				props:true,
 				components: {
 					twitch:TwitchBroadcaster
 				},
@@ -286,7 +280,6 @@ const routes = [
 			{
 				path: "viewer/:twitchLogin",
 				name: "twitchobs/viewer",
-				props:true,
 				meta: {
 					hideHomeBt:true,
 				},
@@ -305,22 +298,23 @@ const routes = [
 	{
 		path: '/redirect',
 		name: 'redirect',
+		component: Home,//Never rendered, navigation is aborted
 		beforeEnter(to) {
-			//@ts-ignore
-			window.location.href = to.query.uri;
+			window.location.href = to.query.uri as string;
+			return false;
 		}
 	},
 ]
 
-let router;
-export function initRouter(mode:RouterMode):VueRouter {
-	router = new VueRouter({
-		mode:mode,
+let router:Router;
+export function initRouter(mode:"history"|"hash"):Router {
+	router = createRouter({
+		history: mode == "hash"? createWebHashHistory() : createWebHistory(),
 		routes:routes
 	});
 	return router;
 }
 
-export default function getRouter():VueRouter {
+export default function getRouter():Router {
 	return router;
 }

@@ -1,4 +1,4 @@
-import store from "@/store";
+import { useStoreMain } from "@/store";
 import TwitchExtensionEvent from "@/twitch/TwitchExtensionEvent";
 import Api from "@/utils/Api";
 import { EventDispatcher } from "@/utils/EventDispatcher";
@@ -126,7 +126,7 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	 * @param data 
 	 */
 	public broadcast(type:string, data:any):void {
-		if(!store.state.twitchOAuthToken) {
+		if(!useStoreMain().twitchOAuthToken) {
 			console.error("Cannot broadcast to clients if not authenticated");
 			return;
 		}
@@ -153,7 +153,8 @@ export default class TwitchExtensionHelper extends EventDispatcher {
 	*******************/
 
 	private broadcastLastMessage():void {
-		if(!this._lastdata || !store.state.twitchOAuthToken) return;
-		Api.post("twitch/broadcast", {token:store.state.twitchOAuthToken, message:JSON.stringify(this._lastdata)});
+		const storeMain = useStoreMain();
+		if(!this._lastdata || !storeMain.twitchOAuthToken) return;
+		Api.post("twitch/broadcast", {token:storeMain.twitchOAuthToken, message:JSON.stringify(this._lastdata)});
 	}
 }

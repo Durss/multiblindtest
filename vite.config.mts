@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import fs from 'fs';
 
@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './front_src'),
+      '@': path.resolve(import.meta.dirname, './front_src'),
     },
     extensions: ['.ts', '.tsx', '.js', '.vue', '.json']
   },
@@ -18,7 +18,7 @@ export default defineConfig({
     preprocessorOptions: {
       less: {
         // Only inject mixins and variables (no actual CSS output)
-        additionalData: `@import "${path.resolve(__dirname, 'front_src/less/_mixins.less')}";@import "${path.resolve(__dirname, 'front_src/less/_variables.less')}";`,
+        additionalData: `@import "${path.resolve(import.meta.dirname, 'front_src/less/_mixins.less')}";@import "${path.resolve(import.meta.dirname, 'front_src/less/_variables.less')}";`,
         javascriptEnabled: true
       }
     }
@@ -26,16 +26,14 @@ export default defineConfig({
   define: {
     'process.env': {},
     global: 'globalThis',
+    __VUE_I18N_FULL_INSTALL__: true,
+    __VUE_I18N_LEGACY_API__: false,
+    __INTLIFY_PROD_DEVTOOLS__: false,
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
     minify: false, // Avoid minifying to prevent breaking share meta
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
   },
   server: {
     https: fs.existsSync('./multiblindtest.local-key.pem') ? {
@@ -55,7 +53,7 @@ export default defineConfig({
     include: [
       'vue',
       'vue-router',
-      'vuex',
+      'pinia',
       'vue-i18n',
       'gsap',
       'sockjs-client',

@@ -1,81 +1,75 @@
 <template>
 	<div class="expertmodeform">
 		<div class="toggle">
-			<Button type="checkbox" v-model="enabled" :title="$t('group.lobby.expertMode.title')" />
+			<Button type="checkbox" v-model="enabled" :title="t('group.lobby.expertMode.title')" />
 		</div>
 		<div v-if="enabled" class="form">
-			<p class="infos">{{$t("group.lobby.expertMode.details")}}</p>
+			<p class="infos">{{t("group.lobby.expertMode.details")}}</p>
 			<div class="checkboxes">
-				<Button type="checkbox" v-model="acceptTitle" :title="$t('group.lobby.expertMode.acceptTitle')" />
-				<Button type="checkbox" v-model="acceptArtist" :title="$t('group.lobby.expertMode.acceptArtist')" />
+				<Button type="checkbox" v-model="acceptTitle" :title="t('group.lobby.expertMode.acceptTitle')" />
+				<Button type="checkbox" v-model="acceptArtist" :title="t('group.lobby.expertMode.acceptArtist')" />
 			</div>
-			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{$t('group.lobby.expertMode.selectSomething')}}</div>
+			<div v-if="enabled && !acceptArtist && !acceptTitle" class="selectSomething">{{t('group.lobby.expertMode.selectSomething')}}</div>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+<script setup lang="ts">
+import { onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class ExpertModeForm extends Vue {
+const props = defineProps<{
+	modelValue?:string[];
+}>();
 
-	@Prop()
-	public value:"artist"|"title"[];
+const emit = defineEmits<{
+	"update:modelValue":[value:string[]];
+}>();
 
-	private isMount:boolean = false;
-	private enabled:boolean = false;
-	private acceptTitle:boolean = true;
-	private acceptArtist:boolean = true;
+const { t } = useI18n();
 
-	public mounted():void {
-		this.isMount = true;
-		this.onValueChanged();
-		this.isMount = false;
-	}
+let isMount:boolean = false;
+const enabled = ref<boolean>(false);
+const acceptTitle = ref<boolean>(true);
+const acceptArtist = ref<boolean>(true);
 
-	public beforeDestroy():void {
-		
-	}
-	@Watch("value")
-	private onValueChanged():void {
-		if(this.value && this.value.length > 0) {
-			this.acceptArtist = false;
-			this.acceptTitle = false;
-			for (let i = 0; i < this.value.length; i++) {
-				if(this.value[i] !== null) this.enabled = true;
-				if(this.value[i] == "artist") this.acceptArtist = true;
-				if(this.value[i] == "title") this.acceptTitle = true;
-			}
-		}else if(this.isMount){
-			this.enabled = false;
+onMounted(() => {
+	isMount = true;
+	onValueChanged();
+	isMount = false;
+});
+
+watch(() => props.modelValue, () => onValueChanged());
+
+function onValueChanged():void {
+	if(props.modelValue && props.modelValue.length > 0) {
+		acceptArtist.value = false;
+		acceptTitle.value = false;
+		for (let i = 0; i < props.modelValue.length; i++) {
+			if(props.modelValue[i] !== null) enabled.value = true;
+			if(props.modelValue[i] == "artist") acceptArtist.value = true;
+			if(props.modelValue[i] == "title") acceptTitle.value = true;
 		}
+	}else if(isMount){
+		enabled.value = false;
 	}
-
-	@Watch("acceptArtist")
-	private onChangeTitle():void { this.update(); }
-	@Watch("acceptTitle")
-	private onChangeArtist():void { this.update(); }
-	@Watch("enabled")
-	private onChangeEnabled():void { this.update(); }
-
-	private update():void {
-		if(!this.enabled) {
-			this.$emit("input", null);
-			return;
-		}
-		let res = [];
-		if(this.acceptTitle) res.push("title");
-		if(this.acceptArtist) res.push("artist");
-		this.$emit("input", res);
-	}
-
 }
+
+watch(acceptArtist, () => update());
+watch(acceptTitle, () => update());
+watch(enabled, () => update());
+
+function update():void {
+	if(!enabled.value) {
+		emit("update:modelValue", null);
+		return;
+	}
+	let res = [];
+	if(acceptTitle.value) res.push("title");
+	if(acceptArtist.value) res.push("artist");
+	emit("update:modelValue", res);
+}
+
 </script>
 
 <style scoped lang="less">

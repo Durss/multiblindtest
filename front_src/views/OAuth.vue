@@ -1,59 +1,51 @@
 <template>
 	<div class="oauth">
 		<div v-if="isError" class="error">
-			<p class="title">{{$t('oAuth.title')}}</p>
-			<p class="infos" v-html="$t('oAuth.subtitle')"></p>
+			<p class="title">{{t('oAuth.title')}}</p>
+			<p class="infos" v-html="t('oAuth.subtitle')"></p>
 		</div>
 		<Home v-if="isError" />
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import SpotifyAPI from '@/utils/SpotifyAPI';
-import Home from './Home.vue';
+<script setup lang="ts">
+import { useStoreMain } from "@/store";
 import Utils from '@/utils/Utils';
 import Store from "@/store/Store";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import Home from './Home.vue';
 
-@Component({
-	components:{
-		Home,
-	}
-})
-export default class OAuth extends Vue {
+const { t } = useI18n();
+const router = useRouter();
+const storeMain = useStoreMain();
 
-	public isError:boolean = false;
+const isError = ref<boolean>(false);
 
-	public async mounted():Promise<void> {
-		const error = Utils.getQueryParameterByName("error");
-		const code = Utils.getQueryParameterByName("code");
-		if(!error && code) {
-			console.log(">>>>1")
-			const authRes = await this.$store.dispatch("authenticate", {code:code});
-			this.isError = !authRes;
-			console.log("error?", this.isError);
-			
-			if(this.isError) return;
-			
-			let redirect = Store.get("redirect");
-			if(redirect) {
-				Store.remove("redirect");
-				window.location.href = redirect;
-			}else{
-				//Redirect to home
-				this.$router.push({name:"home"});
-			}
+onMounted(async () => {
+	const error = Utils.getQueryParameterByName("error");
+	const code = Utils.getQueryParameterByName("code");
+	if(!error && code) {
+		console.log(">>>>1")
+		const authRes = await storeMain.authenticate({code:code});
+		isError.value = !authRes;
+		console.log("error?", isError.value);
+
+		if(isError.value) return;
+
+		let redirect = Store.get("redirect");
+		if(redirect) {
+			Store.remove("redirect");
+			window.location.href = redirect;
 		}else{
-			this.isError = true;
+			//Redirect to home
+			router.push({name:"home"});
 		}
+	}else{
+		isError.value = true;
 	}
+});
 
-	public beforeDestroy():void {
-
-	}
-
-
-}
 </script>
 
 <style scoped lang="less">

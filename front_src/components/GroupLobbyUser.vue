@@ -1,94 +1,81 @@
 ﻿<template>
 	<div class="grouplobbyuser" @mouseleave="hover=false" @mouseenter="hover=true">
 		<div :class="classes" v-if="true">
-			<div class="text" @click="clickName()" v-if="!editName">{{data.name}}</div>
+			<div class="text" @click="clickName()" v-if="!editName">{{props.data.name}}</div>
 			<div v-if="editName" class="editForm">
-				<input type="text" v-model="data.name" @keyup.enter="submitName()" @keydown.esc="editName=false" maxlength="30" v-focus>
-				<Button :icon="$getIcon('checkmark')" white @click.stop="submitName()" />
+				<input type="text" v-model="props.data.name" @keyup.enter="submitName()" @keydown.esc="editName=false" maxlength="30" v-focus>
+				<Button :icon="getIcon('checkmark')" white @click.stop="submitName()" />
 			</div>
-			<div v-if="data.handicap" class="handicap">
+			<div v-if="props.data.handicap" class="handicap">
 				<img src="@/assets/icons/delay.svg" alt="delay">
-				<span>{{data.handicap}}s</span>
+				<span>{{props.data.handicap}}s</span>
 			</div>
 		</div>
 		<transition name="expand" >
 			<div class="form" v-if="hover">
-				<IncrementForm class="incForm" v-model="handicap" :title="$t('group.lobby.handicap')" minValue="0" maxValue="30" />
-				<div>{{$t("group.lobby.handicapInfos", {SECONDS:handicap})}}</div>
+				<IncrementForm class="incForm" v-model="handicap" :title="t('group.lobby.handicap')" :minValue="0" :maxValue="30" />
+				<div>{{t("group.lobby.handicapInfos", {SECONDS:handicap})}}</div>
 			</div>
 		</transition>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+<script setup lang="ts">
+import { getIcon } from '@/utils/Icons';
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import UserData from '../vo/UserData';
 import Button from './Button.vue';
 import IncrementForm from './IncrementForm.vue';
 
-@Component({
-	components:{
-		Button,
-		IncrementForm
+const props = defineProps<{
+	data?:UserData;
+	me?:UserData;
+	isHost?:boolean;
+}>();
+
+const emit = defineEmits<{
+	update:[data:UserData, handicap:number];
+	updateName:[data:UserData];
+}>();
+
+const { t } = useI18n();
+
+const hover = ref<boolean>(false);
+const editName = ref<boolean>(false);
+const handicap = ref<number>(0);
+
+const isMe = computed(():boolean => {
+	return props.me && props.data.id == props.me.id;
+});
+
+const classes = computed(():string[] => {
+	let res = ["label"];
+	if(isMe.value) res.push("me");
+	if(props.data.offline) res.push("offline");
+	else if(props.isHost) res.push("host");
+	// if(props.data.offline && !isMe) res.push("offline");
+	return res;
+});
+
+watch(handicap, () => {
+	emit("update", props.data, handicap.value);
+});
+
+watch(hover, () => {
+	handicap.value = props.data.handicap;
+});
+
+function clickName():void {
+	if(isMe.value) {
+		editName.value = true;
 	}
-})
-export default class GroupLobbyUser extends Vue {
-
-	@Prop()
-	public data:UserData;
-
-	@Prop()
-	public me:UserData;
-	
-	@Prop()
-	public isHost:boolean;
-
-	public hover:boolean = false;
-	public editName:boolean = false;
-	public handicap:number = 0;
-
-	public get isMe():boolean {
-		return this.me && this.data.id == this.me.id;;
-	}
-
-	public get classes():string[] {
-		let res = ["label"];
-		if(this.isMe) res.push("me");
-		if(this.data.offline) res.push("offline");
-		else if(this.isHost) res.push("host");
-		// if(this.data.offline && !isMe) res.push("offline");
-		return res;
-	}
-
-	public mounted():void {
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	@Watch("handicap")
-	private onhandicapUpdate():void {
-		this.$emit("update", this.data, this.handicap);
-	}
-
-	@Watch("hover")
-	private onHover():void {
-		this.handicap = this.data.handicap;
-	}
-
-	private clickName():void {
-		if(this.isMe) {
-			this.editName = true;
-		}
-	}
-
-	private submitName():void {
-		this.$emit("updateName", this.data);
-		this.editName = false;
-	}
-
 }
+
+function submitName():void {
+	emit("updateName", props.data);
+	editName.value = false;
+}
+
 </script>
 
 <style scoped lang="less">
@@ -204,7 +191,7 @@ export default class GroupLobbyUser extends Vue {
 		padding: 5px 10px;
 
 		.incForm {
-			::v-deep .button:hover {
+			:deep(.button:hover) {
 				background-color: @mainColor_normal_extralight;
 			}
 		}
@@ -213,7 +200,7 @@ export default class GroupLobbyUser extends Vue {
 			padding: 5px 10px;
 			max-height: 125px;
 		}
-		&.expand-enter, &.expand-leave-to {
+		&.expand-enter-from, &.expand-leave-to {
 			max-height: 0px;
 			padding: 0px 10px;
 		}

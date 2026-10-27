@@ -5,17 +5,17 @@
 				<!-- <h1>Game will start soon</h1> -->
 				<img src="@/assets/icons/home_logo_outlined.svg" alt="logo" class="logo">
 				<div v-if="expertMode" class="expertMode">
-					<div class="head"><img src="@/assets/icons/flex_left.svg"> Expert mode <img src="@/assets/icons/flex_right.svg"></div>
-					<div :class="titleClasses">{{$t('group.game.expertMode.'+(titleAccepted? 'accept': 'refuse')+'Title')}}</div>
-					<div :class="artistClasses">{{$t('group.game.expertMode.'+(artistAccepted? 'accept': 'refuse')+'Artist')}}</div>
+					<div class="head"><img src="@/assets/icons/flex_left.svg"> {{t('group.lobby.expertMode.title')}} <img src="@/assets/icons/flex_right.svg"></div>
+					<div :class="titleClasses">{{t('group.game.expertMode.'+(titleAccepted? 'accept': 'refuse')+'Title')}}</div>
+					<div :class="artistClasses">{{t('group.game.expertMode.'+(artistAccepted? 'accept': 'refuse')+'Artist')}}</div>
 				</div>
 			</div>
 		</transition>
-		
-		<Button v-if="playlists.length > 0 && !obsMode" title="Join the game" type="checkbox" v-model="iwannaplay" class="joinBt" big white />
-		
+
+		<Button v-if="playlists.length > 0 && !obsMode" :title="t('group.lobby.join')" type="checkbox" v-model="iwannaplay" class="joinBt" big white />
+
 		<div class="playlistsHolder">
-			<div class="playlistsTitle">{{$tc('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
+			<div class="playlistsTitle">{{t('twitch.viewer.selectedPlaylists', playlists.length)}}</div>
 			<transition-group tag="div" class="playlists"
 			v-bind:css="false"
 			v-on:before-enter="beforeEnter"
@@ -29,76 +29,73 @@
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
+import { useStoreMain } from "@/store";
 import Utils from "@/utils/Utils";
 import gsap from "gsap";
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { computed, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import Button from "../Button.vue";
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class TwitchGameStatus extends Vue {
+const { t } = useI18n();
+const route = useRoute();
+const storeMain = useStoreMain();
 
-	public iwannaplay:boolean = false;
+const iwannaplay = ref<boolean>(false);
 
-	public get expertMode():boolean {
-		return this.$store.state.twitchExpertMode != null && this.$store.state.twitchExpertMode.length > 0;
-	}
+const expertMode = computed(():boolean => {
+	return storeMain.twitchExpertMode != null && storeMain.twitchExpertMode.length > 0;
+});
 
-	public get playlists():{name:string,cover:string,id:string}[] {
-		let list:any[] = JSON.parse(JSON.stringify(this.$store.state.twitchPlaylists));
-		if(!list) return [];
-		return list;
-	}
+const playlists = computed(():{name:string,cover:string,id:string}[] => {
+	let list:any[] = JSON.parse(JSON.stringify(storeMain.twitchPlaylists));
+	if(!list) return [];
+	return list;
+});
 
-	public get titleClasses():string[] {
-		let res = ["type"];
-		if(this.expertMode && this.titleAccepted) res.push("active");
-		return res;
-	}
-	public get titleAccepted():boolean { return this.$store.state.twitchExpertMode.indexOf("title") > -1; }
+const titleClasses = computed(():string[] => {
+	let res = ["type"];
+	if(expertMode.value && titleAccepted.value) res.push("active");
+	return res;
+});
+const titleAccepted = computed(():boolean => { return storeMain.twitchExpertMode.indexOf("title") > -1; });
 
-	public get artistClasses():string[] {
-		let res = ["type"];
-		if(this.expertMode && this.artistAccepted) res.push("active");
-		return res;
-	}
-	public get artistAccepted():boolean { return this.$store.state.twitchExpertMode.indexOf("artist") > -1; }
+const artistClasses = computed(():string[] => {
+	let res = ["type"];
+	if(expertMode.value && artistAccepted.value) res.push("active");
+	return res;
+});
+const artistAccepted = computed(():boolean => { return storeMain.twitchExpertMode.indexOf("artist") > -1; });
 
-	public get obsMode():boolean {
-		return Utils.getRouteMetaValue(this.$route, "obsMode") === true;
-	}
+const obsMode = computed(():boolean => {
+	return Utils.getRouteMetaValue(route, "obsMode") === true;
+});
 
-	public mounted():void {
-		this.onPlayChange();
-	}
+onMounted(() => {
+	onPlayChange();
+});
 
-	public beforeDestroy():void {
-	}
-
-	public beforeEnter(el:Element):void {
-		gsap.set(el, {opacity:1});
-	}
-
-	public enter(el:Element):void {
-		let index = parseInt((el as HTMLElement).dataset.index) + 1;
-		gsap.from(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
-	}
-
-	public leave(el:Element):void {
-		let index = parseInt((el as HTMLElement).dataset.index);
-		gsap.to(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
-	}
-
-	@Watch("iwannaplay")
-	public onPlayChange():void {
-		this.$store.dispatch("setVolume", this.iwannaplay? .5 : 0);
-	}
+function beforeEnter(el:Element):void {
+	gsap.set(el, {opacity:1});
 }
+
+function enter(el:Element):void {
+	let index = parseInt((el as HTMLElement).dataset.index) + 1;
+	gsap.from(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
+}
+
+function leave(el:Element):void {
+	let index = parseInt((el as HTMLElement).dataset.index);
+	gsap.to(el, {top:-20, opacity:0, duration:.5, delay:index*.1});
+}
+
+watch(iwannaplay, () => onPlayChange());
+
+function onPlayChange():void {
+	storeMain.setVolume(iwannaplay.value? .5 : 0);
+}
+
 </script>
 
 <style scoped lang="less">
@@ -108,7 +105,7 @@ export default class TwitchGameStatus extends Vue {
 		opacity: 1;
 		transition: opacity 1.5s;
 	}
-	.fadeIn-enter, .fadeIn-leave-to {
+	.fadeIn-enter-from, .fadeIn-leave-to {
 		opacity: 0;
 	}
 

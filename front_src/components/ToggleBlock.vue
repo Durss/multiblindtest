@@ -1,72 +1,60 @@
 <template>
 	<div :class="classes">
 		<h2 @click="toggle()">
-			<span class="handle" v-if="enabled">{{(showContent? "▼":"►")}}</span>
-			<img :src="icon" v-if="icon" class="icon">
-			<span class="title">{{title}}</span>
+			<span class="handle" v-if="props.enabled">{{(showContent? "▼":"►")}}</span>
+			<img :src="props.icon" v-if="props.icon" class="icon">
+			<span class="title">{{props.title}}</span>
 		</h2>
 		<div class="content" v-if="showContent">
 			<slot :close="close"></slot>
 		</div>
 	</div>
 </template>
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
 
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+const props = withDefaults(defineProps<{
+	title?:string;
+	icon?:string;
+	closed?:boolean;
+	enabled?:boolean;
+	small?:boolean;
+}>(), {
+	closed:null,
+	enabled:true,
+	small:false,
+});
 
-@Component({
-	components:{}
-})
-export default class ToggleBlock extends Vue {
+const showContent = ref<boolean>(true);
 
-	@Prop()
-	public title:string;
+const classes = computed(():string[] => {
+	let res = ["toggleblock"];
+	if(props.enabled) res.push("enabled");
+	if(showContent.value) res.push("open");
+	if(props.small !== false) res.push("small");
+	if(!props.enabled && props.closed) res.push("disabled");
+	return res;
+});
 
-	@Prop()
-	public icon:string;
+onMounted(() => {
+	showContent.value = props.closed == null;
+});
 
-	@Prop({default:null})
-	public closed:boolean;
-
-	@Prop({default:true})
-	public enabled:boolean;
-
-	@Prop({default:false})
-	public small:boolean;
-
-	public showContent:boolean = true;
-
-	public get classes():string[] {
-		let res = ["toggleblock"];
-		if(this.enabled) res.push("enabled");
-		if(this.showContent) res.push("open");
-		if(this.small !== false) res.push("small");
-		if(!this.enabled && this.closed) res.push("disabled");
-		return res;
-	}
-
-	public mounted():void {
-		this.showContent = this.closed == null;
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public open():void {
-		this.showContent = true;
-	}
-
-	public close():void {
-		this.showContent = false;
-	}
-
-	public toggle():void {
-		if(!this.enabled) return;
-		this.showContent = !this.showContent;
-	}
-
+function open():void {
+	showContent.value = true;
 }
+
+function close():void {
+	showContent.value = false;
+}
+
+function toggle():void {
+	if(!props.enabled) return;
+	showContent.value = !showContent.value;
+}
+
+defineExpose({ open, close });
+
 </script>
 
 <style scoped lang="less">

@@ -31,97 +31,88 @@
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from "@/components/Button.vue";
+import { useStoreMain } from "@/store";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import gsap from "gsap";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { onMounted, ref, useTemplateRef, watch } from "vue";
 
-@Component({
-	components:{
-		Button
-	}
-})
-export default class TwitchViewerLeaderboard extends Vue {
+const storeMain = useStoreMain();
 
-	public scoreHistory:ScoreHistory[] = [];
-	public expandResults:boolean = false;
-	public podium:{name:String, score:number}[] = [];
-	public users:{name:String, score:number}[] = [];
+const scrollable = useTemplateRef<HTMLDivElement>("scrollable");
 
-	public getRowStyle(u:any):any {
-		let res:any = {};
-		return res;
-		// let color = "#"+((Math.random()*0x99 + 0x66)<<16 | (Math.random()*0x99 + 0x66)<<8 | (Math.random()*0x99 + 0x66)).toString(16);
-		let color = u.user.color;
-		res["background-color"] = color;
-		let lum = Utils.getLuminance(color);
-		if(lum < .72) res["color"] = "#ffffff";
-		return res;
-	}
+const scoreHistory = ref<ScoreHistory[]>([]);
+const expandResults = ref<boolean>(false);
+const podium = ref<{name:String, score:number}[]>([]);
+const users = ref<{name:String, score:number}[]>([]);
 
-	public mounted():void {
-		this.users = [];
-		let data:any = this.$store.state.twitchLeaderboard;
-		
-		let history:ScoreHistory[] = data.history;
-
-		for (let i = 0; i < history.length; i++) {
-			let u = this.users.find(u => u.name == history[i].guesserName);
-			if(!u) {
-				u = {name:history[i].guesserName, score:history[i].score};
-				this.users.push(u);
-			}else{
-				u.score += history[i].score;
-			}
-		}
-
-		this.users.sort((a,b)=> {
-			if(a.score > b.score) return -1;
-			if(a.score < b.score) return 1;
-			return 0;
-		});
-
-		//Make sure there are at least 3 "users"
-		while(this.users.length < 3) this.users.push({name:"x", score:-1});
-		//Debug, add fake users
-		// for (let i = 0; i < 100; i++) {
-		// 	this.users.push(this.users[0]);
-		// }
-		// this.users[0].name = "Durss";
-		// this.users[0].score = 25;
-
-		//Set N°1 in the middle
-		this.podium = this.users.splice(0,3);
-		this.podium.splice(1, 0, this.podium.splice(0,1)[0]);
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public toggleResults():void {
-		this.expandResults = !this.expandResults;
-		this.setScrollState();
-	}
-
-	@Watch("$store.state.twitchLeaderboard")
-	public onStateChange():void {
-		let newState = this.$store.state.twitchLeaderboard.showMoreResults;
-		if(this.expandResults != newState) {
-			this.expandResults = this.$store.state.twitchLeaderboard.showMoreResults;
-			this.setScrollState();
-		}
-	}
-
-	private setScrollState():void {
-		let pageH = (<HTMLDivElement>this.$refs.scrollable).getBoundingClientRect().height;
-		gsap.to(this.$refs.scrollable, {duration:.5, scrollTo:this.expandResults? pageH : 0, ease:"Quad.easeInOut"});
-	}
-
+function getRowStyle(u:any):any {
+	let res:any = {};
+	return res;
+	// let color = "#"+((Math.random()*0x99 + 0x66)<<16 | (Math.random()*0x99 + 0x66)<<8 | (Math.random()*0x99 + 0x66)).toString(16);
+	let color = u.user.color;
+	res["background-color"] = color;
+	let lum = Utils.getLuminance(color);
+	if(lum < .72) res["color"] = "#ffffff";
+	return res;
 }
+
+onMounted(() => {
+	users.value = [];
+	let data:any = storeMain.twitchLeaderboard;
+
+	let history:ScoreHistory[] = data.history;
+
+	for (let i = 0; i < history.length; i++) {
+		let u = users.value.find(u => u.name == history[i].guesserName);
+		if(!u) {
+			u = {name:history[i].guesserName, score:history[i].score};
+			users.value.push(u);
+		}else{
+			u.score += history[i].score;
+		}
+	}
+
+	users.value.sort((a,b)=> {
+		if(a.score > b.score) return -1;
+		if(a.score < b.score) return 1;
+		return 0;
+	});
+
+	//Make sure there are at least 3 "users"
+	while(users.value.length < 3) users.value.push({name:"x", score:-1});
+	//Debug, add fake users
+	// for (let i = 0; i < 100; i++) {
+	// 	users.value.push(users.value[0]);
+	// }
+	// users.value[0].name = "Durss";
+	// users.value[0].score = 25;
+
+	//Set N°1 in the middle
+	podium.value = users.value.splice(0,3);
+	podium.value.splice(1, 0, podium.value.splice(0,1)[0]);
+});
+
+function toggleResults():void {
+	expandResults.value = !expandResults.value;
+	setScrollState();
+}
+
+watch(() => storeMain.twitchLeaderboard, () => {
+	let newState = storeMain.twitchLeaderboard.showMoreResults;
+	if(expandResults.value != newState) {
+		expandResults.value = storeMain.twitchLeaderboard.showMoreResults;
+		setScrollState();
+	}
+});
+
+function setScrollState():void {
+	let pageH = scrollable.value.getBoundingClientRect().height;
+	gsap.to(scrollable.value, {duration:.5, scrollTo:expandResults.value? pageH : 0, ease:"Quad.easeInOut"});
+}
+
 </script>
 
 <style scoped lang="less">

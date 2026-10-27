@@ -1,37 +1,26 @@
 ﻿<template>
 	<div class="twitchextensionconfiguration">
 		<img src="@/assets/icons/home_logo.svg" alt="logo" class="logo">
-		<h1>No configuration needed</h1>
-		<div>Just head over multiblindtest.com and start a game session from it:</div>
-		<Button type="link" target="_blank" :to="url" :icon="$getIcon('ext_link_white')" title="Start a game" />
+		<h1>{{t('twitch.extension.noConfig')}}</h1>
+		<div>{{t('twitch.extension.head')}}</div>
+		<Button type="link" target="_blank" :to="url" :icon="getIcon('ext_link_white')" :title="t('twitch.extension.startGame')" />
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from "@/components/Button.vue";
 import Config from "@/utils/Config";
-import { Component, Vue } from "vue-property-decorator";
+import { getIcon } from "@/utils/Icons";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class TwitchExtensionConfiguration extends Vue {
+const { t } = useI18n();
+const router = useRouter();
 
-	public get url():string {
-		return Config.BASE_URL+this.$router.resolve({name:"twitch"}).href.replace("#", "");
-	}
+const url = computed(():string => {
+	return Config.BASE_URL+router.resolve({name:"twitch"}).href.replace("#", "");
+});
 
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

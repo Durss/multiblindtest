@@ -1,12 +1,12 @@
 <template>
 	<div class="twitchviewergame" v-if="tracks.length > 0">
 		<div class="step">
-			<h1>{{$t('twitch.game.index')}}</h1>
+			<h1>{{t('twitch.game.index')}}</h1>
 			<div class="count">{{currentRound}}/{{gamesCount}}</div>
 		</div>
 
 		<VolumeButton twitchMode v-if="!obsMode" />
-		
+
 		<TimerRenderer class="timer" ref="timer"
 			:timerPercent="timerPercent"
 			:duration="duration" />
@@ -27,255 +27,249 @@
 		<CountDown v-if="!countDownComplete && !roundComplete" @complete="onCountDownComplete()" class="countdown" />
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import AudioPlayer from "@/components/AudioPlayer";
 import CountDown from "@/components/CountDown.vue";
 import TimerRenderer from "@/components/TimerRenderer.vue";
 import TrackEntry from "@/components/TrackEntry.vue";
 import VolumeButton from "@/components/VolumeButton.vue";
 import SockController, { SOCK_ACTIONS } from "@/sock/SockController";
+import { useStoreMain } from "@/store";
 import TwitchMessageType from "@/twitch/TwitchMessageType";
 import Utils from "@/utils/Utils";
 import ScoreHistory from "@/vo/ScoreHistory";
 import SocketEvent from "@/vo/SocketEvent";
 import TrackData from "@/vo/TrackData";
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
-@Component({
-	components:{
-		CountDown,
-		TrackEntry,
-		VolumeButton,
-		TimerRenderer,
-	}
-})
-export default class TwitchViewerGame extends Vue {
+const { t } = useI18n();
+const route = useRoute();
+const storeMain = useStoreMain();
 
-	public gamesCount:number = 0;
-	public currentRound:number = 0;
-	public timerPercent:number = 0;
-	public duration:number = 0;
-	public timeOffset:number = 0;
-	public tracks:TrackData[] = [];
-	public scoreHistory:ScoreHistory[] = [];
-    public countDownComplete:boolean = false;
-    public roundComplete:boolean = false;
-    public gameComplete:boolean = false;
-    public disposed:boolean = false;
-    public currentTrackIds:string;
-    public audioPlayer:AudioPlayer;
-    public clickHandler:any;
-	public sockMessageHandler:any;
+const gamesCount = ref<number>(0);
+const currentRound = ref<number>(0);
+const timerPercent = ref<number>(0);
+const duration = ref<number>(0);
+let timeOffset:number = 0;
+const tracks = ref<TrackData[]>([]);
+const scoreHistory = ref<ScoreHistory[]>([]);
+const countDownComplete = ref<boolean>(false);
+const roundComplete = ref<boolean>(false);
+const gameComplete = ref<boolean>(false);
+let disposed:boolean = false;
+let currentTrackIds:string;
+let audioPlayer:AudioPlayer;
+let clickHandler:any;
+let sockMessageHandler:any;
 
-	public get obsMode():boolean { return Utils.getRouteMetaValue(this.$route, "obsMode"); }
+const obsMode = computed(():boolean => { return Utils.getRouteMetaValue(route, "obsMode"); });
 
-	public get tracksClasses():string[] {
-		let res = ["tracks"];
-		if(this.tracks.length == 5) res.push("center3rd");
-		return res;
-	}
+const tracksClasses = computed(():string[] => {
+	let res = ["tracks"];
+	if(tracks.value.length == 5) res.push("center3rd");
+	return res;
+});
 
-	public mounted():void {
-		this.clickHandler = (e:MouseEvent) => {
-			if(this.$store.state.needUserInteraction) {
-				this.$store.dispatch("setNeedUserInteraction", false);
-				if(this.countDownComplete && !this.roundComplete && !this.gameComplete) {
-					this.startPlay();
-				}
-			}
-		};
-
-		if(this.obsMode) {
-			this.$store.dispatch("setVolume", 1);
-		}
-
-		document.addEventListener("click", this.clickHandler);
-		this.sockMessageHandler = (e:SocketEvent) => this.onSockMessage(e);
-		SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, this.sockMessageHandler);
-		this.renderFrame();
-		this.onGameStateChange();
-	}
-
-	public beforeDestroy():void {
-		this.disposed = true;
-		if(this.audioPlayer) {
-			this.audioPlayer.dispose();
-		}
-		document.removeEventListener("click", this.clickHandler);
-		SockController.instance.removeEventListener(SOCK_ACTIONS.SEND_TO_UID, this.sockMessageHandler);
-	}
-
-	/**
-	 * Start playing songs
-	 */
-	@Watch("pause")
-	public startPlay():void {
-		this.audioPlayer.play();
-	}
-
-	public onSockMessage(e:SocketEvent):void {
-		if(typeof e.data != "object") return;
-		
-		switch(e.data.actionType) {
-			case TwitchMessageType.SET_TRACK_PLAY_STATE:
-				console.log(e.data.track, e.data.play);
-				let track = this.tracks.find(t => t.id == e.data.track);
-				console.log(track);
-				if(track) {
-					track.highlight = e.data.play === true;
-					if(e.data.play) {
-						this.audioPlayer.unpauseTrack(track);
-					}else{
-						this.audioPlayer.stopTrack(track)
-					}
-				}
-				break;
-		}
-	}
-
-	/**
-	 * Create reusable audio elements
-	 */
-	public initAudioElements():void {
-		if(this.audioPlayer) {
-			this.audioPlayer.stopAll();
-			this.audioPlayer.dispose();
-		}
-		this.audioPlayer = new AudioPlayer(this.tracks.length);
-		this.audioPlayer.onLoadError = (id)=> this.onLoadError(id);
-		this.audioPlayer.onLoadComplete = _=> this.onLoadComplete();
-		this.audioPlayer.onNeedUserInteraction = _=> {
-			this.$store.dispatch("setNeedUserInteraction", true);
-		};
-	}
-
-	/**
-	 * Called when an audio file loading completes
-	 * Check for all complete to start playing
-	 */
-	public onLoadComplete():void {
-		if(!this.countDownComplete || this.roundComplete || this.gameComplete) {
-			this.audioPlayer.pause();
-		}
-	}
-
-	/**
-	 * Called when a track's loading failed
-	 */
-	public onLoadError(trackId:string):void {
-		for (let i = 0; i < this.tracks.length; i++) {
-			const element = this.tracks[i];
-			if(element.id == trackId) {
-				Vue.set(element, "loadFail", true);//Component will show the error
+onMounted(() => {
+	clickHandler = (e:MouseEvent) => {
+		if(storeMain.needUserInteraction) {
+			storeMain.needUserInteraction = false;
+			if(countDownComplete.value && !roundComplete.value && !gameComplete.value) {
+				startPlay();
 			}
 		}
+	};
+
+	if(obsMode.value) {
+		storeMain.setVolume(1);
 	}
 
-	/**
-	 * Called when countdown completes
-	 */
-	public onCountDownComplete():void {
-		this.timerPercent = 0;
-		this.countDownComplete = true;
-		this.audioPlayer.play();
+	document.addEventListener("click", clickHandler);
+	sockMessageHandler = (e:SocketEvent) => onSockMessage(e);
+	SockController.instance.addEventListener(SOCK_ACTIONS.SEND_TO_UID, sockMessageHandler);
+	renderFrame();
+	onGameStateChange();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+	if(audioPlayer) {
+		audioPlayer.dispose();
 	}
+	document.removeEventListener("click", clickHandler);
+	SockController.instance.removeEventListener(SOCK_ACTIONS.SEND_TO_UID, sockMessageHandler);
+});
 
-	/**
-	 * Computes the timer
-	 */
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(_=>this.renderFrame());
-		if(!this.countDownComplete || this.roundComplete || this.timerPercent == 1) {
-			this.timeOffset = new Date().getTime();
-			return;
-		}
-
-		let ellapsed = new Date().getTime() - this.timeOffset;
-		this.timerPercent = Math.min(1, ellapsed / (this.duration * 1000));
-
-		if(this.timerPercent == 1) {
-			this.audioPlayer.stopAll();
-		}
-	}
-
-	/**
-	 * Called when manually stopping a track.
-	 * We can stop a track after revealing all the answers manually in solo mode
-	 */
-	public stopTrack(data:TrackData):void {
-		this.audioPlayer.stopTrack(data);
-	}
-
-	/**
-	 * Called when manually playing a track.
-	 */
-	public playTrack(data:TrackData):void {
-		if(this.$store.state.volume == 0) {
-			this.$store.dispatch("setVolume", .5);
-			this.audioPlayer.stopAll();
-		}
-		this.audioPlayer.unpauseTrack(data);
-	}
-
-	@Watch("$store.state.twitchGameState")
-	public onGameStateChange():void {
-		let state = this.$store.state.twitchGameState;
-		this.tracks = state.tracks;
-		this.gamesCount = state.games;
-		this.currentRound = state.round;
-		this.duration = state.duration;
-		this.gameComplete = state.gameComplete;
-		// this.timerPercent = state.ellapsedDuration / this.duration;
-		if(!this.countDownComplete) {
-			this.timeOffset = Date.now() - state.ellapsedDuration;
-			if(state.ellapsedDuration > 0) {
-				this.countDownComplete = true;
-			}
-		}
-
-		// this.tracks = [];
-		this.scoreHistory = [];
-		if(state.roundComplete != this.roundComplete) {
-			this.timerPercent = 1;
-			if(this.audioPlayer) {
-				this.audioPlayer.stopAll();
-			}
-		}
-		this.roundComplete = state.roundComplete;
-
-		for (let i = 0; i < this.tracks.length; i++) {
-			const t:TrackData = this.tracks[i];
-			if(t.enabled) {
-				if(t.enabled && this.audioPlayer) {
-					this.audioPlayer.stopTrack(t);
-				}
-			}
-		}
-
-		let trackIds = this.tracks.map(t => t.id).join(",");
-		if(trackIds != this.currentTrackIds) {
-			this.initAudioElements();
-			this.currentTrackIds = trackIds;
-			this.audioPlayer.populate(this.tracks);
-			this.countDownComplete = false;
-			this.timerPercent = 0;
-		}
-		// console.log(this.tracks);
-		if(state.roundComplete || state.gameComplete) {
-			this.timerPercent = 1;
-			this.countDownComplete = true;
-		}
-	}
-
-	@Watch("$store.state.volume", {immediate: true, deep:true})
-	public onVolumeChange(a, b):void {
-		if(!this.audioPlayer) return;
-		this.audioPlayer.volume = this.$store.state.volume;
-	}
-
+/**
+ * Start playing songs
+ */
+function startPlay():void {
+	audioPlayer.play();
 }
+
+function onSockMessage(e:SocketEvent):void {
+	if(typeof e.data != "object") return;
+
+	switch(e.data.actionType) {
+		case TwitchMessageType.SET_TRACK_PLAY_STATE:
+			console.log(e.data.track, e.data.play);
+			let track = tracks.value.find(t => t.id == e.data.track);
+			console.log(track);
+			if(track) {
+				track.highlight = e.data.play === true;
+				if(e.data.play) {
+					audioPlayer.unpauseTrack(track);
+				}else{
+					audioPlayer.stopTrack(track)
+				}
+			}
+			break;
+	}
+}
+
+/**
+ * Create reusable audio elements
+ */
+function initAudioElements():void {
+	if(audioPlayer) {
+		audioPlayer.stopAll();
+		audioPlayer.dispose();
+	}
+	audioPlayer = new AudioPlayer(tracks.value.length);
+	audioPlayer.onLoadError = (id)=> onLoadError(id);
+	audioPlayer.onLoadComplete = _=> onLoadComplete();
+	audioPlayer.onNeedUserInteraction = _=> {
+		storeMain.needUserInteraction = true;
+	};
+}
+
+/**
+ * Called when an audio file loading completes
+ * Check for all complete to start playing
+ */
+function onLoadComplete():void {
+	if(!countDownComplete.value || roundComplete.value || gameComplete.value) {
+		audioPlayer.pause();
+	}
+}
+
+/**
+ * Called when a track's loading failed
+ */
+function onLoadError(trackId:string):void {
+	for (let i = 0; i < tracks.value.length; i++) {
+		const element = tracks.value[i];
+		if(element.id == trackId) {
+			element.loadFail = true;//Component will show the error
+		}
+	}
+}
+
+/**
+ * Called when countdown completes
+ */
+function onCountDownComplete():void {
+	timerPercent.value = 0;
+	countDownComplete.value = true;
+	audioPlayer.play();
+}
+
+/**
+ * Computes the timer
+ */
+function renderFrame():void {
+	if(disposed) return;
+	requestAnimationFrame(_=>renderFrame());
+	if(!countDownComplete.value || roundComplete.value || timerPercent.value == 1) {
+		timeOffset = new Date().getTime();
+		return;
+	}
+
+	let ellapsed = new Date().getTime() - timeOffset;
+	timerPercent.value = Math.min(1, ellapsed / (duration.value * 1000));
+
+	if(timerPercent.value == 1) {
+		audioPlayer.stopAll();
+	}
+}
+
+/**
+ * Called when manually stopping a track.
+ * We can stop a track after revealing all the answers manually in solo mode
+ */
+function stopTrack(data:TrackData):void {
+	audioPlayer.stopTrack(data);
+}
+
+/**
+ * Called when manually playing a track.
+ */
+function playTrack(data:TrackData):void {
+	if(storeMain.volume == 0) {
+		storeMain.setVolume(.5);
+		audioPlayer.stopAll();
+	}
+	audioPlayer.unpauseTrack(data);
+}
+
+watch(() => storeMain.twitchGameState, () => onGameStateChange());
+
+function onGameStateChange():void {
+	let state = storeMain.twitchGameState;
+	tracks.value = state.tracks;
+	gamesCount.value = state.games;
+	currentRound.value = state.round;
+	duration.value = state.duration;
+	gameComplete.value = state.gameComplete;
+	// timerPercent.value = state.ellapsedDuration / duration.value;
+	if(!countDownComplete.value) {
+		timeOffset = Date.now() - state.ellapsedDuration;
+		if(state.ellapsedDuration > 0) {
+			countDownComplete.value = true;
+		}
+	}
+
+	// tracks.value = [];
+	scoreHistory.value = [];
+	if(state.roundComplete != roundComplete.value) {
+		timerPercent.value = 1;
+		if(audioPlayer) {
+			audioPlayer.stopAll();
+		}
+	}
+	roundComplete.value = state.roundComplete;
+
+	for (let i = 0; i < tracks.value.length; i++) {
+		const track:TrackData = tracks.value[i];
+		if(track.enabled) {
+			if(track.enabled && audioPlayer) {
+				audioPlayer.stopTrack(track);
+			}
+		}
+	}
+
+	let trackIds = tracks.value.map(t => t.id).join(",");
+	if(trackIds != currentTrackIds) {
+		initAudioElements();
+		currentTrackIds = trackIds;
+		audioPlayer.populate(tracks.value);
+		countDownComplete.value = false;
+		timerPercent.value = 0;
+	}
+	// console.log(tracks.value);
+	if(state.roundComplete || state.gameComplete) {
+		timerPercent.value = 1;
+		countDownComplete.value = true;
+	}
+}
+
+watch(() => storeMain.volume, () => {
+	if(!audioPlayer) return;
+	audioPlayer.volume = storeMain.volume;
+}, {immediate: true});
+
 </script>
 
 <style scoped lang="less">

@@ -1,41 +1,27 @@
 <template>
-	<div class="SearchTrackResultItem" v-if="data" :class="selected? 'hover': ''">
+	<div class="SearchTrackResultItem" v-if="props.data" :class="props.selected? 'hover': ''">
 		<img :src="picture" alt="track" class="icon">
 		<div class="label">
-			<span class="artist">{{data.artist}}</span>
-			<span class="title">{{data.name}}</span>
+			<span class="artist">{{props.data.artist}}</span>
+			<span class="title">{{props.data.name}}</span>
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import TrackData from '@/vo/TrackData';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { getIcon } from '@/utils/Icons';
+import { computed } from "vue";
 
-@Component({
-	components:{}
-})
-export default class SearchTrackResultItem extends Vue {
+const props = defineProps<{
+	data?:TrackData;
+	selected?:boolean;
+}>();
 
-	@Prop()
-	public data:TrackData;
-	@Prop()
-	public selected:boolean;
+const picture = computed(():string => {
+	if(props.data.picture) return props.data.picture;
+	return getIcon('song');
+});
 
-	public get picture():string {
-		if(this.data.picture) return this.data.picture;
-		return this.$getIcon('song');
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">

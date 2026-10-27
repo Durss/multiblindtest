@@ -6,7 +6,6 @@
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "bundler",
-    "experimentalDecorators": true,
     "esModuleInterop": true,
     "strictNullChecks": false,
     "allowSyntheticDefaultImports": true,
@@ -37,7 +36,7 @@
     "front_src/**/*.ts",
     "front_src/**/*.tsx",
     "front_src/**/*.vue",
-    "vite.config.ts"
+    "vite.config.mts"
   ],
   "exclude": [
     "node_modules"

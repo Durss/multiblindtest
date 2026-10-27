@@ -1,40 +1,40 @@
 <template>
-	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt">
+	<div :class="classes" @click.ctrl="showJSONBt = !showJSONBt" ref="rootEl">
 		<div class="icon">
-			<img v-if="(!reveal || !data.guessedBy || data.guessedBy.length == 0) && !data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
-			<div v-if="reveal && data.guessedBy && data.guessedBy.length > 0 && !data.loadFail" class="score">{{data.score}}</div>
-			<img v-if="data.loadFail" src="@/assets/icons/cross_white.svg" alt="error" class="icon">
+			<img v-if="(!reveal || !props.data.guessedBy || props.data.guessedBy.length == 0) && !props.data.loadFail" src="@/assets/icons/song.svg" alt="song" class="icon">
+			<div v-if="reveal && props.data.guessedBy && props.data.guessedBy.length > 0 && !props.data.loadFail" class="score">{{props.data.score}}</div>
+			<img v-if="props.data.loadFail" src="@/assets/icons/cross_white.svg" alt="error" class="icon">
 		</div>
-		
+
 		<div v-if="reveal" class="trackInfos">
-			<div class="album" v-if="acceptAlbum">
+			<div class="album" v-if="props.acceptAlbum">
 				<img src="@/assets/icons/playlist.svg" class="icon" alt="album">
-				<span>{{data.album}}</span>
+				<span>{{props.data.album}}</span>
 			</div>
 			<div class="artist">
 				<img src="@/assets/icons/user_white.svg" class="icon" alt="artist">
-				<span>{{data.artist}}</span>
+				<span>{{props.data.artist}}</span>
 			</div>
 			<div class="title">
 				<img src="@/assets/icons/music.svg" class="icon" alt="title">
-				<span>{{data.name}}</span>
+				<span>{{props.data.name}}</span>
 			</div>
 		</div>
-		
-		<div v-if="data.loadFail" class="trackInfos">
-			<div class="artist">{{$t("game.loadError")}}</div>
-			<div class="name">{{data.artist}} - {{data.name}}</div>
+
+		<div v-if="props.data.loadFail" class="trackInfos">
+			<div class="artist">{{t("game.loadError")}}</div>
+			<div class="name">{{props.data.artist}} - {{props.data.name}}</div>
 		</div>
-		
-		<p v-if="!reveal && !data.loadFail" class="placeholder">{{$t('game.hidden')}}</p>
+
+		<p v-if="!reveal && !props.data.loadFail" class="placeholder">{{t('game.hidden')}}</p>
 
 		<div class="stop" v-if="reveal && canReplay">
 			<img src="@/assets/icons/play_withBg.svg" alt="song" class="icon" @click="onClickPlay()" v-if="!playing">
 			<img src="@/assets/icons/stop.svg" alt="song" class="icon" @click="onClickStop()" v-if="playing">
 		</div>
 
-		<div class="guesser" v-if="reveal && data.guessedBy && data.guessedBy.length > 0">
-			<p class="pseudo" v-for="u in data.guessedBy" :key="'guess_'+u.name+'_'+u.id">{{u.name}}</p>
+		<div class="guesser" v-if="reveal && props.data.guessedBy && props.data.guessedBy.length > 0">
+			<p class="pseudo" v-for="u in props.data.guessedBy" :key="'guess_'+u.name+'_'+u.id">{{u.name}}</p>
 		</div>
 
 		<div ref="stars" class="stars">
@@ -44,118 +44,117 @@
 		<Button data-tooltip="Copy JSON to clipboard" v-if="showJSONBt" class="copyJSON small" @click="copyJSON()" title="JSON" :icon="copyIcon" />
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Utils from "@/utils/Utils";
+import { getIcon } from "@/utils/Icons";
 import TrackData from '@/vo/TrackData';
 import gsap from "gsap";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { computed, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Button from "./Button.vue";
 
-@Component({
-	components:{
-		Button,
+const props = withDefaults(defineProps<{
+	data?:TrackData;
+	forceReveal?:boolean;
+	small?:boolean;
+	canReplay?:boolean;
+	burstStars?:boolean;
+	acceptAlbum?:boolean;
+}>(), {
+	forceReveal:false,
+	small:false,
+	canReplay:true,
+	burstStars:false,
+	acceptAlbum:false,
+});
+
+const emit = defineEmits<{
+	stop:[data:TrackData];
+	play:[data:TrackData];
+}>();
+
+const { t } = useI18n();
+
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const star = useTemplateRef<HTMLImageElement[]>("star");
+
+const copyIcon = computed(():string => { return getIcon('copy'); });
+
+const playing = ref<boolean>(false);
+const showJSONBt = ref<boolean>(false);
+//Allows to replay even if parent disabled it (see allowManualStop())
+const forceCanReplay = ref<boolean>(false);
+
+const canReplay = computed(():boolean => {
+	return props.canReplay || forceCanReplay.value;
+});
+
+const classes = computed(():string[] => {
+	let res = ["trackentry"];
+	if(props.small !== false) res.push("small");
+	if(reveal.value) res.push("enabled");
+	if(props.data.loadFail) res.push("error");
+	if(props.forceReveal && !props.data.enabled) res.push("forcedReveal");
+	if(props.data.highlight === true) res.push("highlight");
+	return res;
+});
+
+const reveal = computed(():boolean => {
+	return props.data.enabled || props.forceReveal;
+});
+
+function allowManualStop():void {
+	forceCanReplay.value = true;
+	playing.value = true;
+}
+
+function onClickStop():void {
+	emit('stop', props.data);
+	playing.value = false;
+}
+
+function onClickPlay():void {
+	playing.value = true;
+	emit('play', props.data);
+}
+
+watch(() => props.data.enabled, () => {
+	if(props.burstStars && props.data.enabled) {
+		burstParticles();
 	}
-})
-export default class TrackEntry extends Vue {
+});
 
-	public get copyIcon():string { return this.$getIcon('copy'); }
-
-	@Prop()
-	public data:TrackData;
-
-	@Prop({default:false})
-	public forceReveal:boolean;
-
-	@Prop({default:false})
-	public small:boolean;
-
-	@Prop({default:true})
-	public canReplay:boolean;
-
-	@Prop({default:false})
-	public burstStars:boolean;
-
-	@Prop({default:false})
-	public acceptAlbum:boolean;
-	
-	public playing:boolean = false;
-	public showJSONBt:boolean = false;
-
-	public get classes():string[] {
-		let res = ["trackentry"];
-		if(this.small !== false) res.push("small");
-		if(this.reveal) res.push("enabled");
-		if(this.data.loadFail) res.push("error");
-		if(this.forceReveal && !this.data.enabled) res.push("forcedReveal");
-		if(this.data.highlight === true) res.push("highlight");
-		return res;
+function burstParticles():void {
+	let stars = star.value;
+	let bounds = rootEl.value!.getBoundingClientRect();
+	for (let i = 0; i < stars.length; i++) {
+		const s = stars[i];
+		gsap.killTweensOf(s);
+		let px = Math.random() * bounds.width - 30;
+		let py = Math.random() * bounds.height - 30;
+		gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
+		gsap.to(s, {opacity:0,
+					rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad",
+					x:px + (Math.random()-Math.random()) * 200,
+					y:py + (Math.random()-Math.random()) * 100,
+					scale:0,
+					duration:1.25});
 	}
-
-	public get reveal():boolean {
-		return this.data.enabled || this.forceReveal;
-	}
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	public allowManualStop():void {
-		this.canReplay = true;
-		this.playing = true;
-	}
-
-	public onClickStop():void {
-		this.$emit('stop', this.data);
-		this.playing = false;
-	}
-
-	public onClickPlay():void {
-		this.playing = true;
-		this.$emit('play', this.data);
-	}
-
-	@Watch("data.enabled")
-	public onRevealChange():void {
-		if(this.burstStars && this.data.enabled) {
-			this.burstParticles();
-		}
-	}
-
-	public burstParticles():void {
-		let stars = <Element[]>this.$refs.star;
-		let bounds = this.$el.getBoundingClientRect();
+	setTimeout(_=> {
+		//Reset stars to avoid page overflow on small screens
 		for (let i = 0; i < stars.length; i++) {
 			const s = stars[i];
-			gsap.killTweensOf(s);
-			let px = Math.random() * bounds.width - 30;
-			let py = Math.random() * bounds.height - 30;
-			gsap.set(s, {opacity:1, x:px, y:py, scale:Math.random()*1 + .5});
-			gsap.to(s, {opacity:0,
-						rotation:(Math.random()-Math.random()) * Math.PI * 2.5+"rad",
-						x:px + (Math.random()-Math.random()) * 200,
-						y:py + (Math.random()-Math.random()) * 100,
-						scale:0,
-						duration:1.25});
+			gsap.set(s, {opacity:1, x:0, y:0, scale:0});
 		}
-		setTimeout(_=> {
-			//Reset stars to avoid page overflow on small screens
-			for (let i = 0; i < stars.length; i++) {
-				const s = stars[i];
-				gsap.set(s, {opacity:1, x:0, y:0, scale:0});
-			}
-		},1500)
-	}
-
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.data));
-	}
-
+	},1500)
 }
+
+function copyJSON():void {
+	Utils.copyToClipboard(JSON.stringify(props.data));
+}
+
+defineExpose({ allowManualStop });
+
 </script>
 
 <style scoped lang="less">

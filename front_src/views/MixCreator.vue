@@ -1,139 +1,134 @@
 ﻿<template>
 	<div class="mixcreator">
 		<div class="header">
-			<h1>{{$t('create.title')}}</h1>
-			<p class="infos" v-html="$t('create.subtitle', {tracksCount:tracksCount})"></p>
+			<h1>{{t('create.title')}}</h1>
+			<p class="infos" v-html="t('create.subtitle', {tracksCount:tracksCount})"></p>
 		</div>
 
 		<AutoCompleteForm searchType="track" v-if="selectedTracks.length < tracksCount" :filteredItems="selectedTracks" @select="onSelectTrack" />
 
 		<div class="selectedTracks" v-if="selectedTracks.length > 0">
-			<div class="title">{{$t('create.selected')}}</div>
+			<div class="title">{{t('create.selected')}}</div>
 			<div class="trackItem" v-for="(t, index) in selectedTracks" :key="t.id+'_'+index">
 				<SearchTrackResultItem :data="t" class="track" />
-				<Button :icon="$getIcon('stop_square')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
-				<Button :icon="$getIcon('delete')" highlight class="deleteBt" @click="removeTrack(t)" />
+				<Button :icon="getIcon('stop_square')" class="stopBt" @click="stopTrack(t)" v-if="t.isPlaying" />
+				<Button :icon="getIcon('delete')" highlight class="deleteBt" @click="removeTrack(t)" />
 			</div>
 		</div>
 
 		<div class="actions">
-			<Button :icon="$getIcon(testing? 'stop_square' : 'play')" :title="$t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
-			<Button :icon="$getIcon('checkmark_white')" :title="$t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
+			<Button :icon="getIcon(testing? 'stop_square' : 'play')" :title="t('create.testBt')" :disabled="selectedTracks.length == 0" @click="testMix()" :loading="loadingAudio" />
+			<Button :icon="getIcon('checkmark_white')" :title="t('create.createBt')" :disabled="selectedTracks.length < 2" highlight @click="submitMix()" />
 		</div>
 
 		<div class="help">
-			<button class="title" @click="expandHelp=!expandHelp">{{$t('create.help.title')}}</button>
-			<div class="expand" v-if="expandHelp" v-html="$t('create.help.description')"></div>
+			<button class="title" @click="expandHelp=!expandHelp">{{t('create.help.title')}}</button>
+			<div class="expand" v-if="expandHelp" v-html="t('create.help.description')"></div>
 		</div>
 
 		<VolumeButton />
 	</div>
 </template>
-
-<script lang="ts">
+<script setup lang="ts">
 import Button from '@/components/Button.vue';
 import SearchTrackResultItem from '@/components/SearchTrackResultItem.vue';
+import { useStoreMain } from '@/store';
 import Config from '@/utils/Config';
+import { getIcon } from '@/utils/Icons';
 import TrackData from '@/vo/TrackData';
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import AudioPlayer from '../components/AudioPlayer';
 import AutoCompleteForm from '../components/AutoCompleteForm.vue';
 import VolumeButton from '../components/VolumeButton.vue';
 
-@Component({
-	components:{
-		Button,
-		VolumeButton,
-		AutoCompleteForm,
-		SearchTrackResultItem,
-	}
-})
-export default class MixCreator extends Vue {
+const { t } = useI18n();
+const router = useRouter();
+const storeMain = useStoreMain();
 
-	public testing:boolean = false;
-	public expandHelp:boolean = false;
-	public loadingAudio:boolean = false;
-	public selectedTracks:TrackData[] = [];
-	
-	private audioPlayer:AudioPlayer;
+const testing = ref<boolean>(false);
+const expandHelp = ref<boolean>(false);
+const loadingAudio = ref<boolean>(false);
+const selectedTracks = ref<TrackData[]>([]);
 
-	public get tracksCount():number { return Config.MAX_TRACK_COUNT; }
+let audioPlayer:AudioPlayer;
 
-	public mounted():void {
-		this.audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
-		this.audioPlayer.onLoadComplete = () => this.loadingAudio = false;
-	}
+const tracksCount = computed(():number => { return Config.MAX_TRACK_COUNT; });
 
-	public beforeDestroy():void {
-		this.audioPlayer.stopAll();
-		this.audioPlayer.dispose();
-	}
+onMounted(() => {
+	audioPlayer = new AudioPlayer(Config.MAX_TRACK_COUNT);
+	audioPlayer.onLoadComplete = () => loadingAudio.value = false;
+});
 
-	/**
-	 * Removes a track from the list
-	 */
-	public removeTrack(data:TrackData):void {
-		for (let i = 0; i < this.selectedTracks.length; i++) {
-			const t = this.selectedTracks[i];
-			if(t.id == data.id) {
-				this.selectedTracks.splice(i, 1);
-				break;
-			}
-		}
-		this.audioPlayer.stopTrack(data);
-	}
+onBeforeUnmount(() => {
+	audioPlayer.stopAll();
+	audioPlayer.dispose();
+});
 
-	/**
-	 * Stops a specific track
-	 */
-	public stopTrack(t:TrackData):void {
-		t.isPlaying = false;
-		this.audioPlayer.stopTrack(t);
-		for (let i = 0; i < this.selectedTracks.length; i++) {
-			if(this.selectedTracks[i].isPlaying) return;
-		}
-		this.testing = false;
-	}
-
-	/**
-	 * Start mix testing
-	 */
-	public testMix():void {
-		if(this.testing) {
-			this.audioPlayer.stopAll();
-			this.testing = false;
-			return;
-		}
-		this.testing = true;
-		this.loadingAudio = true;
-		this.audioPlayer.populate(this.selectedTracks);
-		for (let i = 0; i < this.selectedTracks.length; i++) {
-			this.selectedTracks[i].isPlaying = true;
+/**
+ * Removes a track from the list
+ */
+function removeTrack(data:TrackData):void {
+	for (let i = 0; i < selectedTracks.value.length; i++) {
+		const t = selectedTracks.value[i];
+		if(t.id == data.id) {
+			selectedTracks.value.splice(i, 1);
+			break;
 		}
 	}
-
-	/**
-	 * Submits the mix
-	 */
-	public submitMix():void {
-		let ids = this.selectedTracks.map(t => t.id);
-		this.$router.push({name:"player/tracks", params:{tracksids:ids.join(",")}});
-	}
-
-	@Watch("$store.state.volume", {immediate: true, deep:true})
-	public onVolumeChange(a, b):void {
-		if(!this.audioPlayer) return;
-		this.audioPlayer.volume = this.$store.state.volume;
-	}
-
-	/**
-	 * Called when a track is selected on auto complete form
-	 */
-	public onSelectTrack(track:TrackData):void {
-		this.selectedTracks.push(track);
-	}
-
+	audioPlayer.stopTrack(data);
 }
+
+/**
+ * Stops a specific track
+ */
+function stopTrack(t:TrackData):void {
+	t.isPlaying = false;
+	audioPlayer.stopTrack(t);
+	for (let i = 0; i < selectedTracks.value.length; i++) {
+		if(selectedTracks.value[i].isPlaying) return;
+	}
+	testing.value = false;
+}
+
+/**
+ * Start mix testing
+ */
+function testMix():void {
+	if(testing.value) {
+		audioPlayer.stopAll();
+		testing.value = false;
+		return;
+	}
+	testing.value = true;
+	loadingAudio.value = true;
+	audioPlayer.populate(selectedTracks.value);
+	for (let i = 0; i < selectedTracks.value.length; i++) {
+		selectedTracks.value[i].isPlaying = true;
+	}
+}
+
+/**
+ * Submits the mix
+ */
+function submitMix():void {
+	let ids = selectedTracks.value.map(t => t.id);
+	router.push({name:"player/tracks", params:{tracksids:ids.join(",")}});
+}
+
+watch(() => storeMain.volume, () => {
+	if(!audioPlayer) return;
+	audioPlayer.volume = storeMain.volume;
+}, {immediate: true});
+
+/**
+ * Called when a track is selected on auto complete form
+ */
+function onSelectTrack(track:TrackData):void {
+	selectedTracks.value.push(track);
+}
+
 </script>
 
 <style scoped lang="less">

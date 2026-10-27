@@ -13,126 +13,113 @@
 		</div>
 	</div>
 </template>
+<script setup lang="ts">
+import { useStoreMain } from "@/store";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 
-<script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import Button from './Button.vue';
+const props = withDefaults(defineProps<{
+	twitchMode?:boolean;
+	horizontal?:boolean;
+}>(), {
+	twitchMode:false,
+	horizontal:false,
+});
 
-@Component({
-	components:{
-		Button,
+const storeMain = useStoreMain();
+
+const arrow = useTemplateRef<SVGElement>("arrow");
+
+const expand = ref<boolean>(false);
+const dragging = ref<boolean>(false);
+const isMouseOver = ref<boolean>(false);
+const prevVolume = ref<number>(.5);
+const volume = ref<number>(.5);
+
+let mouseUpHandler:any;
+let mouseMoveHandler:any;
+
+const mute = computed(():boolean => {
+	return volume.value == 0;
+});
+
+const classes = computed(():string[] => {
+	let res = ["volumebutton"];
+	if(expand.value) res.push("expand");
+	if(props.twitchMode !== false) res.push("twitchMode");
+	if(props.horizontal !== false) res.push("horizontal");
+	return res;
+});
+
+const styles = computed(():any => {
+	let percent = (1-volume.value) * 100;
+	return {
+		clipPath: "polygon(0 "+percent+"%, 100% "+percent+"%, 100% 100%, 0 100%)",
 	}
-})
-export default class VolumeButton extends Vue {
+});
 
-	@Prop({default:.5})
-	public value:number;
+onMounted(() => {
+	volume.value = prevVolume.value = storeMain.volume;
 
-	@Prop({default:false})
-	public twitchMode:boolean;
+	mouseUpHandler = (e) => onRelease(e);
+	mouseMoveHandler = (e) => onMove(e);
+	document.addEventListener("mouseup", mouseUpHandler);
+	document.addEventListener("touchend", mouseUpHandler);
+	document.addEventListener("mousemove", mouseMoveHandler);
+	document.addEventListener("touchmove", mouseMoveHandler);
+});
 
-	@Prop({default:false})
-	public horizontal:boolean;
+onBeforeUnmount(() => {
+	document.removeEventListener("mouseup", mouseUpHandler);
+	document.removeEventListener("touchend", mouseUpHandler);
+	document.removeEventListener("mousemove", mouseMoveHandler);
+	document.removeEventListener("touchmove", mouseMoveHandler);
+});
 
-	public expand:boolean = false;
-	public dragging:boolean = false;
-	public isMouseOver:boolean = false;
-	public prevVolume:number = .5;
-	public volume:number = .5;
-
-	private mouseUpHandler:any;
-	private mouseMoveHandler:any;
-
-	public get mute():boolean {
-		return this.volume == 0;
+function onTouchStartHolder(e:TouchEvent):void {
+	if(!isMouseOver.value) {
+		e.preventDefault();
 	}
-
-	public get classes():string[]{
-		let res = ["volumebutton"];
-		if(this.expand) res.push("expand");
-		if(this.twitchMode !== false) res.push("twitchMode");
-		if(this.horizontal !== false) res.push("horizontal");
-		return res;
-	}
-
-	public get styles():any{
-		let percent = (1-this.volume) * 100;
-		return {
-			clipPath: "polygon(0 "+percent+"%, 100% "+percent+"%, 100% 100%, 0 100%)",
-		}
-	}
-
-	public mounted():void {
-		this.volume = this.prevVolume = this.$store.state.volume;
-
-		this.mouseUpHandler = (e) => this.onRelease(e);
-		this.mouseMoveHandler = (e) => this.onMove(e);
-		document.addEventListener("mouseup", this.mouseUpHandler);
-		document.addEventListener("touchend", this.mouseUpHandler);
-		document.addEventListener("mousemove", this.mouseMoveHandler);
-		document.addEventListener("touchmove", this.mouseMoveHandler);
-	}
-
-	public beforeDestroy():void {
-		document.removeEventListener("mouseup", this.mouseUpHandler);
-		document.removeEventListener("touchend", this.mouseUpHandler);
-		document.removeEventListener("mousemove", this.mouseMoveHandler);
-		document.removeEventListener("touchmove", this.mouseMoveHandler);
-	}
-
-	private toggleSound():void {
-		
-	}
-
-	public onTouchStartHolder(e:TouchEvent):void {
-		if(!this.isMouseOver) {
-			e.preventDefault();
-		}
-		this.isMouseOver = true;
-	}
-
-	public onClick():void {
-		if(this.volume > 0) this.prevVolume = this.volume;
-		if(this.expand) {
-			this.volume = this.volume > 0? 0 : this.prevVolume == 0? .5 : this.prevVolume;
-		}
-	}
-
-	public onPress(e:MouseEvent|TouchEvent):void {
-		this.dragging = true;
-		this.onMove(e);
-	}
-
-	public onRelease(e:MouseEvent|TouchEvent):void {
-		this.dragging = false;
-		if(!this.isMouseOver) this.expand = false;
-	}
-
-	public onMove(e:MouseEvent|TouchEvent):void {
-		if(!this.dragging) return;
-		let arrow = <SVGElement>this.$refs.arrow;
-		let bounds = arrow.getBoundingClientRect();
-		if(this.horizontal !== false) {
-			let mouseX = e instanceof MouseEvent? (<MouseEvent>e).clientX : (<TouchEvent>e).touches[0].clientX;
-			this.volume = Math.min(1, Math.max(0, (mouseX - bounds.left)/bounds.width));
-		}else{
-			let mouseY = e instanceof MouseEvent? (<MouseEvent>e).clientY : (<TouchEvent>e).touches[0].clientY;
-			this.volume = Math.min(1, Math.max(0, 1-(mouseY - bounds.top)/bounds.height));
-		}
-	}
-
-	@Watch("isMouseOver")
-	public onMouseOverChange():void {
-		if(!this.isMouseOver && !this.dragging) this.expand = false;
-		if(this.isMouseOver) this.expand = true;
-	}
-
-	@Watch("volume")
-	public onVolumeChange():void {
-		this.$store.dispatch("setVolume", this.volume);
-	}
-
+	isMouseOver.value = true;
 }
+
+function onClick():void {
+	if(volume.value > 0) prevVolume.value = volume.value;
+	if(expand.value) {
+		volume.value = volume.value > 0? 0 : prevVolume.value == 0? .5 : prevVolume.value;
+	}
+}
+
+function onPress(e:MouseEvent|TouchEvent):void {
+	dragging.value = true;
+	onMove(e);
+}
+
+function onRelease(e:MouseEvent|TouchEvent):void {
+	dragging.value = false;
+	if(!isMouseOver.value) expand.value = false;
+}
+
+function onMove(e:MouseEvent|TouchEvent):void {
+	if(!dragging.value) return;
+	let bounds = arrow.value.getBoundingClientRect();
+	if(props.horizontal !== false) {
+		let mouseX = e instanceof MouseEvent? (<MouseEvent>e).clientX : (<TouchEvent>e).touches[0].clientX;
+		volume.value = Math.min(1, Math.max(0, (mouseX - bounds.left)/bounds.width));
+	}else{
+		let mouseY = e instanceof MouseEvent? (<MouseEvent>e).clientY : (<TouchEvent>e).touches[0].clientY;
+		volume.value = Math.min(1, Math.max(0, 1-(mouseY - bounds.top)/bounds.height));
+	}
+}
+
+watch(isMouseOver, () => {
+	if(!isMouseOver.value && !dragging.value) expand.value = false;
+	if(isMouseOver.value) expand.value = true;
+});
+
+watch(volume, () => {
+	storeMain.setVolume(volume.value);
+});
+
 </script>
 
 <style scoped lang="less">

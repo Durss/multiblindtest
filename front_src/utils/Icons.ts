@@ -1,7 +1,8 @@
 // Automatic icon discovery with Vite
 const iconModules = import.meta.glob<string>('@/assets/icons/*.svg', { 
   eager: true,
-  as: 'url'
+  query: '?url',
+  import: 'default'
 });
 
 // Build icon map automatically from filenames

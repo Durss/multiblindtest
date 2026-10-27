@@ -1,148 +1,146 @@
 <template>
-  <div class="tooltip">
+  <div class="tooltip" ref="rootEl">
 	  <div class="holder" :class="upsideDown? 'upsideDown' : ''" ref="holder" v-show="opened" key="tooltip">
 		  <div ref="content"></div>
 		  <div class="tip"></div>
 	  </div>
   </div>
 </template>
-
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
+<script setup lang="ts">
+import { useStoreMain } from "@/store";
 import gsap from 'gsap';
+import { nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 
-@Component({
-	components:{}
-})
-export default class Tooltip extends Vue {
+const storeMain = useStoreMain();
 
-    public upsideDown:boolean = false;
-    private opened:boolean = false;
-	
-    private currentContent:string;
-    private mouseMoveHandler:any;
-    private currentTarget:HTMLElement;
-    private lastMouseEvent:MouseEvent;
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const holder = useTemplateRef<HTMLDivElement>("holder");
+const content = useTemplateRef<HTMLDivElement>("content");
 
-	public mounted():void {
-		this.initialize();
+const upsideDown = ref<boolean>(false);
+const opened = ref<boolean>(false);
+
+let currentContent:string;
+let mouseMoveHandler:any;
+let currentTarget:HTMLElement;
+let lastMouseEvent:MouseEvent;
+
+onMounted(() => {
+	initialize();
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener('mousemove', mouseMoveHandler);
+});
+
+watch(() => storeMain.tooltip, () => {
+	let data = storeMain.tooltip;
+	if(data) {
+		show(data);
+	}else{
+		hide();
 	}
+});
 
-	public beforeDestroy():void {
-		document.removeEventListener('mousemove', this.mouseMoveHandler);
+/**
+ * Opens the tooltip
+ * @param content
+ */
+function show(contentValue:string):void {
+	if(currentContent == contentValue && opened.value) return;
+	opened.value = true;
+	currentContent = contentValue;
+	content.value.innerHTML = contentValue;
+	gsap.killTweensOf(rootEl.value!);
+	gsap.to(rootEl.value!, {duration:.2, opacity:1});
+
+	if(lastMouseEvent) {
+		nextTick().then(_=> {
+			onMouseMove(lastMouseEvent, false);
+		})
 	}
-
-	@Watch("$store.state.tooltip")
-	private tooltipStateChange():void {
-		let data = this.$store.state.tooltip;
-		if(data) {
-			this.show(data);
-		}else{
-			this.hide();
-		}
-	}
-
-	/**
-	 * Opens the tooltip
-	 * @param content
-	 */
-	public show(content:string):void {
-		if(this.$store.state.mobile) return;
-		if(this.currentContent == content && this.opened) return;
-		this.opened = true;
-		this.currentContent = content;
-		(<HTMLElement>this.$refs.content).innerHTML = content;
-		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {duration:.2, opacity:1});
-		
-		if(this.lastMouseEvent) {
-			this.$nextTick().then(_=> {
-				this.onMouseMove(this.lastMouseEvent, false);
-			})
-		}
-	}
-
-	/**
-	 * Hides the tooltip
-	 */
-	public hide():boolean {
-		if(!this.opened) return false;
-		this.opened = false;
-		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {duration:.2, opacity:0, onComplete:()=>this.onHideComplete()});
-		return true;
-	}
-
-    /**
-     * Initializes the class
-     */
-    private initialize():void {
-		this.opened = false;
-
-		gsap.set(this.$el, {opacity:0});
-		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
-		document.addEventListener('mousemove', this.mouseMoveHandler);
-	}
-
-	/**
-	 * Moves the tooltip
-	 * @param e
-	 */
-	private onMouseMove(e:MouseEvent, checkTarget:boolean = true):void {
-		this.lastMouseEvent = e;
-		if(checkTarget) {
-			let target:HTMLDivElement = <HTMLDivElement>e.target;
-			while(target && target != document.body) {
-				if(target.dataset && target.dataset.tooltip) break;
-				target = <HTMLDivElement>target.parentNode;
-			}
-			//Target can be null if pressing mouse inside window and moving outside browser while keeping mouse pressed (at least on chrome)
-			if(target && target != document.body) {
-				this.$store.dispatch("openTooltip", target.dataset.tooltip);
-			}else if(this.opened) {
-				this.$store.dispatch("closeTooltip");
-			}
-		}
-
-		if(!this.opened) return;
-
-		let holder = <HTMLDivElement>this.$refs.holder;
-		let px:number = (e.clientX - holder.clientWidth * .5);
-		let py:number = (e.clientY - holder.clientHeight - 20);
-		px = Math.max(0, Math.min(window.innerWidth - holder.clientWidth, px))
-		py = Math.max(0, Math.min(window.innerHeight - holder.clientHeight, py))
-		if(py < 50) {
-			py = e.clientY + 30;
-			this.upsideDown = true;
-		}else{
-			this.upsideDown = false;
-		}
-		holder.style.left = px+'px';
-		holder.style.top = py+'px';
-
-		//Deep check if current hover item is still on DOM
-		//Vue can remove/recreate items anytime, in this case
-		//"mouseout" event is not fired which blocks the tooltip
-		if(this.currentTarget) {
-			let t:any = this.currentTarget;
-			while(t.parentNode && t.parentNode != document.body){
-				t = t.parentNode;
-			}
-			if(!t || !t.parentNode) {
-				this.currentTarget = null;
-				this.$store.dispatch("closeTooltip");
-			}
-		}
-	}
-
-	/**
-	 * Called when hidding completes
-	 */
-	private onHideComplete():void {
-		this.opened = false;
-	}
-
 }
+
+/**
+ * Hides the tooltip
+ */
+function hide():boolean {
+	if(!opened.value) return false;
+	opened.value = false;
+	gsap.killTweensOf(rootEl.value!);
+	gsap.to(rootEl.value!, {duration:.2, opacity:0, onComplete:()=>onHideComplete()});
+	return true;
+}
+
+/**
+ * Initializes the class
+ */
+function initialize():void {
+	opened.value = false;
+
+	gsap.set(rootEl.value!, {opacity:0});
+	mouseMoveHandler = (e:MouseEvent) => onMouseMove(e);
+	document.addEventListener('mousemove', mouseMoveHandler);
+}
+
+/**
+ * Moves the tooltip
+ * @param e
+ */
+function onMouseMove(e:MouseEvent, checkTarget:boolean = true):void {
+	lastMouseEvent = e;
+	if(checkTarget) {
+		let target:HTMLDivElement = <HTMLDivElement>e.target;
+		while(target && target != document.body) {
+			if(target.dataset && target.dataset.tooltip) break;
+			target = <HTMLDivElement>target.parentNode;
+		}
+		//Target can be null if pressing mouse inside window and moving outside browser while keeping mouse pressed (at least on chrome)
+		if(target && target != document.body) {
+			storeMain.tooltip = target.dataset.tooltip;
+		}else if(opened.value) {
+			storeMain.tooltip = null;
+		}
+	}
+
+	if(!opened.value) return;
+
+	let holderEl = holder.value;
+	let px:number = (e.clientX - holderEl.clientWidth * .5);
+	let py:number = (e.clientY - holderEl.clientHeight - 20);
+	px = Math.max(0, Math.min(window.innerWidth - holderEl.clientWidth, px))
+	py = Math.max(0, Math.min(window.innerHeight - holderEl.clientHeight, py))
+	if(py < 50) {
+		py = e.clientY + 30;
+		upsideDown.value = true;
+	}else{
+		upsideDown.value = false;
+	}
+	holderEl.style.left = px+'px';
+	holderEl.style.top = py+'px';
+
+	//Deep check if current hover item is still on DOM
+	//Vue can remove/recreate items anytime, in this case
+	//"mouseout" event is not fired which blocks the tooltip
+	if(currentTarget) {
+		let t:any = currentTarget;
+		while(t.parentNode && t.parentNode != document.body){
+			t = t.parentNode;
+		}
+		if(!t || !t.parentNode) {
+			currentTarget = null;
+			storeMain.tooltip = null;
+		}
+	}
+}
+
+/**
+ * Called when hidding completes
+ */
+function onHideComplete():void {
+	opened.value = false;
+}
+
 </script>
 
 <style scoped lang="less">

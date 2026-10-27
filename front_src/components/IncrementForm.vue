@@ -1,129 +1,112 @@
 ﻿<template>
 	<div class="incrementform">
-		<label class="title" :for="inputId" v-if="title">{{title}}</label>
+		<label class="title" :for="inputId" v-if="props.title">{{ props.title }}</label>
 		<div class="content" @mousewheel="onMouseWheel">
-			<Button :icon="$getIcon('minus2')"
-				@mousedown.native="startIncrement(-10 * step);"
-				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(-10 * step);"
-				@touchend.native="stopIncrement($event);"
-				class="button"
-				v-if="tenStep"
-			/>
-			<Button :icon="$getIcon('minus')"
-				@mousedown.native="startIncrement(-step);"
-				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(-step);"
-				@touchend.native="stopIncrement($event);"
-				class="button"
-			/>
-			<input type="number" v-model.lazy="valueLocal" :min="minValue" :max="maxValue" class="dark" :id="inputId">
-			<Button :icon="$getIcon('plus')"
-				@mousedown.native="startIncrement(step);"
-				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(step);"
-				@touchend.native="stopIncrement($event);"
-				class="button"
-			/>
-			<Button :icon="$getIcon('plus2')"
-				@mousedown.native="startIncrement(10 * step);"
-				@mouseup.native="stopIncrement($event);"
-				@touchstart.native="startIncrement(10 * step);"
-				@touchend.native="stopIncrement($event);"
-				class="button"
-				v-if="tenStep"
-			/>
+			<Button :icon="getIcon('minus2')" @pointerdown="startIncrement(-10 * props.step);"
+				@pointerup="stopIncrement()" @pointerleave="stopIncrement()" @pointercancel="stopIncrement()"
+				class="button" v-if="props.tenStep" />
+			<Button :icon="getIcon('minus')" @pointerdown="startIncrement(-props.step);"
+				@pointerup="stopIncrement()" @pointerleave="stopIncrement()" @pointercancel="stopIncrement()"
+				class="button" />
+			<input type="number" v-model.lazy="valueLocal" :min="props.minValue" :max="props.maxValue" class="dark"
+				:id="inputId">
+			<Button :icon="getIcon('plus')" @pointerdown="startIncrement(props.step);"
+				@pointerup="stopIncrement()" @pointerleave="stopIncrement()" @pointercancel="stopIncrement()"
+				class="button" />
+			<Button :icon="getIcon('plus2')" @pointerdown="startIncrement(10 * props.step);"
+				@pointerup="stopIncrement()" @pointerleave="stopIncrement()" @pointercancel="stopIncrement()"
+				class="button" v-if="props.tenStep" />
 		</div>
 	</div>
 </template>
-
-<script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+<script setup lang="ts">
+import { getIcon } from '@/utils/Icons';
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import Button from './Button.vue';
 
-@Component({
-	components:{
-		Button,
-	}
-})
-export default class IncrementForm extends Vue {
+const props = withDefaults(defineProps<{
+	title?: string;
+	modelValue?: number;
+	minValue?: number;
+	maxValue?: number;
+	step?: number;
+	tenStep?: boolean;
+}>(), {
+	minValue: 1,
+	maxValue: 30,
+	step: 1,
+	tenStep: false,
+});
 
-	@Prop()
-	public title:string;
+const emit = defineEmits<{
+	"update:modelValue": [value: number];
+}>();
 
-	@Prop()
-	public value:number;
+const inputId: string = "incrementInput_" + Math.round(Math.random() * 999999);
+let incTimeout: number;
+let incInterval: number;
+const valueLocal = ref<number>(0);
 
-	@Prop({default:1})
-	public minValue:number;
+onMounted(() => {
+	valueLocal.value = props.modelValue;
+});
 
-	@Prop({default:30})
-	public maxValue:number;
+onBeforeUnmount(() => {
+	stopIncrement();
+});
 
-	@Prop({default:1})
-	public step:number;
+watch(() => props.modelValue, () => {
+	valueLocal.value = props.modelValue;
+});
 
-	@Prop({default:false})
-	public tenStep:boolean;
-	
-	public inputId:string = "incrementInput_"+Math.round(Math.random() * 999999);
-	public incInterval:number;
-	public valueLocal:number = 0;
+watch(valueLocal, () => {
+	valueLocal.value = Math.max(props.minValue, Math.min(props.maxValue, valueLocal.value));
+	emit("update:modelValue", valueLocal.value);
+});
 
-	public mounted():void {
-		this.valueLocal = this.value;
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-	@Watch("value")
-	private changeValue():void {
-		this.valueLocal = this.value;
-	}
-
-	@Watch("valueLocal")
-	private changeCount():void {
-		this.valueLocal = Math.max(this.minValue, Math.min(this.maxValue, this.valueLocal));
-		this.$emit("input", this.valueLocal);
-	}
-
-	public onMouseWheel(e:WheelEvent):void {
-		let delta = e.deltaY? e.deltaY : e.deltaX;
-		if(delta > 0) this.valueLocal-=this.step;
-		if(delta < 0) this.valueLocal+=this.step;
-		this.valueLocal = Math.round(this.valueLocal*100)/100;//Prevents fucked up JS number rounding to create values like 1.000000001
-		e.preventDefault();
-	}
-
-	public startIncrement(inc:number):void {
-		this.valueLocal += inc;
-		this.valueLocal = Math.round(this.valueLocal*100)/100;//Prevents fucked up JS number rounding to create values like 1.000000001
-		clearInterval(this.incInterval);
-		this.incInterval = setInterval(_=> { this.valueLocal += inc; }, 100);
-	}
-
-	public stopIncrement(e:MouseEvent|TouchEvent):void {
-		clearInterval(this.incInterval);
-		e.preventDefault();
-	}
-
+function onMouseWheel(e: WheelEvent): void {
+	let delta = e.deltaY ? e.deltaY : e.deltaX;
+	if (delta > 0) doInc(-props.step);
+	if (delta < 0) doInc(props.step);
+	e.preventDefault();
 }
+
+function startIncrement(inc: number): void {
+	doInc(inc);
+	stopIncrement();
+	//Only start auto-repeat after a hold delay, otherwise a touchpad tap (which
+	//keeps the button down ~300ms) increments multiple times
+	incTimeout = setTimeout(_ => {
+		incInterval = setInterval(_ => { doInc(inc); }, 100);
+	}, 500);
+}
+
+function stopIncrement(): void {
+	clearTimeout(incTimeout);
+	clearInterval(incInterval);
+}
+
+function doInc(value: number): void {
+	valueLocal.value += value;
+	valueLocal.value = Math.round(valueLocal.value * 100) / 100;//Prevents fucked up JS number rounding that creates values like 1.000000001
+}
+
 </script>
 
 <style scoped lang="less">
-.incrementform{
+.incrementform {
 	.title {
 		white-space: nowrap;
 		font-size: 18px;
 		display: block;
 	}
+
 	.content {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		color: @mainColor_dark;
+
 		// .blockContent();
 		.count {
 			border: 1px solid @mainColor_normal;
@@ -132,23 +115,27 @@ export default class IncrementForm extends Vue {
 			padding: 7px;
 			margin: 0 10px;
 		}
-		input{
+
+		input {
 			width: 35px;
 			padding: 0;
 			text-align: center;
 			margin: 0 10px;
+
 			//Disable up/down arrows
-			&::-webkit-inner-spin-button, 
-			&::-webkit-outer-spin-button { 
+			&::-webkit-inner-spin-button,
+			&::-webkit-outer-spin-button {
 				appearance: none;
-				margin: 0; 
+				margin: 0;
 			}
 		}
+
 		.button {
 			width: 25px;
 			height: 25px;
 			padding: 0;
-			::v-deep img {
+
+			:deep(img) {
 				width: auto;
 				max-height: 60%;
 				max-width: 90%;

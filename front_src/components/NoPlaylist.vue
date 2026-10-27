@@ -1,7 +1,7 @@
 <template>
 	<div class="noplaylist">
-		<p class="title" v-html="$t('playlists.noPlaylist.head', {refresh:$t('playlists.refresh')})"></p>
-		<p v-html="$t('playlists.noPlaylist.suggestion')"></p>
+		<p class="title" v-html="t('playlists.noPlaylist.head', {refresh:t('playlists.refresh')})"></p>
+		<p v-html="t('playlists.noPlaylist.suggestion')"></p>
 		<ul class="list">
 			<li><a class="button" href="https://open.spotify.com/playlist/09BfWHr6tID8xqOpDy0W4t?si=J98RJ-s9QUWApYRmKFWtAg" target="_blank"><img src="@/assets/icons/playlist.svg" class="icon">Mega Blindtest</a></li>
 			<li><a class="button" href="https://open.spotify.com/playlist/1kTNITnvHTzXc6iPjr9KYy?si=Mt49vXMwRii8gXtTcWR52g" target="_blank"><img src="@/assets/icons/playlist.svg" class="icon">Blindtest Disney</a></li>
@@ -12,27 +12,11 @@
 		</ul>
 	</div>
 </template>
+<script setup lang="ts">
+import { useI18n } from "vue-i18n";
 
-<script lang="ts">
-import { Component, Inject, Model, Prop, Vue, Watch, Provide } from "vue-property-decorator";
-import Button from './Button.vue';
+const { t } = useI18n();
 
-@Component({
-	components:{
-		Button
-	}
-})
-export default class NoPlaylist extends Vue {
-
-	public mounted():void {
-		
-	}
-
-	public beforeDestroy():void {
-		
-	}
-
-}
 </script>
 
 <style scoped lang="less">
@@ -47,7 +31,7 @@ export default class NoPlaylist extends Vue {
 	}
 
 	.title {
-		::v-deep strong {
+		:deep(strong) {
 			// color: @mainColor_warn;
 			background-color: rgba(255,255,255,.3);
 			padding: 2px 5px;
